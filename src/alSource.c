@@ -1332,7 +1332,7 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
             dptr = _oalFindSourceById(ids[--i], cs, &pos);
             if (dptr)
             {
-                _oalDevice *dev = ctx->parent_device;
+                _oalDevice *dev = (_oalDevice *)ctx->parent_device;
                 src = _intBufGetDataPtr(dptr);
 
                 if (dev->lst.frame_no == 0) {
@@ -1341,7 +1341,7 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
                 else
                 {
                      int pos = dev->lst.frame_no-1;
-                     int res = aaxAudioFrameRegisterEmitter(dev->lst.frame[pos],
+                     aaxAudioFrameRegisterEmitter(dev->lst.frame[pos],
                                                   src->handle);
                      aaxEmitterSetMode(src->handle, AAX_POSITION, AAX_ABSOLUTE);
                 }

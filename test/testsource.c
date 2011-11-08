@@ -44,9 +44,8 @@ int main(int argc, char **argv)
 {
    ALCdevice *device = NULL;
    ALCcontext *context = NULL;
-   char *devname, *infile;
+   char *devname;
 
-   infile = getInputFile(argc, argv, FILE_PATH);
    devname = getDeviceName(argc, argv);
 
    device = alcOpenDevice(devname);
@@ -62,11 +61,10 @@ int main(int argc, char **argv)
       ALuint pos, buffer, source[MAXSRC];
       unsigned int randfact = RAND_MAX/MAXSRC;
       unsigned int q, no_samples, freq;
-      char bps, channels, data[1024];
+      char bps, data[1024];
       ALenum format;
 
       bps = 1;
-      channels = 1;
       no_samples = 1024;
       freq = 44100;
       format = AL_FORMAT_MONO8;

@@ -87,6 +87,7 @@ int main(int argc, char **argv)
          else if ((bps == 8) && (channels == 2)) format = AL_FORMAT_STEREO8;
          else if ((bps == 16) && (channels == 1)) format = AL_FORMAT_MONO16;
          else if ((bps == 16) && (channels == 2)) format = AL_FORMAT_STEREO16;
+         else exit(-1);
 
          alGetError();
          alGenBuffers(1, &buffer);

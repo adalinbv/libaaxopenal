@@ -11,7 +11,7 @@ int main()
 {
    ALCdevice *device[4];
    ALCcontext *context[4][4];
-   char *s;
+// char *s;
    int i;
 
    int attributes[] = { ALC_FREQUENCY, 44100,
@@ -19,21 +19,21 @@ int main()
                         0 };
 
    printf("testing call to al withouth a proper context\n");
-   s = (char *)alGetString(AL_VENDOR);
+// s = (char *)alGetString(AL_VENDOR);
    testForALError();
 
    printf("testing an arbitrary context:\n");
    alcMakeContextCurrent((ALCcontext*)0xFF30BE);
    context[0][0] = alcCreateContext((ALCdevice*)0xFF0000, attributes);
-   printf("context: %x\n", (unsigned int)context[0][0]);
+   printf("context: %lx\n", (unsigned long)context[0][0]);
 
    printf("Opening a non exsisting 'Test' device:\n");
    device[0] = alcOpenDevice("Test");
-   printf("device: %x\n", (unsigned int)device[0]);
+   printf("device: %lx\n", (unsigned long)device[0]);
 
    printf("create a new context based on the previous result: \n");
    context[0][0] = alcCreateContext(device[0], attributes);
-   printf("context: %x\n", (unsigned int)context[0][0]);
+   printf("context: %lx\n", (unsigned long)context[0][0]);
 
    printf("Make previous context current:\n");
    alcMakeContextCurrent(context[0][0]);

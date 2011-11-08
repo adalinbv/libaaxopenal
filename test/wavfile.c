@@ -77,12 +77,14 @@ fileLoad(const char *file, unsigned int *no_samples,
          int *freq, char *bits_sample, char *no_tracks, unsigned int *format)
 {
    static const unsigned int _t = 1;
-   unsigned int buflen, blocksz;
+   unsigned int buflen;
    char buf[4];
    void *data;
    int i, fd;
+   int res;
 
 #if !_OPENAL_SUPPORT
+   unsigned int blocksz;
    *block = 1;
 #endif
 
@@ -91,7 +93,8 @@ fileLoad(const char *file, unsigned int *no_samples,
    fd = open(file, O_RDONLY);
    if (fd < 0) return 0;
 
-   read(fd, &_oalSoftwareWaveHeader, WAVE_EXT_HEADER_SIZE*4);
+   res = read(fd, &_oalSoftwareWaveHeader, WAVE_EXT_HEADER_SIZE*4);
+   if (res < 0) return 0;
    if (__big_endian)
    {
       for (i=0; i<WAVE_EXT_HEADER_SIZE; i++) {
@@ -114,8 +117,8 @@ fileLoad(const char *file, unsigned int *no_samples,
    *no_tracks = _oalSoftwareWaveHeader[5] >> 16;
    *format = _oalSoftwareWaveHeader[5] & 0xFFFF;
    *bits_sample = _oalSoftwareWaveHeader[8] >> 16;
-   blocksz = _oalSoftwareWaveHeader[8] & 0xFFFF;
 #if !_OPENAL_SUPPORT
+   blocksz = _oalSoftwareWaveHeader[8] & 0xFFFF;
    *block = blocksz;
 #endif
 
@@ -123,13 +126,15 @@ fileLoad(const char *file, unsigned int *no_samples,
    lseek(fd, 32L, SEEK_SET);
    do
    {
-      read(fd, buf, 1);
+      res = read(fd, buf, 1);
+      if (res < 0) return 0;
       if (buf[0] == 'd')
       {
-         read(fd, buf+1, 3);
+         res = read(fd, buf+1, 3);
          if (buf[0] == 'd' && buf[1] == 'a' && buf[2] == 't' && buf[3] == 'a')
          {
-            read(fd, &buflen, 4); /* chunk size */
+            res = read(fd, &buflen, 4); /* chunk size */
+            if (res < 0) return 0;
             if (__big_endian) buflen = BSWAP32(buflen);
             break;
          }
@@ -180,7 +185,9 @@ fileLoad(const char *file, unsigned int *no_samples,
          printf("unknown (0x%X)\n", *format);
       }
 
+#if !_OPENAL_SUPPORT
       printf("Samples per block:\t%i\n", blocksz);
+#endif
       printf("No. samples:\t\t%i\n", *no_samples);
 
       duration = buflen * 8;

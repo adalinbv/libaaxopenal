@@ -53,10 +53,11 @@ static const _intBuffers _oalContextExtensions;
 static const _intBufferData _oalContextEnumValue[];
 static const char *_oalContextErrorStrings[];
 
-#define _oalDeviceToId(a)	(uint32_t)(a) >> 20
-#define _oalIdToDevice(a)	(uint32_t)(a) << 20
-#define _oalContextMask(a)	(uint32_t)(a) & 0x000FFFFF
-#define _oalDeviceMask(a)	(uint32_t)(a) & 0xFFF00000
+#define _oalDeviceToId(a)	(uint32_t)((long)(a) >> 20)
+#define _oalIdToDevice(a)	(uint32_t)((long)(a) << 20)
+#define _oalContextMask(a)	(uint32_t)((long)(a) & 0x000FFFFF)
+#define _oalDeviceMask(a)	(uint32_t)((long)(a) & 0xFFF00000)
+#define INT_TO_PTR(a)		(void*)(long)(a)
 
 static _intBufferData *_oalDeviceContextAdd(_oalDevice *);
 
@@ -104,7 +105,7 @@ alcOpenDevice(const ALCchar *name)
 
                 id = _intBufPosToId(pos);
                 devid = _oalIdToDevice(id);
-                device = (ALCdevice *)devid;
+                device = INT_TO_PTR(devid);
 
                 d->lst.frame_no = 0;
                 d->lst.frame_max = _oalAAXGetNoCores();
@@ -229,7 +230,7 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
     _oalStateCreate(ctx);
     _oalSourcesCreate(ctx);
 
-    return (ALCcontext *)id;
+    return INT_TO_PTR(id);
 }
 
 ALCboolean
@@ -254,7 +255,7 @@ alcMakeContextCurrent(ALCcontext *context)
                 pos = _intBufIdToPos(id);
                 if (pos != UINT_MAX)
                 {
-                    _oalCurrentContext = (unsigned int)context;
+                    _oalCurrentContext = (unsigned long)context;
                     dev->current_context = _intBufIdToPos(id);
                 }
             }
@@ -352,7 +353,7 @@ alcDestroyContext(ALCcontext *context)
 ALCcontext *
 alcGetCurrentContext(void)
 {
-    return (ALCcontext *)_oalCurrentContext;
+    return INT_TO_PTR(_oalCurrentContext);
 }
 
 ALCdevice *
@@ -367,7 +368,7 @@ alcGetContextsDevice(ALCcontext *context)
         dev_id = _oalDeviceMask(context);
     }
 
-    return (ALCdevice *)dev_id;
+    return INT_TO_PTR(dev_id);
 }
 
 void *
@@ -540,7 +541,7 @@ alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bu
                 uint32_t id, devid;
                 id = _intBufPosToId(pos);
                 devid = _oalIdToDevice(id);
-                device = (ALCdevice *)devid;
+                device = INT_TO_PTR(devid);
             }
         }
     }

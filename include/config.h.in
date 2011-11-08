@@ -41,6 +41,7 @@
 
 /* Define to 1 if you have the <syslog.h> header file. */
 #undef HAVE_SYSLOG_H
+#cmakedefine HAVE_SYSLOG_H @HAVE_SYSLOG_H@
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
