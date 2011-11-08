@@ -1,0 +1,6 @@
+A very thin emulation layer that uses AeonWave to create one of the fastest rendering OpenAL implementations available.
+
+This package can be used to replace OpenAL-Soft and OpenAL-Sample.
+AeonWave-OpenAL will render 5 to 7 times faster than either OpenAL-Soft or OpenAL-Sample because makes use of the hardware accelerated rendering engine of AeonWave.
+
+OpenAL is a cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications. Its API style and conventions deliberately resemble those of OpenGL.
