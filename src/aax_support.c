@@ -147,7 +147,7 @@ _oalGetBytesPerSampleFromFormat(ALenum format)
 enum aaxFormat
 _oalFormatToAAXFormat(ALenum format)
 {
-    enum aaxFormat ret = AAX_FORMAT_PCM16S;
+    enum aaxFormat ret = AAX_PCM16S;
 
     switch(format)
     {
@@ -168,41 +168,41 @@ _oalFormatToAAXFormat(ALenum format)
     case AL_FORMAT_51CHN8:
     case AL_FORMAT_61CHN8:
     case AL_FORMAT_71CHN8:
-        ret = AAX_FORMAT_PCM8U;
+        ret = AAX_PCM8U;
         break;
 
     case AL_FORMAT_REAR32:
     case AL_FORMAT_51CHN32:
     case AL_FORMAT_61CHN32:
     case AL_FORMAT_71CHN32:
-        ret = AAX_FORMAT_PCM32S;
+        ret = AAX_PCM32S;
         break;
 
     case AL_FORMAT_MONO_MULAW_EXT:
     case AL_FORMAT_STEREO_MULAW_EXT:
-        ret = AAX_FORMAT_MULAW;
+        ret = AAX_MULAW;
         break;
 
     case AL_FORMAT_MONO_ALAW_EXT:
     case AL_FORMAT_STEREO_ALAW_EXT:
-        ret = AAX_FORMAT_ALAW;
+        ret = AAX_ALAW;
         break;
 
     case AL_FORMAT_MONO_IMA4:
     case AL_FORMAT_STEREO_IMA4:
     case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
     case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
-        ret = AAX_FORMAT_IMA4_ADPCM;
+        ret = AAX_IMA4_ADPCM;
         break;
 
     case AL_FORMAT_MONO_FLOAT32:
     case AL_FORMAT_STEREO_FLOAT32:
-        ret = AAX_FORMAT_FLOAT;
+        ret = AAX_FLOAT;
         break;
 
     case AL_FORMAT_MONO_DOUBLE_EXT:
     case AL_FORMAT_STEREO_DOUBLE_EXT:
-        ret = AAX_FORMAT_DOUBLE;
+        ret = AAX_DOUBLE;
         break;
     }
 
@@ -216,7 +216,7 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
 
     switch(format)
     {
-    case AAX_FORMAT_PCM16S:
+    case AAX_PCM16S:
         if (tracks == 1) ret = AL_FORMAT_MONO16;
         else if (tracks == 2) ret = AL_FORMAT_STEREO16;
         else if (tracks == 4) ret = AL_FORMAT_QUAD16;
@@ -226,7 +226,7 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
         else ret = 0;
         break;
 
-    case AAX_FORMAT_PCM8U:
+    case AAX_PCM8U:
         if (tracks == 1) ret = AL_FORMAT_MONO8;
         else if (tracks == 2) ret = AL_FORMAT_STEREO8;
         else if (tracks == 4) ret = AL_FORMAT_QUAD8;
@@ -236,7 +236,7 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
         else ret = 0;
         break;
 
-    case AAX_FORMAT_PCM32S:
+    case AAX_PCM32S:
         if (tracks == 4) ret = AL_FORMAT_QUAD32;
         else if (tracks == 6) ret = AL_FORMAT_51CHN32;
         else if (tracks == 7) ret = AL_FORMAT_61CHN32;
@@ -244,37 +244,37 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
         else ret = 0;
         break;
 
-    case AAX_FORMAT_FLOAT:
+    case AAX_FLOAT:
         if (tracks == 1) ret = AL_FORMAT_MONO_FLOAT32;
         else if (tracks == 2) ret = AL_FORMAT_STEREO_FLOAT32;
         else ret = 0;
         break;
 
-    case AAX_FORMAT_DOUBLE:
+    case AAX_DOUBLE:
         if (tracks == 1) ret = AL_FORMAT_MONO_DOUBLE_EXT;
         else if (tracks == 2) ret = AL_FORMAT_STEREO_DOUBLE_EXT;
         else ret = 0;
         break;
 
-    case AAX_FORMAT_MULAW:
+    case AAX_MULAW:
         if (tracks == 1) ret = AL_FORMAT_MONO_MULAW_EXT;
         else if (tracks == 2) ret = AL_FORMAT_STEREO_MULAW_EXT;
         else ret = 0;
         break;
 
-    case AAX_FORMAT_ALAW:
+    case AAX_ALAW:
         if (tracks == 1) ret = AL_FORMAT_MONO_ALAW_EXT;
         else if (tracks == 2) ret = AL_FORMAT_STEREO_ALAW_EXT;
         else ret = 0;
         break;
 
-    case AAX_FORMAT_IMA4_ADPCM:
+    case AAX_IMA4_ADPCM:
         if (tracks == 1) ret = AL_FORMAT_MONO_IMA4;
         else if (tracks == 2) ret = AL_FORMAT_STEREO_IMA4;
         else ret = 0;
         break;
 
-    case AAX_FORMAT_PCM24S:
+    case AAX_PCM24S:
     default:
       ret = 0;
     }
