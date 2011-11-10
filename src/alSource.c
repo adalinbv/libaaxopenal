@@ -509,13 +509,19 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
              * specifying a NULL buffer means removing all attached buffers 
              */
             unsigned int num;
-            num = aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED);
-            if (num > 0)
+            num = aaxEmitterGetState(src->handle);
+            if (num == AAX_INITIALIZED || num == AAX_PROCESSED )
             {
-                unsigned int i = num;
-                do {
-                    aaxEmitterRemoveBuffer(src->handle);
-                } while (--i != 0);
+                num = aaxEmitterGetNoBuffers(src->handle, AAX_MAXIMUM);
+                if (num > 0)
+                {
+                    unsigned int i = num;
+                    do {
+                        aaxEmitterRemoveBuffer(src->handle);
+                    } while (--i != 0);
+                }
+            } else {
+               _oalStateSetError(AL_INVALID_OPERATION);
             }
         }
         break;
@@ -642,13 +648,19 @@ alSourceiv(ALuint id, ALenum attrib, const ALint *values)
              * specifying a NULL buffer means removing all attached buffers 
              */
             unsigned int num;
-            num = aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED);
-            if (num > 0)
+            num = aaxEmitterGetState(src->handle);
+            if (num == AAX_INITIALIZED || num == AAX_PROCESSED )
             {
-                unsigned int i = num;
-                do {
-                    aaxEmitterRemoveBuffer(src->handle);
-                } while (--i != 0);
+                num = aaxEmitterGetNoBuffers(src->handle, AAX_MAXIMUM);
+                if (num > 0)
+                {
+                    unsigned int i = num;
+                    do {
+                        aaxEmitterRemoveBuffer(src->handle);
+                    } while (--i != 0);
+                }
+            } else {
+               _oalStateSetError(AL_INVALID_OPERATION);
             }
         }
         break;
@@ -950,7 +962,14 @@ alGetSourcei(ALuint id, ALenum attrib, ALint *value)
         else if (state == AAX_PLAYING) *value = AL_PLAYING;
         else if (state == AAX_STOPPED) *value = AL_STOPPED;
         else if (state == AAX_SUSPENDED) *value = AL_PAUSED;
-        else if (state == AAX_PROCESSED) *value = AL_PROCESSED;
+        else if (state == AAX_PROCESSED)
+        {
+            if (aaxEmitterGetNoBuffers(src->handle, AAX_MAXIMUM) > 1) {
+                *value = AL_PROCESSED;
+            } else {
+                *value = AL_STOPPED;
+            }
+        }
         break;
     }
     case AL_LOOPING:
