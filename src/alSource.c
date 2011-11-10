@@ -447,9 +447,9 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
     switch(attrib)
     {
     case AL_SOURCE_STATE:
-        if (value == AL_PLAYING) alSourcePlay(id);
-        else if (value == AL_STOPPED) alSourceStop(id);
-        else if (value == AL_PAUSED) alSourcePause(id);
+        if (value == AL_PLAYING) alSourcePlayv(1, &id);
+        else if (value == AL_STOPPED) alSourceStopv(1, &id);
+        else if (value == AL_PAUSED) alSourcePausev(1, &id);
 #if 0
         else if (value == AL_PROCESSED) _SRC_SET_PROCESSED(src->handle);
 #endif
@@ -509,19 +509,13 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
              * specifying a NULL buffer means removing all attached buffers 
              */
             unsigned int num;
-            num = aaxEmitterGetState(src->handle);
-            if (num == AAX_PROCESSED || num == AAX_INITIALIZED)
+            num = aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED);
+            if (num > 0)
             {
-                num = aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED);
-                if (num > 0)
-                {
-                    unsigned int i = num;
-                    do {
-                        aaxEmitterRemoveBuffer(src->handle);
-                    } while (--i != 0);
-                }
-            } else {
-                _oalStateSetError(AL_INVALID_VALUE);
+                unsigned int i = num;
+                do {
+                    aaxEmitterRemoveBuffer(src->handle);
+                } while (--i != 0);
             }
         }
         break;
@@ -648,19 +642,13 @@ alSourceiv(ALuint id, ALenum attrib, const ALint *values)
              * specifying a NULL buffer means removing all attached buffers 
              */
             unsigned int num;
-            num = aaxEmitterGetState(src->handle);
-            if (num == AAX_PROCESSED || num == AAX_INITIALIZED)
+            num = aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED);
+            if (num > 0)
             {
-                num = aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED);
-                if (num > 0)
-                {
-                    unsigned int i = num;
-                    do {
-                        aaxEmitterRemoveBuffer(src->handle);
-                    } while (--i != 0);
-                }
-            } else {
-                _oalStateSetError(AL_INVALID_VALUE);
+                unsigned int i = num;
+                do {
+                    aaxEmitterRemoveBuffer(src->handle);
+                } while (--i != 0);
             }
         }
         break;
