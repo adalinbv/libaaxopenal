@@ -1,3 +1,10 @@
+* Fri Niv 11 2011 - tech@adalin.org
+- Move to CMake build system
+- Fix an issue where calling alSourcei with AL_BUFFER and value 0 did not remove all attached buffers.
+
+* Wed Dec 23 2009 - tech@adalin.org
+- Split up the AeonWave library and the OpenAL support code
+
 
 * Wed May 21 2008 - tech@adalin.org 
 - Initial version following the Openal 1.1 specification
