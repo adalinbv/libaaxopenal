@@ -74,6 +74,11 @@ void _oalStateCreate(void *);
  * State Error reporting
  */
 
+#ifndef __FUNCTION__
+# define __FUNCTION__ __func__
+#endif
+
+
 #ifndef NDEBUG
 ALenum __oalStateSetErrorReport(ALenum, char *, int);
 # define _oalStateSetError(a)  __oalStateSetErrorReport((a), __FILE__, __LINE__)
