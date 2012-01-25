@@ -40,6 +40,7 @@
 #define FILTER_SRC		1
 #define FILE_PATH		SRC_PATH"/tictac.wav"
 #define EXTENSION		"AL_AAX_frequency_filter"
+#define RADIUS			20.0
 
 ALfloat SourcePos[] = { 0.0, 0.0, 0.0 };
 ALfloat SourceVel[] = { 0.00, 0.0, 0.0 };
@@ -79,7 +80,7 @@ int main(int argc, char **argv)
 
       do
       {
-         float ang, r = 10.0f;
+         float ang, r = RADIUS;
          ALuint buffer, source;
          ALenum format;
          ALint deg;
@@ -106,6 +107,7 @@ int main(int argc, char **argv)
          alSourcei(source, AL_BUFFER, buffer);
          alSourcei(source, AL_LOOPING, AL_TRUE);
          alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+         alSourcef(source, AL_REFERENCE_DISTANCE, 50.0);
          testForALError();
 
          alSourcefv(source, AL_POSITION, SourcePos);
