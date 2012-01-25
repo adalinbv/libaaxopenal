@@ -47,5 +47,7 @@ typedef int size_t;
 # endif
 #endif
 
+#define _MIN(a,b)	(((a)<(b)) ? (a) : (b))
+
 #endif /* !__OAL_TYPES_H */
 
