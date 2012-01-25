@@ -444,10 +444,10 @@ alcGetIntegerv(ALCdevice *device, ALCenum attrib, ALCsizei size, ALCint *value)
     switch(attrib)
     {
     case ALC_MONO_SOURCES:
-        *value = (ALCint)aaxMixerGetNoMonoSources();
+        *value = _MIN((ALCuint)aaxMixerGetNoMonoSources(), 255);
         break;
     case ALC_STEREO_SOURCES:
-        *value = (ALCint)aaxMixerGetNoStereoSources();
+        *value = _MIN((ALCuint)aaxMixerGetNoStereoSources(), 255);
         break;
     case ALC_MAJOR_VERSION:
         *value = _oalContextVersion[0];
