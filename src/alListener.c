@@ -368,7 +368,7 @@ alGetListenerf(ALenum attrib, ALfloat *value)
         switch(attrib)
         {
         case AL_GAIN:
-            *value = aaxMixerGetGain(lst->handle, AAX_LINEAR);
+            *value = aaxMixerGetGain(lst->handle);
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -408,7 +408,7 @@ alGetListenerfv(ALenum attrib, ALfloat *values)
             aaxSensorGetVelocity(lst->handle, values);
             break;
         case AL_GAIN:
-            *values = aaxMixerGetGain(lst->handle, AAX_LINEAR);
+            *values = aaxMixerGetGain(lst->handle);
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);

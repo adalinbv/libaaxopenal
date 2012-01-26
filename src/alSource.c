@@ -83,10 +83,10 @@ alGenSources(ALsizei num, ALuint *ids)
     cs = _oalGetSources(ctx);
     if (cs)
     {
-        ALuint pos = UINT_MAX;
-        ALsizei nsrcs, i = 0;
+        ALuint nsrcs, pos = UINT_MAX;
+        ALsizei i = 0;
 
-        nsrcs = aaxMixerGetNoMonoSources();
+        nsrcs = _MIN(aaxMixerGetNoMonoSources(), 255);
         if (nsrcs < num) num = 0;
         for (i=0; i<num; i++)
         {
@@ -767,13 +767,13 @@ alGetSourcef(ALuint id, ALenum attrib, ALfloat *value)
     switch(attrib)
     {
     case AL_GAIN:
-        *value = aaxEmitterGetGain(src->handle, AAX_LINEAR);
+        *value = aaxEmitterGetGain(src->handle);
         break;
     case AL_MIN_GAIN:
-        aaxEmitterGetGainMinMax(src->handle, value, NULL, AAX_LINEAR);
+        aaxEmitterGetGainMinMax(src->handle, value, NULL);
         break;
     case AL_MAX_GAIN:
-        aaxEmitterGetGainMinMax(src->handle, NULL, value, AAX_LINEAR);
+        aaxEmitterGetGainMinMax(src->handle, NULL, value);
         break;
     case AL_REFERENCE_DISTANCE:
         *value = aaxEmitterGetReferenceDistance(src->handle);
@@ -847,13 +847,13 @@ alGetSourcefv(ALuint id, ALenum attrib, ALfloat *values)
     switch(attrib)
     {
     case AL_GAIN:
-        *values = aaxEmitterGetGain(src->handle, AAX_LINEAR);
+        *values = aaxEmitterGetGain(src->handle);
         break;
     case AL_MIN_GAIN:
-        aaxEmitterGetGainMinMax(src->handle, values, NULL, AAX_LINEAR);
+        aaxEmitterGetGainMinMax(src->handle, values, NULL);
         break;
     case AL_MAX_GAIN:
-        aaxEmitterGetGainMinMax(src->handle, NULL, values, AAX_LINEAR);
+        aaxEmitterGetGainMinMax(src->handle, NULL, values);
         break;
     case AL_REFERENCE_DISTANCE:
         *values = aaxEmitterGetReferenceDistance(src->handle);
