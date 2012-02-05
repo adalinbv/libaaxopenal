@@ -496,7 +496,7 @@ _oalAAXGetDriverSpecifiers(enum aaxRenderMode mode)
                 unsigned dlen;
                 const char *d;
 
-                d = aaxDriverGetSetup(cfg, AAX_NAME_STRING);
+                d = aaxDriverGetSetup(cfg, AAX_RENDERER_STRING);
                 dlen = strlen(d) + 2;		/* strlen("\0\0") */
                 aaxDriverDestroy(cfg);
 
@@ -547,7 +547,7 @@ _oalAAXGetDeviceSpecifiersAll(enum aaxRenderMode mode)
                 unsigned j, max_device, belen;
                 const char *be, *d, *s;
 
-                be = aaxDriverGetSetup(cfg, AAX_NAME_STRING);
+                be = aaxDriverGetSetup(cfg, AAX_RENDERER_STRING);
                 belen = strlen(be);
 
                 max_device = aaxDriverGetDeviceCount(cfg, mode);

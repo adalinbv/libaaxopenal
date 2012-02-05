@@ -747,7 +747,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         }
         else {
             aaxConfig config = dev->lst.handle;
-            retstr = (char *)aaxDriverGetName(config);
+            retstr = (char *)aaxDriverGetRenderer(config);
         }
         break;
     case ALC_DEVICE_SPECIFIER:
@@ -756,7 +756,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         }
         else {
             aaxConfig config = dev->lst.handle;
-            retstr = (char *)aaxDriverGetName(config);
+            retstr = (char *)aaxDriverGetRenderer(config);
         }
         break;
     case ALC_ALL_DEVICES_SPECIFIER:
@@ -765,20 +765,20 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         }
         else {
             aaxConfig config = dev->lst.handle;
-            retstr = (char *)aaxDriverGetName(config);
+            retstr = (char *)aaxDriverGetRenderer(config);
         }
         break;
     case ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER:
     {
         aaxConfig config = aaxDriverGetDefault(AAX_MODE_READ);
-        retstr = (char *)aaxDriverGetName(config);
+        retstr = (char *)aaxDriverGetRenderer(config);
         aaxDriverDestroy(config);
         break;
     }
     case ALC_DEFAULT_DEVICE_SPECIFIER:
     {
         aaxConfig config = aaxDriverGetDefault(AAX_MODE_WRITE_STEREO);
-        retstr = (char *)aaxDriverGetName(config);
+        retstr = (char *)aaxDriverGetRenderer(config);
         aaxDriverDestroy(config);
         break;
     }

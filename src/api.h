@@ -21,6 +21,10 @@
 #ifndef AAX_API_H
 #define AAX_API_H 1
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <aax.h>
