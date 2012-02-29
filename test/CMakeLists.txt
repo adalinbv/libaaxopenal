@@ -24,6 +24,7 @@ INSTALL(TARGETS alcinfo
        )
 
 CREATE_TEST(testcapture)
+CREATE_TEST(testloopback)
 CREATE_TEST(testcone)
 CREATE_TEST(testdistance)
 CREATE_TEST(testerrors)
