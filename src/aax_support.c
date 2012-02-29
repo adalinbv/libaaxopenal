@@ -48,97 +48,107 @@ _oalGetChannelsFromFormat(ALenum format)
 
     switch(format)
     {
-        case AL_FORMAT_MONO8:
-        case AL_FORMAT_MONO16:
-        case AL_FORMAT_MONO_IMA4:
-        case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
-        case AL_FORMAT_MONO_FLOAT32:
-        case AL_FORMAT_MONO_DOUBLE_EXT:
-        case AL_FORMAT_MONO_MULAW_EXT:
-        case AL_FORMAT_MONO_ALAW_EXT:
-            rv = 1;
-            break;
-        case AL_FORMAT_STEREO8:
-        case AL_FORMAT_STEREO16:
-        case AL_FORMAT_STEREO_IMA4:
-        case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
-        case AL_FORMAT_STEREO_FLOAT32:
-        case AL_FORMAT_STEREO_DOUBLE_EXT:
-        case AL_FORMAT_STEREO_MULAW_EXT:
-        case AL_FORMAT_STEREO_ALAW_EXT:
-            rv = 2;
-            break;
-        case AL_FORMAT_QUAD8_LOKI:
-        case AL_FORMAT_QUAD16_LOKI:
-        case AL_FORMAT_QUAD8:
-        case AL_FORMAT_QUAD16:
-        case AL_FORMAT_QUAD32:
-            rv = 4;
-            break;
-        case AL_FORMAT_51CHN8:
-        case AL_FORMAT_51CHN16:
-        case AL_FORMAT_51CHN32:
-            rv = 6;
-            break;
-        case AL_FORMAT_61CHN8:
-        case AL_FORMAT_61CHN16:
-        case AL_FORMAT_61CHN32:
-            rv = 7;
-            break;
-        case AL_FORMAT_71CHN8:
-        case AL_FORMAT_71CHN16:
-        case AL_FORMAT_71CHN32:
-            rv = 8;
-            break;
+    case AL_FORMAT_MONO8:
+    case AL_FORMAT_MONO16:
+    case AL_FORMAT_MONO_IMA4:
+    case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
+    case AL_FORMAT_MONO_FLOAT32:
+    case AL_FORMAT_MONO_DOUBLE_EXT:
+    case AL_FORMAT_MONO_MULAW_EXT:
+    case AL_FORMAT_MONO_ALAW_EXT:
+        rv = 1;
+        break;
+    case AL_FORMAT_STEREO8:
+    case AL_FORMAT_STEREO16:
+    case AL_FORMAT_STEREO_IMA4:
+    case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
+    case AL_FORMAT_STEREO_FLOAT32:
+    case AL_FORMAT_STEREO_DOUBLE_EXT:
+    case AL_FORMAT_STEREO_MULAW_EXT:
+    case AL_FORMAT_STEREO_ALAW_EXT:
+        rv = 2;
+        break;
+    case AL_FORMAT_QUAD8_LOKI:
+    case AL_FORMAT_QUAD16_LOKI:
+    case AL_FORMAT_QUAD8:
+    case AL_FORMAT_QUAD16:
+    case AL_FORMAT_QUAD32:
+        rv = 4;
+        break;
+    case AL_FORMAT_51CHN8:
+    case AL_FORMAT_51CHN16:
+    case AL_FORMAT_51CHN32:
+        rv = 6;
+        break;
+    case AL_FORMAT_61CHN8:
+    case AL_FORMAT_61CHN16:
+    case AL_FORMAT_61CHN32:
+        rv = 7;
+        break;
+    case AL_FORMAT_71CHN8:
+    case AL_FORMAT_71CHN16:
+    case AL_FORMAT_71CHN32:
+        rv = 8;
+        break;
+    default:
+        rv = 0;
+        break;
     }
 
     return rv;
 }
 
 ALuchar
-_oalGetBytesPerSampleFromFormat(ALenum format)
+_oalGetBitsPerSampleFromFormat(ALenum format)
 {
     ALuchar rv = 0;
 
     switch(format)
     {
-        case AL_FORMAT_MONO8:
-        case AL_FORMAT_MONO_MULAW_EXT:
-        case AL_FORMAT_MONO_ALAW_EXT:
-        case AL_FORMAT_STEREO_MULAW_EXT:
-        case AL_FORMAT_STEREO_ALAW_EXT:
-        case AL_FORMAT_STEREO8:
-        case AL_FORMAT_QUAD8_LOKI:
-        case AL_FORMAT_QUAD8:
-        case AL_FORMAT_REAR8:
-        case AL_FORMAT_51CHN8:
-        case AL_FORMAT_61CHN8:
-        case AL_FORMAT_71CHN8:
-            rv = 1;
-            break;
-        case AL_FORMAT_MONO16:
-        case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
-        case AL_FORMAT_STEREO16:
-        case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
-        case AL_FORMAT_QUAD16_LOKI:
-        case AL_FORMAT_REAR16:
-        case AL_FORMAT_51CHN16:
-        case AL_FORMAT_61CHN16:
-        case AL_FORMAT_71CHN16:
-            rv = 2;
-            break;
-        case AL_FORMAT_MONO_FLOAT32:
-        case AL_FORMAT_STEREO_FLOAT32:
-        case AL_FORMAT_REAR32:
-        case AL_FORMAT_51CHN32:
-        case AL_FORMAT_61CHN32:
-        case AL_FORMAT_71CHN32:
-            rv = 4;
-            break;
-        case AL_FORMAT_MONO_DOUBLE_EXT:
-        case AL_FORMAT_STEREO_DOUBLE_EXT:
-            rv = 8;
-            break;
+    case AL_FORMAT_MONO_IMA4:
+    case AL_FORMAT_STEREO_IMA4:
+    case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
+    case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
+        rv = 4;
+        break;
+    case AL_FORMAT_MONO8:
+    case AL_FORMAT_MONO_MULAW_EXT:
+    case AL_FORMAT_MONO_ALAW_EXT:
+    case AL_FORMAT_STEREO_MULAW_EXT:
+    case AL_FORMAT_STEREO_ALAW_EXT:
+    case AL_FORMAT_STEREO8:
+    case AL_FORMAT_QUAD8_LOKI:
+    case AL_FORMAT_QUAD8:
+    case AL_FORMAT_REAR8:
+    case AL_FORMAT_51CHN8:
+    case AL_FORMAT_61CHN8:
+    case AL_FORMAT_71CHN8:
+        rv = 8;
+        break;
+    case AL_FORMAT_MONO16:
+    case AL_FORMAT_STEREO16:
+    case AL_FORMAT_QUAD16_LOKI:
+    case AL_FORMAT_REAR16:
+    case AL_FORMAT_51CHN16:
+    case AL_FORMAT_61CHN16:
+    case AL_FORMAT_71CHN16:
+        rv = 16;
+        break;
+    case AL_FORMAT_MONO_FLOAT32:
+    case AL_FORMAT_STEREO_FLOAT32:
+    case AL_FORMAT_REAR32:
+    case AL_FORMAT_51CHN32:
+    case AL_FORMAT_61CHN32:
+    case AL_FORMAT_71CHN32:
+        rv = 32;
+        break;
+    case AL_FORMAT_MONO_DOUBLE_EXT:
+    case AL_FORMAT_STEREO_DOUBLE_EXT:
+        rv = 64;
+        break;
+    default:
+        rv = 0;
+        break;
     }
 
     return rv;
@@ -618,7 +628,7 @@ unsigned int
 _oalOffsetInBytesToAAXOffset(unsigned long offs, unsigned tracks, enum aaxFormat fmt)
 {
     ALenum format = _oalAAXFormatToFormat(fmt, tracks);
-    unsigned int rv = 0;
+    unsigned int tmp, rv = 0;
 
     switch (format)
     {
@@ -626,22 +636,19 @@ _oalOffsetInBytesToAAXOffset(unsigned long offs, unsigned tracks, enum aaxFormat
     case AL_FORMAT_STEREO_IMA4:
     case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
     case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
+        /* 65 samples per block of 36 bytes */
+        rv = 65*( offs/(36*tracks) );
+        offs %= 36;				/* position within one block  */
+        if (offs > 4)				/* first sample takes 4 bytes */
         {
-	             /* 65 samples per block of 36 bytes */
-            rv = 65*( offs/(36*tracks) );
-            offs %= 36;				/* position within one block  */
-            if (offs > 4)				/* first sample takes 4 bytes */
-            {
-                offs -= 4;
-                rv += 1 + 2*offs;			/* 2 samples per byte            */
-            }
-            break;
+            offs -= 4;
+            rv += 1 + 2*offs;			/* 2 samples per byte         */
         }
+        break;
     default:
-        {
-            unsigned framesz = tracks * _oalGetBytesPerSampleFromFormat(format);
-            rv = offs/framesz;
-        }
+        tmp = tracks * _oalGetBitsPerSampleFromFormat(format)/8;
+        rv = offs/tmp;
+        break;
     }
     return rv;
 }
@@ -656,7 +663,7 @@ unsigned long
 _oalAAXOffsetToOffsetInBytes(unsigned int offs, unsigned tracks, enum aaxFormat fmt)
 {
     ALenum format = _oalAAXFormatToFormat(fmt, tracks);
-    unsigned long rv = 0;
+    unsigned long tmp, rv = 0;
 
     switch (format)
     {
@@ -664,20 +671,17 @@ _oalAAXOffsetToOffsetInBytes(unsigned int offs, unsigned tracks, enum aaxFormat 
     case AL_FORMAT_STEREO_IMA4:
     case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
     case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
-        {
-            unsigned int tmp = (unsigned int)floorf(offs/65.0);
-            offs -= tmp;
-            if (offs > 1) {
-                offs = 4 + (offs-1)/2;
-            }
-            rv = (36*tmp + offs) * tracks;
-            break;
+        tmp = (unsigned int)floorf(offs/65.0);
+        offs -= tmp;
+        if (offs > 1) {
+            offs = 4 + (offs-1)/2;
         }
+        rv = (36*tmp + offs) * tracks;
+        break;
     default:
-        {
-            unsigned framesz = tracks * _oalGetBytesPerSampleFromFormat(format);
-            rv = offs*framesz;
-        }
+        tmp = tracks * _oalGetBitsPerSampleFromFormat(format)/8;
+        rv = offs*tmp;
+        break;
     }
 
     return rv;
@@ -775,15 +779,18 @@ _oalAAXGetNoCores()
  * Context Extensions
  */
 
-#define _MAX_CTX_EXTENSIONS      1
+#define _MAX_CTX_EXTENSIONS      2
 static const _intBufferData aaxCtxExtensions[_MAX_CTX_EXTENSIONS] =
 {
-    {0, 1, "ALC_EXT_capture"}
+    {0, 1, "ALC_EXT_capture"},
+
+    {0, 1, "ALC_AAX_capture_loopback"}
 };
 
 static const void *aaxCtxExtensionsPtr[_MAX_CTX_EXTENSIONS] =
 {
-    (void *)&aaxCtxExtensions[0]
+    (void *)&aaxCtxExtensions[0],
+    (void *)&aaxCtxExtensions[1]
 };
 
 static const _intBuffers aaxCtxExtensionsString =

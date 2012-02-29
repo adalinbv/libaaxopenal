@@ -43,7 +43,7 @@ const char *_oalAAXGetVersionString(const void *);
 const char * _oalAAXGetRendererString(const void*);
 
 ALenum _oalAAXFormatToFormat(enum aaxFormat, unsigned char);
-ALuchar _oalGetBytesPerSampleFromFormat(ALenum);
+ALuchar _oalGetBitsPerSampleFromFormat(ALenum);
 enum aaxFormat _oalFormatToAAXFormat(ALenum);
 ALsizei _oalGetChannelsFromFormat(ALenum);
 
