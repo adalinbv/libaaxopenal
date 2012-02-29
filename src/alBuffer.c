@@ -322,7 +322,7 @@ alGetBufferf(ALuint id, ALenum attrib, ALfloat* value)
             *value = (ALfloat)aaxBufferGetSize(buf);
             break;
         case AL_BITS:
-            *value = (ALfloat)(aaxBufferGetBytesPerSample(buf) << 3);
+            *value = (ALfloat)aaxBufferGetBytesPerSample(buf)*8.0f;
             break;
         case AL_CHANNELS:
             *value = (ALfloat)aaxBufferGetNoTracks(buf);
@@ -364,7 +364,7 @@ alGetBufferfv(ALuint id, ALenum attrib, ALfloat *values)
             *values = (ALfloat)aaxBufferGetSize(buf);
             break;
         case AL_BITS:
-            *values = (ALfloat)(aaxBufferGetBytesPerSample(buf) << 3);
+            *values = (ALfloat)aaxBufferGetBytesPerSample(buf)*8.0f;
             break;
         case AL_CHANNELS:
             *values = (ALfloat)aaxBufferGetNoTracks(buf);
@@ -417,7 +417,7 @@ alGetBufferi(ALuint id, ALenum attrib, ALint *value)
             *value = (ALint)aaxBufferGetSize(buf);
             break;
         case AL_BITS:
-            *value = (ALint)(aaxBufferGetBytesPerSample(buf) << 3);
+            *value = (ALint)aaxBufferGetBytesPerSample(buf)*8;
             break;
         case AL_CHANNELS:
             *value = (ALint)aaxBufferGetNoTracks(buf);
@@ -459,7 +459,7 @@ alGetBufferiv(ALuint id, ALenum attrib, ALint *values)
             *values = (ALint)aaxBufferGetSize(buf);
             break;
         case AL_BITS:
-            *values = (ALint)(aaxBufferGetBytesPerSample(buf) << 3);
+            *values = (ALint)aaxBufferGetBytesPerSample(buf)*8;
             break;
         case AL_CHANNELS:
             *values = (ALint)aaxBufferGetNoTracks(buf);
@@ -504,12 +504,12 @@ alBufferData(ALuint id, ALenum format,
         aaxBuffer buf = _intBufGetDataPtr(dptr);
         size_t no_samples = size;
         unsigned char channels;
-        enum aaxFormat fmt;
+        enum aaxFormat aaxfmt;
         unsigned bps;
 
         channels = _oalGetChannelsFromFormat(format);
-        fmt = _oalFormatToAAXFormat(format);
-        bps = aaxGetBytesPerSample(fmt);
+        aaxfmt = _oalFormatToAAXFormat(format);
+        bps = aaxGetBytesPerSample(aaxfmt);
         no_samples /= (channels*bps);
 
         if (buf == null_buf)
@@ -521,7 +521,7 @@ alBufferData(ALuint id, ALenum format,
                 aaxConfig config = d->lst.handle;
                 aaxBuffer new_buf;
 
-                new_buf = aaxBufferCreate(config, no_samples, channels, fmt);
+                new_buf = aaxBufferCreate(config, no_samples, channels, aaxfmt);
                 if (new_buf)
                 {
                     _intBuffers *db = _oalGetBuffers();
@@ -536,7 +536,7 @@ alBufferData(ALuint id, ALenum format,
                 }
             }
         }
-        else if (fmt == aaxBufferGetFormat(buf)
+        else if (aaxfmt == aaxBufferGetFormat(buf)
              && channels == aaxBufferGetNoTracks(buf)
              && no_samples == aaxBufferGetNoSamples(buf))
         {
