@@ -96,19 +96,19 @@ int main(int argc, char **argv)
          alSourcei(source, AL_LOOPING, AL_FALSE);
          testForALError();
 #if FILTER_SRC
-         alSourcef(source, AL_AAX_FREQUENCY_FILTER_GAINLF, 1.0);
-         alSourcef(source, AL_AAX_FREQUENCY_FILTER_GAINHF, 0.0);
-         alSourcef(source, AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY, 500.0);
-         alSourcei(source, AL_AAX_FREQUENCY_FILTER_ENABLE, AL_TRUE);
+         alSourcef(source, AL_FREQUENCY_FILTER_GAINLF_AAX, 1.0);
+         alSourcef(source, AL_FREQUENCY_FILTER_GAINHF_AAX, 0.0);
+         alSourcef(source, AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 500.0);
+         alSourcei(source, AL_FREQUENCY_FILTER_ENABLE_AAX, AL_TRUE);
          printf("frequency filter applied to source.\n");
 #endif
 
          /* set listener values */
 #if !FILTER_SRC
-         alListenerf(AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY, 500.0);
-         alListenerf(AL_AAX_FREQUENCY_FILTER_GAINLF, 1.0);
-         alListenerf(AL_AAX_FREQUENCY_FILTER_GAINHF, 0.0);
-         alListeneri(AL_AAX_FREQUENCY_FILTER_ENABLE, AL_TRUE);
+         alListenerf(AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 500.0);
+         alListenerf(AL_FREQUENCY_FILTER_GAINLF_AAX, 1.0);
+         alListenerf(AL_FREQUENCY_FILTER_GAINHF_AAX, 0.0);
+         alListeneri(AL_FREQUENCY_FILTER_ENABLE_AAX, AL_TRUE);
          printf("frequency filter applied to listener.\n");
 #endif
          testForALError();
@@ -139,9 +139,9 @@ int main(int argc, char **argv)
                {
                   printf("adjusting cutoff frequency to 5000Hz\n");
 #if FILTER_SRC
-                  alSourcef(source, AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY, 5000.0);
+                  alSourcef(source, AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 5000.0);
 #else
-                  alListenerf(AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY, 5000.0);
+                  alListenerf(AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 5000.0);
 #endif
                   fc_changed = 1;
                }

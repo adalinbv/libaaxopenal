@@ -90,10 +90,10 @@ int main(int argc, char **argv)
          testForALError();
 
          alSourcei(source, AL_BUFFER, buffer);
-         alSourcef(source, AL_AAX_FREQUENCY_FILTER_GAINLF, 0.03);
-         alSourcef(source, AL_AAX_FREQUENCY_FILTER_GAINHF, 1.0);
-         alSourcef(source, AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY, 5000.0);
-         alSourcei(source, AL_AAX_FREQUENCY_FILTER_ENABLE, AL_TRUE);
+         alSourcef(source, AL_FREQUENCY_FILTER_GAINLF_AAX, 0.03);
+         alSourcef(source, AL_FREQUENCY_FILTER_GAINHF_AAX, 1.0);
+         alSourcef(source, AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 5000.0);
+         alSourcei(source, AL_FREQUENCY_FILTER_ENABLE_AAX, AL_TRUE);
          alSourcePlay(source);
          testForALError();
 

@@ -91,11 +91,11 @@ int main(int argc, char **argv)
          testForALError();
 
          alSourcei(source, AL_BUFFER, buffer);
-         alListenerf(AL_AAX_REVERB_PRE_DELAY_TIME, 0.0033);
-         alListenerf(AL_AAX_REVERB_REFLECTION_TIME, 0.03);
-         alListenerf(AL_AAX_REVERB_REFLECTION_FACTOR, 0.4);
-         alListenerf(AL_AAX_REVERB_DECAY_TIME, 0.6);
-         alListeneri(AL_AAX_REVERB_ENABLE, AL_TRUE);
+         alListenerf(AL_REVERB_PRE_DELAY_TIME_AAX, 0.0033);
+         alListenerf(AL_REVERB_REFLECTION_TIME_AAX, 0.03);
+         alListenerf(AL_REVERB_REFLECTION_FACTOR_AAX, 0.4);
+         alListenerf(AL_REVERB_DECAY_TIME_AAX, 0.6);
+         alListeneri(AL_REVERB_ENABLE_AAX, AL_TRUE);
          alSourcePlay(source);
          testForALError();
 
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
                if ((off_s > 40.0) && !reverb_changed)
                {
                   printf("disabling reverb\n");
-                  alSourcei(source, AL_AAX_REVERB_ENABLE, AL_FALSE);
+                  alSourcei(source, AL_REVERB_ENABLE_AAX, AL_FALSE);
                   reverb_changed = 1;
                }
             }
