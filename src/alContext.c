@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007-2011 by Erik Hofman.
- * Copyright (C) 2007-2011 by Adalin B.V.
+ * Copyright (C) 2007-2012 by Erik Hofman.
+ * Copyright (C) 2007-2012 by Adalin B.V.
  *
  * This file is part of AeonWave-OpenAL.
  *
@@ -36,6 +36,7 @@
 #include <aaxdefs.h>
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/alcext.h>
 
 #include <base/types.h>
 
@@ -560,6 +561,7 @@ alcCaptureStart(ALCdevice *device)
 {
     _oalDevice *d;
     uint32_t id;
+int res;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -571,7 +573,7 @@ alcCaptureStart(ALCdevice *device)
         return;
     }
 
-    aaxSensorSetState(d->lst.handle, AAX_CAPTURING);
+    res = aaxSensorSetState(d->lst.handle, AAX_CAPTURING);
 }
 
 void
@@ -594,8 +596,100 @@ alcCaptureStop(ALCdevice *device)
 }
 
 void
-alcCaptureSamples(ALCdevice *device, ALCvoid *data, ALCsizei samps)
+alcCaptureiAAX(ALCdevice *device, ALCenum attrib, ALCint value)
 {
+    _oalDevice *d;
+    uint32_t id;
+
+    _AL_LOG(LOG_INFO, __FUNCTION__);
+
+    id = _oalDeviceToId(device);
+    d = _oalFindDeviceById(id);
+    if (!d)
+    {
+        _oalContextSetError(ALC_INVALID_DEVICE);
+        return;
+    }
+
+    switch(attrib)
+    {
+    case ALC_FORMAT_AAX:
+    {
+        enum aaxFormat format;
+        ALsizei tracks;
+        int res;
+
+        format = _oalFormatToAAXFormat(value);
+        res = aaxMixerSetSetup(d->lst.handle, AAX_FORMAT, format);
+        if (res)
+        {
+           tracks = _oalGetChannelsFromFormat(value);
+           res = aaxMixerSetSetup(d->lst.handle, AAX_TRACKS, tracks);
+        }
+
+        if (res) {
+            d->format = value;
+        } else {
+            _oalContextSetError(ALC_INVALID_VALUE);
+        }
+        break;
+    }
+    case ALC_FREQUENCY_AAX:
+    {
+        int res = aaxMixerSetSetup(d->lst.handle, AAX_FREQUENCY, value);
+        if (res) {
+            d->frequency = value;
+        } else {
+            _oalContextSetError(ALC_INVALID_VALUE);
+        }
+        break;
+    }
+    default:
+        _oalContextSetError(ALC_INVALID_ENUM);
+        break;
+    }
+}
+
+void
+alcGetCaptureivAAX(ALCdevice *device, ALCenum attrib, ALCint *value)
+{
+    _oalDevice *d;
+    uint32_t id;
+
+    _AL_LOG(LOG_INFO, __FUNCTION__);
+
+    id = _oalDeviceToId(device);
+    d = _oalFindDeviceById(id);
+    if (!d)
+    {
+        _oalContextSetError(ALC_INVALID_DEVICE);
+        return;
+    }
+
+    switch(attrib)
+    {
+    case ALC_BITS_AAX:
+        *value = _oalGetBitsPerSampleFromFormat(d->format);
+        break;
+    case ALC_CHANNELS_AAX:
+        *value = _oalGetChannelsFromFormat(d->format);
+        break;
+    case ALC_FORMAT_AAX:
+        *value = d->format;
+        break;
+    case ALC_FREQUENCY_AAX:
+        *value = d->frequency;
+        break;
+    default:
+        _oalContextSetError(ALC_INVALID_ENUM);
+        break;
+    }
+}
+
+void
+alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
+{
+    char *data = (char*)sdata;
     _oalDevice *d;
     uint32_t id;
 
@@ -605,27 +699,48 @@ alcCaptureSamples(ALCdevice *device, ALCvoid *data, ALCsizei samps)
     d = _oalFindDeviceById(id);
     if (d)
     {
-        aaxBuffer buf = aaxSensorGetBuffer(d->lst.handle);
-        unsigned int no_samples;
-        void *ptr = NULL;
+        unsigned tracks = aaxMixerGetSetup(d->lst.handle, AAX_TRACKS);
+        int format = aaxMixerGetSetup(d->lst.handle, AAX_FORMAT);
+        unsigned bps = aaxGetBytesPerSample(format);
+        unsigned int frame_size = bps*tracks;
+        enum aaxFormat fmt = _oalFormatToAAXFormat(format);
 
-        no_samples = aaxBufferGetNoSamples(buf);
-        if (no_samples <= samps)
+        do
         {
-            unsigned tracks = aaxBufferGetNoTracks(buf);
-            unsigned bps = aaxBufferGetBytesPerSample(buf);
-            
-            ptr = aaxBufferGetData(buf);
-            memcpy(data, ptr, samps*bps*tracks);
-        }
+            aaxBuffer buf = aaxSensorGetBuffer(d->lst.handle);
+            if (buf)
+            {
+                void **ptr;
 
-        if (!ptr) {
-            _oalContextSetError(ALC_INVALID_VALUE);
-        } else {
-            free(ptr);
-        }
+                aaxBufferSetSetup(buf, AAX_FORMAT, fmt);
+                aaxBufferSetSetup(buf, AAX_FREQUENCY, d->frequency);
 
-        aaxBufferDestroy(buf);
+                ptr = aaxBufferGetData(buf);
+                if (ptr)
+                {
+                    unsigned int chunk_size, no_samples;
+
+                    no_samples = aaxBufferGetSetup(buf, AAX_NO_SAMPLES);
+                    if (no_samples > samps) no_samples = samps;
+
+                    chunk_size = no_samples*frame_size;
+                    memcpy(data, *ptr, chunk_size);
+                    free(ptr);
+
+                    data += chunk_size;
+                    samps -= no_samples;
+                }
+                else
+                {
+                    _oalContextSetError(ALC_INVALID_VALUE);
+                    break;
+                }
+                aaxBufferDestroy(buf);
+            }
+            else break;
+        }
+        while(samps);
+
         return;
     }
 

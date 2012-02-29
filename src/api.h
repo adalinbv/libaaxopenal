@@ -135,6 +135,8 @@ typedef struct
 {
     ALCboolean sync;
     ALCenum error;
+    ALCenum format;
+    int frequency;
 
     _intBuffers *buffers;
 

@@ -18,6 +18,10 @@
  *  along with AeonWave-OpenAL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifndef NDEBUG
 #include "api.h"
 
