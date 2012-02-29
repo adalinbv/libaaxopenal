@@ -1,8 +1,8 @@
 /*
  * alext.h : OpenAL extensions header definitions.
  *
- * (C) Copyright 2005-2011 by Erik Hofman
- * (C) Copyright 2007-2011 by Adalin B.V.
+ * (C) Copyright 2005-2012 by Erik Hofman
+ * (C) Copyright 2007-2012 by Adalin B.V.
  *
  */
 
@@ -15,9 +15,21 @@
 extern "C" {
 #endif
 
-/** own extensions */
+#if defined _WIN32 || defined __CYGWIN__
+# define ALEXT_APIENTRY __cdecl
+# define ALEXT_API __attribute__((dllexport))
+#else
+# define ALEXT_APIENTRY
+# if __GNUC__ >= 4
+#  define ALEXT_API __attribute__((visibility("default")))
+# else
+#  define ALEXT_API extern
+# endif
+#endif
 
-/** predefined extensions */
+#if defined(TARGET_OS_MAC) && TARGET_OS_MAC
+# pragma export on
+#endif
 
 /* output channel formats */
 #ifndef AL_EXT_MCFORMATS
@@ -90,51 +102,50 @@ extern "C" {
 
 #ifndef AL_AAX_frequency_filter
 #define AL_AAX_frequency_filter 1
-#define AL_AAX_FREQUENCY_FILTER_ENABLE			0x270000
-#define AL_AAX_FREQUENCY_FILTER_GAINLF			0x270001
-#define AL_AAX_FREQUENCY_FILTER_GAINHF			0x270002
-#define AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY	0x270003
-#define AL_AAX_FREQUENCY_FILTER_PARAMS			0x270004
+#define AL_FREQUENCY_FILTER_ENABLE_AAX		0x270000
+#define AL_FREQUENCY_FILTER_GAINLF_AAX		0x270001
+#define AL_FREQUENCY_FILTER_GAINHF_AAX		0x270002
+#define AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX	0x270003
+#define AL_FREQUENCY_FILTER_PARAMS_AAX		0x270004
 #endif
 
 #ifndef AL_AAX_reverb
 #define AL_AAX_reverb 1
-#define AL_AAX_REVERB_ENABLE				0x270008
-#define AL_AAX_REVERB_PRE_DELAY_TIME			0x270009
-#define AL_AAX_REVERB_REFLECTION_TIME			0x27000A
-#define AL_AAX_REVERB_REFLECTION_FACTOR			0x27000B
-#define AL_AAX_REVERB_DECAY_TIME			0x27000C
-#define AL_AAX_REVERB_DECAY_TIME_HF			0x27000D
+#define AL_REVERB_ENABLE_AAX			0x270008
+#define AL_REVERB_PRE_DELAY_TIME_AAX		0x270009
+#define AL_REVERB_REFLECTION_TIME_AAX		0x27000A
+#define AL_REVERB_REFLECTION_FACTOR_AAX		0x27000B
+#define AL_REVERB_DECAY_TIME_AAX		0x27000C
+#define AL_REVERB_DECAY_TIME_HF_AAX		0x27000D
 
-extern void alReverbfAAX(ALenum attirb, ALfloat value);
-extern void alReverbvfAAX(ALenum attrib, ALfloat *values);
-extern void alReverbiAAX(ALenum attrib, ALint value);
+ALEXT_API void ALEXT_APIENTRY alReverbfAAX(ALenum attirb, ALfloat value);
+ALEXT_API void ALEXT_APIENTRY alReverbvfAAX(ALenum attrib, ALfloat *values);
+ALEXT_API void ALEXT_APIENTRY alReverbiAAX(ALenum attrib, ALint value);
 #endif
 
 #ifndef AL_AAX_environment
 #define AL_AAX_environment 1
-#define AL_AAX_SCENE_ENABLE				0x270010
-#define AL_AAX_SCENE_DIMENSIONS				0x270011
-#define AL_AAX_SCENE_CENTER				0x270012
-#define AL_AAX_SCENE_LENGTH				0x270013
-#define AL_AAX_SCENE_WIDTH				0x270014
-#define AL_AAX_SCENE_HEIGHT				0x270015
-#define AL_AAX_SCENE_REFLECTION				0x270016
-#define AL_AAX_SCENE_DIFFUSE				0x270017
-#define AL_AAX_WIND_SPEED				0x270018
-#define AL_AAX_WIND_DIRECTION				0x270019
-#define AL_AAX_DISTANCE_DELAY				0x27001A
+#define AL_SCENE_ENABLE_AAX			0x270010
+#define AL_SCENE_DIMENSIONS_AAX			0x270011
+#define AL_SCENE_CENTER_AAX			0x270012
+#define AL_SCENE_LENGTH_AAX			0x270013
+#define AL_SCENE_WIDTH_AAX			0x270014
+#define AL_SCENE_HEIGHT_AAX			0x270015
+#define AL_SCENE_REFLECTION_AAX			0x270016
+#define AL_SCENE_DIFFUSE_AAX			0x270017
+#define AL_WIND_SPEED_AAX			0x270018
+#define AL_WIND_DIRECTION_AAX			0x270019
+#define AL_DISTANCE_DELAY_AAX			0x27001A
 
-extern void alWindfAAX(ALenum attirb, ALfloat value);
-extern void alWind3fAAX(ALenum attirb, ALfloat v1, ALfloat v2, ALfloat v3);
-extern void alWindvfAAX(ALenum attirb, ALfloat *values);
+/* #define ALC_FORMAT				0x270020 */
+
+ALEXT_API void ALEXT_APIENTRY alWindfAAX(ALenum attirb, ALfloat value);
+ALEXT_API void ALEXT_APIENTRY alWind3fAAX(ALenum attirb, ALfloat v1, ALfloat v2, ALfloat v3);
+ALEXT_API void ALEXT_APIENTRY alWindvfAAX(ALenum attirb, ALfloat *values);
 #endif
 
 #ifndef AL_EXT_EFX
 #define AL_EXT_EFX 1
-#define ALC_EFX_MAJOR_VERSION			0x20001
-#define ALC_EFX_MINOR_VERSION 			0x20002
-#define LC_MAX_AUXILIARY_SENDS			0x20003
 #define AL_METERS_PER_UNIT			0x20004
 #define AL_DIRECT_FILTER			0x20005
 #define AL_AUXILIARY_SEND_FILTER		0x20006
