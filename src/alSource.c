@@ -273,13 +273,13 @@ alSourcef(ALuint id, ALenum attrib, ALfloat value)
         break;
     }
     /* AL_AAX_frequency_filter */
-    case AL_AAX_FREQUENCY_FILTER_GAINLF:
+    case AL_FREQUENCY_FILTER_GAINLF_AAX:
         aaxEmitterSetFrequencyFilter(src->handle,AAX_FPNONE,value,AAX_FPNONE);
         break;
-    case AL_AAX_FREQUENCY_FILTER_GAINHF:
+    case AL_FREQUENCY_FILTER_GAINHF_AAX:
         aaxEmitterSetFrequencyFilter(src->handle,AAX_FPNONE,AAX_FPNONE,value);
         break;
-    case AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY:
+    case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
         aaxEmitterSetFrequencyFilter(src->handle,value,AAX_FPNONE,AAX_FPNONE);
         break;
     default:
@@ -401,7 +401,7 @@ alSourcefv(ALuint id, ALenum attrib, const ALfloat *values)
         break;
     }
     /* AL_AAX_frequency_filter */
-    case AL_AAX_FREQUENCY_FILTER_PARAMS:
+    case AL_FREQUENCY_FILTER_PARAMS_AAX:
         aaxEmitterSetFrequencyFilter(src->handle,values[0],values[1],values[2]);
         break;
     default:
@@ -547,7 +547,7 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
         break;
     }
     /* AL_AAX_frequency_filter */
-    case AL_AAX_FREQUENCY_FILTER_ENABLE:
+    case AL_FREQUENCY_FILTER_ENABLE_AAX:
     {
         aaxFilter f = aaxEmitterGetFilter(src->handle, AAX_FREQUENCY_FILTER);
         aaxFilterSetState(f, value ? AAX_TRUE : AAX_FALSE);
@@ -555,7 +555,7 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
         aaxFilterDestroy(f);
         break;
     }
-    case AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY:
+    case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
         aaxEmitterSetFrequencyFilter(src->handle, value, AAX_FPNONE, AAX_FPNONE);
         break;
     default:

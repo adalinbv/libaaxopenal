@@ -59,42 +59,42 @@ alListenerf(ALenum attrib, ALfloat value)
         }
         break;
     /* AL_AAX_freq_filter */
-    case AL_AAX_FREQUENCY_FILTER_GAINLF:
+    case AL_FREQUENCY_FILTER_GAINLF_AAX:
         aaxScenerySetFrequencyFilter(lst->handle, AAX_FPNONE, value, AAX_FPNONE);
         break;
-    case AL_AAX_FREQUENCY_FILTER_GAINHF:
+    case AL_FREQUENCY_FILTER_GAINHF_AAX:
         aaxScenerySetFrequencyFilter(lst->handle, AAX_FPNONE, AAX_FPNONE, value);
         break;
-    case AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY:
+    case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
         aaxScenerySetFrequencyFilter(lst->handle, value, AAX_FPNONE, AAX_FPNONE);
         break;
 #if 0
     /* AL_AAX_environment */
-    case AL_AAX_SCENE_LENGTH:
+    case AL_SCENE_LENGTH_AAX:
         lst->scene.dimension[0] = value;
         _PROP_SCENE_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_SCENE_WIDTH:
+    case AL_SCENE_WIDTH_AAX:
         lst->scene.dimension[1] = value;
         _PROP_SCENE_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_SCENE_HEIGHT:
+    case AL_SCENE_HEIGHT_AAX:
         lst->scene.dimension[2] = value;
         _PROP_SCENE_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_SCENE_REFLECTION:
+    case AL_SCENE_REFLECTION_AAX:
         lst->scene.reflection = value;
         _PROP_REVERB_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_SCENE_DIFFUSE:
+    case AL_SCENE_DIFFUSE_AAX:
         lst->scene.diffuse = value;
         _PROP_REVERB_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_DISTANCE_DELAY:
+    case AL_DISTANCE_DELAY_AAX:
         lst->distance_delay = (char)value;
          _PROP_DISTDELAY_SET_DEFINED(lst->props);
         break;
-    case AL_AAX_WIND_SPEED:
+    case AL_WIND_SPEED_AAX:
         lst->wind.speed = value;
         _PROP_WIND_SET_CHANGED(lst->props);
         break;
@@ -159,20 +159,20 @@ alListenerfv(ALenum attrib, const ALfloat *values)
             case AL_VELOCITY:
                 aaxSensorSetVelocity(lst->handle, values);
                 break;
-            case AL_AAX_FREQUENCY_FILTER_PARAMS:
+            case AL_FREQUENCY_FILTER_PARAMS_AAX:
                 aaxScenerySetFrequencyFilter(lst->handle,values[0],values[1],values[2]);
                 break;
 #if 0
             /* AL_AAX_environment */
-            case AL_AAX_SCENE_DIMENSIONS:
+            case AL_SCENE_DIMENSIONS_AAX:
                 memcpy(&lst->scene.dimension, values, 3*sizeof(ALfloat));
                 _PROP_SCENE_SET_CHANGED(lst->props);
                 break;
-            case AL_AAX_SCENE_CENTER:
+            case AL_SCENE_CENTER_AAX:
                 memcpy(&lst->scene.pos, values, 3*sizeof(ALfloat));
                 _PROP_SCENE_SET_CHANGED(lst->props);
                 break;
-            case AL_AAX_WIND_DIRECTION:
+            case AL_WIND_DIRECTION_AAX:
                 memcpy(&lst->wind.speed, values, 3*sizeof(ALfloat));
                 _PROP_WIND_SET_CHANGED(lst->props);
                 break;
@@ -215,7 +215,7 @@ alListeneri(ALenum attrib, ALint value)
     switch(attrib)
     {
     /* AL_AAX_frequency_filter */
-    case AL_AAX_FREQUENCY_FILTER_ENABLE:
+    case AL_FREQUENCY_FILTER_ENABLE_AAX:
     {
         aaxFilter f = aaxSceneryGetFilter(lst->handle, AAX_FREQUENCY_FILTER);
         aaxFilterSetState(f, value ? AAX_TRUE : AAX_FALSE);
@@ -223,28 +223,28 @@ alListeneri(ALenum attrib, ALint value)
         aaxFilterDestroy(f);
         break;
     }
-    case AL_AAX_FREQUENCY_FILTER_CUTOFF_FREQUENCY:
+    case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
         aaxScenerySetFrequencyFilter(lst->handle, value, AAX_FPNONE, AAX_FPNONE);
         break;
 #if 0
     /* AL_AAX_environment */
-    case AL_AAX_SCENE_LENGTH:
+    case AL_SCENE_LENGTH_AAX:
         lst->scene.dimension[0] = (float)value;
         _PROP_SCENE_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_SCENE_WIDTH:
+    case AL_SCENE_WIDTH_AAX:
         lst->scene.dimension[1] = (float)value;
         _PROP_SCENE_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_SCENE_HEIGHT:
+    case AL_SCENE_HEIGHT_AAX:
         lst->scene.dimension[2] = (float)value;
         _PROP_SCENE_SET_CHANGED(lst->props);
         break;
-    case AL_AAX_DISTANCE_DELAY:
+    case AL_DISTANCE_DELAY_AAX:
         lst->distance_delay = (char)value;
         _PROP_DISTDELAY_SET_DEFINED(lst->props);
         break;
-    case AL_AAX_WIND_SPEED:
+    case AL_WIND_SPEED_AAX:
         lst->wind.speed = (float)value;
         _PROP_WIND_SET_CHANGED(lst->props);
         break;
@@ -315,13 +315,13 @@ alListeneriv(ALenum attrib, const ALint *values)
             }
 #if 0
             /* AL_AAX_environment */
-            case AL_AAX_SCENE_DIMENSIONS:
+            case AL_SCENE_DIMENSIONS_AAX:
                 lst->scene.dimension[0] = (float)values[0];
                 lst->scene.dimension[1] = (float)values[1];
                 lst->scene.dimension[2] = (float)values[2];
                 _PROP_SCENE_SET_CHANGED(lst->props);
                 break;
-            case AL_AAX_SCENE_CENTER:
+            case AL_SCENE_CENTER_AAX:
                 lst->scene.pos[0] = (float)values[0];
                 lst->scene.pos[1] = (float)values[1];
                 lst->scene.pos[2] = (float)values[2];
