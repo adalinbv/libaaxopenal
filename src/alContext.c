@@ -703,7 +703,6 @@ alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
         int format = aaxMixerGetSetup(d->lst.handle, AAX_FORMAT);
         unsigned bps = aaxGetBytesPerSample(format);
         unsigned int frame_size = bps*tracks;
-        enum aaxFormat fmt = _oalFormatToAAXFormat(format);
 
         do
         {
@@ -712,8 +711,8 @@ alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
             {
                 void **ptr;
 
-                aaxBufferSetSetup(buf, AAX_FORMAT, fmt);
-                aaxBufferSetSetup(buf, AAX_FREQUENCY, d->frequency);
+                aaxBufferSetSetup(buf, AAX_FORMAT, format);
+//              aaxBufferSetSetup(buf, AAX_FREQUENCY, d->frequency);
 
                 ptr = aaxBufferGetData(buf);
                 if (ptr)
