@@ -24,6 +24,10 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <base/buffers.h>
+
+#include <aax.h>
+
 typedef struct
 {
     const char *name;

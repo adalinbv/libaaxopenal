@@ -1,4 +1,7 @@
-* Fri Niv 11 2011 - tech@adalin.org
+* Thu Mar 1 2012 - tech@adalin.org
+- Add support for ALC_AAX_capture_loopback
+
+* Fri Nov 11 2011 - tech@adalin.org
 - Move to CMake build system
 - Fix an issue where calling alSourcei with AL_BUFFER and value 0 did not remove all attached buffers.
 

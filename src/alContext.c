@@ -34,9 +34,8 @@
 #endif
 
 #include <aaxdefs.h>
-#include <AL/al.h>
+// #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alcext.h>
 
 #include <base/types.h>
 
@@ -46,7 +45,6 @@
 /* forward declarations */
 static const int _oalEFXVersion[];
 static const int _oalContextVersion[];
-static _intBuffers *_oalDevices;
 static unsigned int _oalCurrentContext;
 static const _intBuffers _oalContextEnumValues;
 static const _intBufferData _oalContextExtensionsDeclaration[];
@@ -54,15 +52,8 @@ static const _intBuffers _oalContextExtensions;
 static const _intBufferData _oalContextEnumValue[];
 static const char *_oalContextErrorStrings[];
 
-#define _oalDeviceToId(a)	(uint32_t)((long)(a) >> 20)
-#define _oalIdToDevice(a)	(uint32_t)((long)(a) << 20)
-#define _oalContextMask(a)	(uint32_t)((long)(a) & 0x000FFFFF)
-#define _oalDeviceMask(a)	(uint32_t)((long)(a) & 0xFFF00000)
-#define INT_TO_PTR(a)		(void*)(long)(a)
-
 static _intBufferData *_oalDeviceContextAdd(_oalDevice *);
 
-static _oalDevice *_oalFindDeviceById(unsigned int);
 static _intBufferData *_oalFindContextByDeviceId(uint32_t);
 static void _oalSourcesCreate(void *);
 
@@ -497,255 +488,6 @@ alcGetIntegerv(ALCdevice *device, ALCenum attrib, ALCsizei size, ALCint *value)
         _oalContextSetError(ALC_INVALID_DEVICE);
 }
 
-ALCdevice *
-alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bufsize)
-{
-    ALCdevice *device = 0;
-    unsigned int pos = 0;
-    aaxConfig handle;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (_oalDevices == 0)
-    {
-        pos = _intBufCreate(&_oalDevices, _OAL_DEVICE);
-        if (pos == UINT_MAX)
-        {
-            _oalContextSetError(ALC_OUT_OF_MEMORY);
-            return 0;
-        }
-    }
-
-    handle = aaxDriverOpenByName(name, AAX_MODE_READ);
-    if (handle != NULL)
-    {
-        _oalDevice *d = calloc(1, sizeof(_oalDevice));
-        if (d)
-        {
-            enum aaxFormat format;
-            ALsizei tracks;
-
-            format = _oalFormatToAAXFormat(fmt);
-            tracks = _oalGetChannelsFromFormat(fmt);
-#if 0
-            bytes_per_sec = freq * tracks * aaxGetBytesPerSample(format);
-            refrate = (float)bytes_per_sec / (float)bufsize;
-#endif
-            aaxMixerSetup(handle, freq, tracks, format, bufsize);
-
-            d->sync = 0;
-            d->lst.handle = handle;
-            pos = _intBufAddData(_oalDevices, _OAL_DEVICE, d);
-
-            if (pos != UINT_MAX)
-            {
-                uint32_t id, devid;
-                id = _intBufPosToId(pos);
-                devid = _oalIdToDevice(id);
-                device = INT_TO_PTR(devid);
-            }
-        }
-    }
-
-    return device;
-}
-
-ALCboolean
-alcCaptureCloseDevice(ALCdevice *device)
-{
-    return alcCloseDevice(device);
-}
-
-void
-alcCaptureStart(ALCdevice *device)
-{
-    _oalDevice *d;
-    uint32_t id;
-int res;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    id = _oalDeviceToId(device);
-    d = _oalFindDeviceById(id);
-    if (!d)
-    {
-        _oalContextSetError(ALC_INVALID_DEVICE);
-        return;
-    }
-
-    res = aaxSensorSetState(d->lst.handle, AAX_CAPTURING);
-}
-
-void
-alcCaptureStop(ALCdevice *device)
-{
-    _oalDevice *d;
-    uint32_t id;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    id = _oalDeviceToId(device);
-    d = _oalFindDeviceById(id);
-    if (!d)
-    {
-        _oalContextSetError(ALC_INVALID_DEVICE);
-        return;
-    }
-
-    aaxSensorSetState(d->lst.handle, AAX_STOPPED);
-}
-
-void
-alcCaptureiAAX(ALCdevice *device, ALCenum attrib, ALCint value)
-{
-    _oalDevice *d;
-    uint32_t id;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    id = _oalDeviceToId(device);
-    d = _oalFindDeviceById(id);
-    if (!d)
-    {
-        _oalContextSetError(ALC_INVALID_DEVICE);
-        return;
-    }
-
-    switch(attrib)
-    {
-    case ALC_FORMAT_AAX:
-    {
-        enum aaxFormat format;
-        ALsizei tracks;
-        int res;
-
-        format = _oalFormatToAAXFormat(value);
-        res = aaxMixerSetSetup(d->lst.handle, AAX_FORMAT, format);
-        if (res)
-        {
-           tracks = _oalGetChannelsFromFormat(value);
-           res = aaxMixerSetSetup(d->lst.handle, AAX_TRACKS, tracks);
-        }
-
-        if (res) {
-            d->format = value;
-        } else {
-            _oalContextSetError(ALC_INVALID_VALUE);
-        }
-        break;
-    }
-    case ALC_FREQUENCY_AAX:
-    {
-        int res = aaxMixerSetSetup(d->lst.handle, AAX_FREQUENCY, value);
-        if (res) {
-            d->frequency = value;
-        } else {
-            _oalContextSetError(ALC_INVALID_VALUE);
-        }
-        break;
-    }
-    default:
-        _oalContextSetError(ALC_INVALID_ENUM);
-        break;
-    }
-}
-
-void
-alcGetCaptureivAAX(ALCdevice *device, ALCenum attrib, ALCint *value)
-{
-    _oalDevice *d;
-    uint32_t id;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    id = _oalDeviceToId(device);
-    d = _oalFindDeviceById(id);
-    if (!d)
-    {
-        _oalContextSetError(ALC_INVALID_DEVICE);
-        return;
-    }
-
-    switch(attrib)
-    {
-    case ALC_BITS_AAX:
-        *value = _oalGetBitsPerSampleFromFormat(d->format);
-        break;
-    case ALC_CHANNELS_AAX:
-        *value = _oalGetChannelsFromFormat(d->format);
-        break;
-    case ALC_FORMAT_AAX:
-        *value = d->format;
-        break;
-    case ALC_FREQUENCY_AAX:
-        *value = d->frequency;
-        break;
-    default:
-        _oalContextSetError(ALC_INVALID_ENUM);
-        break;
-    }
-}
-
-void
-alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
-{
-    char *data = (char*)sdata;
-    _oalDevice *d;
-    uint32_t id;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    id = _oalDeviceToId(device);
-    d = _oalFindDeviceById(id);
-    if (d)
-    {
-        unsigned tracks = aaxMixerGetSetup(d->lst.handle, AAX_TRACKS);
-        int format = aaxMixerGetSetup(d->lst.handle, AAX_FORMAT);
-        unsigned bps = aaxGetBytesPerSample(format);
-        unsigned int frame_size = bps*tracks;
-
-        do
-        {
-            aaxBuffer buf = aaxSensorGetBuffer(d->lst.handle);
-            if (buf)
-            {
-                void **ptr;
-
-                aaxBufferSetSetup(buf, AAX_FORMAT, format);
-//              aaxBufferSetSetup(buf, AAX_FREQUENCY, d->frequency);
-
-                ptr = aaxBufferGetData(buf);
-                if (ptr)
-                {
-                    unsigned int chunk_size, no_samples;
-
-                    no_samples = aaxBufferGetSetup(buf, AAX_NO_SAMPLES);
-                    if (no_samples > samps) no_samples = samps;
-
-                    chunk_size = no_samples*frame_size;
-                    memcpy(data, *ptr, chunk_size);
-                    free(ptr);
-
-                    data += chunk_size;
-                    samps -= no_samples;
-                }
-                else
-                {
-                    _oalContextSetError(ALC_INVALID_VALUE);
-                    break;
-                }
-                aaxBufferDestroy(buf);
-            }
-            else break;
-        }
-        while(samps);
-
-        return;
-    }
-
-    _oalContextSetError(ALC_INVALID_DEVICE);
-}
-
 ALCboolean
 alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
 {
@@ -906,7 +648,8 @@ alcGetString(ALCdevice *device, ALCenum attrib)
 
 /*-------------------------------------------------------------------------- */
 
-static _intBuffers *_oalDevices = 0;
+_intBuffers *_oalDevices = 0;
+
 static unsigned int _oalCurrentContext = UINT_MAX;
 
 static const int _oalContextVersion[2] = {1, 1};
@@ -1158,7 +901,7 @@ _oalDeviceContextAdd(_oalDevice *d)
     return dptr;
 }
 
-static _oalDevice *
+_oalDevice *
 _oalFindDeviceById(uint32_t id)
 {
     _oalDevice *dev = 0;

@@ -100,6 +100,7 @@ typedef struct
     aaxFrame frame[_MAX_THREADS-1];
     unsigned int frame_no, frame_max;
     aaxVec3f pos, at, up;
+    void *buf;
 
 } _oalListener;
 
@@ -114,6 +115,12 @@ typedef struct
 } _oalSource;
 
 /* -- Contexts --- */
+
+#define _oalDeviceToId(a)	(uint32_t)((long)(a) >> 20)
+#define _oalIdToDevice(a)	(uint32_t)((long)(a) << 20)
+#define _oalContextMask(a)	(uint32_t)((long)(a) & 0x000FFFFF)
+#define _oalDeviceMask(a)	(uint32_t)((long)(a) & 0xFFF00000)
+#define INT_TO_PTR(a)		(void*)(long)(a)
 
 typedef struct
 {
@@ -150,6 +157,9 @@ typedef struct
 
 _intBufferData *_oalGetCurrentDevice();
 _intBufferData *_oalGetCurrentContext();
+_oalDevice *_oalFindDeviceById(unsigned int);
+
+extern _intBuffers *_oalDevices;
 
 /**
  * Context Error reporting

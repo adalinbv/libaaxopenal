@@ -142,6 +142,7 @@ SET(BASE_OBJS
 
 SET( OPENAL_OBJS
      src/alContext.c
+     src/alCapture.c
      src/alSource.c
      src/alBuffer.c
      src/alListener.c
