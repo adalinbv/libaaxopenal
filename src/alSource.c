@@ -102,8 +102,8 @@ alGenSources(ALsizei num, ALuint *ids)
                 }
                 src->mode =  AAX_ABSOLUTE;
                 aaxEmitterSetMode(src->handle, AAX_POSITION, src->mode);
-                if ((pos = _intBufAddData(cs, _OAL_SOURCE, src)) == UINT_MAX)
-                {
+                aaxEmitterSetGainMinMax(src->handle, 0.0f, 1.0f);
+                if ((pos = _intBufAddData(cs, _OAL_SOURCE, src)) == UINT_MAX) {
                     break;
                 }
                 ids[i] = _intBufPosToId(pos);
