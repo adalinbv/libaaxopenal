@@ -70,6 +70,9 @@ typedef struct
      ALfloat soundVelocity;
      ALfloat maxDistance;
      ALenum distanceModel;
+
+     char src_dist_model;
+
 } _oalState;
 
 void _oalStateCreate(void *);
@@ -111,8 +114,9 @@ typedef struct
     aaxEmitter handle;
     aaxVec3f pos, at, up;
     int mode;
-
 } _oalSource;
+
+void _oalRemoveSourceByPos(void *context, unsigned int);
 
 /* -- Contexts --- */
 
@@ -171,10 +175,6 @@ ALCenum __oalContextSetErrorReport(ALCenum, char *, int);
 #else
 # define _oalContextSetError(a)  __oalContextSetErrorNormal(a)
 #endif
-
-/* --- Sources --- */
-
-void _oalRemoveSourceByPos(void *context, unsigned int);
 
 /* --- Buffers --- */
 

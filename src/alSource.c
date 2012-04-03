@@ -100,7 +100,7 @@ alGenSources(ALsizei num, ALuint *ids)
                     pos = UINT_MAX;
                     break;
                 }
-                src->mode =  AAX_ABSOLUTE;
+                src->mode = AAX_ABSOLUTE;
                 aaxEmitterSetMode(src->handle, AAX_POSITION, src->mode);
                 aaxEmitterSetGainMinMax(src->handle, 0.0f, 1.0f);
                 if ((pos = _intBufAddData(cs, _OAL_SOURCE, src)) == UINT_MAX) {
@@ -474,6 +474,20 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
     case AL_MAX_DISTANCE:
         aaxEmitterSetMaxDistance(src->handle, fval);
         break;
+    case AL_DISTANCE_MODEL:
+        if (value == AL_NONE ||
+            (value >= AL_INVERSE_DISTANCE &&
+             value <= AL_EXPONENT_DISTANCE_CLAMPED))
+        {
+            value -= AL_INVERSE_DISTANCE;
+            value += AAX_AL_INVERSE_DISTANCE;
+            if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL)) {
+                aaxEmitterSetDistanceModel(src->handle, value);
+            }
+        } else {
+            _oalStateSetError(AL_INVALID_ENUM);
+        }
+        break;
     case AL_CONE_INNER_ANGLE:
         aaxEmitterSetAudioCone(src->handle, fval*GMATH_DEG_TO_RAD, AAX_FPNONE,
                                                         AAX_FPNONE);
@@ -695,6 +709,21 @@ alSourceiv(ALuint id, ALenum attrib, const ALint *values)
         break;
     case AL_MAX_DISTANCE:
         aaxEmitterSetMaxDistance(src->handle, fval);
+        break;
+    case AL_DISTANCE_MODEL:
+        if (*values == AL_NONE ||
+            (*values >= AL_INVERSE_DISTANCE &&
+             *values <= AL_EXPONENT_DISTANCE_CLAMPED))
+        {
+            ALint value = *values;
+            value -= AL_INVERSE_DISTANCE;
+            value += AAX_AL_INVERSE_DISTANCE;
+            if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL)) {
+                aaxEmitterSetDistanceModel(src->handle, value);
+            }
+        } else {
+            _oalStateSetError(AL_INVALID_ENUM);
+        }
         break;
     case AL_CONE_INNER_ANGLE:
         aaxEmitterSetAudioCone(src->handle, fval*GMATH_DEG_TO_RAD, AAX_FPNONE,

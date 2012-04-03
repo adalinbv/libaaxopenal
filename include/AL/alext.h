@@ -31,6 +31,11 @@ extern "C" {
 # pragma export on
 #endif
 
+#ifndef EXT_SOURCE_DISTANCE_MODEL
+#define EXT_SOURCE_DISTANCE_MODEL 1
+#define AL_SOURCE_DISTANCE_MODEL		0x200
+#endif
+
 /* output channel formats */
 #ifndef AL_EXT_MCFORMATS
 #define AL_EXT_MCFORMATS 1

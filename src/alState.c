@@ -52,10 +52,6 @@ static ALfloat _oalGetDopplerVelocity();
 static void _oalSetDopplerVelocity(ALfloat f);
 static ALfloat _oalGetSoundVelocity();
 static void _oalSetSoundVelocity(ALfloat f);
-#if 0
-static ALfloat _oalGetMaxDistance();
-static void _oalSetMaxDistance(ALfloat f);
-#endif
 static ALenum _oalGetDistanceModel();
 static void _oalSetDistanceModel(ALenum e);
 
@@ -66,17 +62,64 @@ ALenum alGetError(void)
 
 void alEnable(ALenum attrib)
 {
-    _oalStateSetError(AL_INVALID_ENUM);
+    _intBufferData *dptr = _oalGetCurrentContext(0);
+    if (dptr)
+    {
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
+        switch(attrib)
+        {
+        case AL_SOURCE_DISTANCE_MODEL:
+            cs->src_dist_model = AAX_TRUE;
+            break;
+        default:
+            _oalStateSetError(AL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
 void alDisable(ALenum attrib)
 {
-    _oalStateSetError(AL_INVALID_ENUM);
+    _intBufferData *dptr = _oalGetCurrentContext(0);
+    if (dptr)
+    {
+        _oalContext *ctx  =_intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
+        switch(attrib)
+        {
+        case AL_SOURCE_DISTANCE_MODEL:
+            cs->src_dist_model = AAX_FALSE;
+            break;
+        default:
+            _oalStateSetError(AL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
-ALboolean alIsEnabled (ALenum attrib)
+ALboolean
+alIsEnabled (ALenum attrib)
 {
-    return AL_FALSE;
+    ALboolean rv = AAX_FALSE;
+    _intBufferData *dptr;
+
+    dptr = _oalGetCurrentContext(0);
+    if (dptr)
+    {
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
+        switch(attrib)
+        {
+        case AL_SOURCE_DISTANCE_MODEL:
+            rv = cs->src_dist_model;
+            break;
+        default:
+            _oalStateSetError(AL_INVALID_ENUM);
+            break;
+        }
+    }
+    return rv;
 }
 
 void
@@ -483,20 +526,10 @@ alHint(ALenum target, ALenum mode)
 
 /* -------------------------------------------------------------------------- */
 
-static const _oalState _oalStateDefaults =
-{
-     AL_NONE,			/* _al_error */
-
-     1.0f, 1.0f,			/* DopplerFactor, DopplerVelocity */
-     343.3f,			/* SoundVelocity */
-     1.0f,			/* MaxDistance */
-     AL_INVERSE_DISTANCE_CLAMPED	/* DistanceModel */
-};
-
 /**
  * extensions
  */
-#define MAX_EXTENSIONS     10
+#define MAX_EXTENSIONS     11
 static const _intBufferData _oalExtensionsDeclaration[MAX_EXTENSIONS] =
 {
     {0, 1, "AL_EXT_exponent_distance"},
@@ -508,7 +541,8 @@ static const _intBufferData _oalExtensionsDeclaration[MAX_EXTENSIONS] =
     {0, 1, "AL_EXT_ima4"},
     {0, 1, "AL_EXT_offset"},
     {0, 1, "AL_EXT_mcformats"},
-    {0, 1, "AL_EXT_loop_points"}
+    {0, 1, "AL_EXT_loop_points"},
+    {0, 1, "AL_EXT_source_distance_model"}
 };
 
 static const void *_oalExtensionsPtr[MAX_EXTENSIONS] =
@@ -522,7 +556,8 @@ static const void *_oalExtensionsPtr[MAX_EXTENSIONS] =
     (void *)&_oalExtensionsDeclaration[6],
     (void *)&_oalExtensionsDeclaration[7],
     (void *)&_oalExtensionsDeclaration[8],
-    (void *)&_oalExtensionsDeclaration[9]
+    (void *)&_oalExtensionsDeclaration[9],
+    (void *)&_oalExtensionsDeclaration[10]
 };
 
 static const _intBuffers _oalExtensions =
@@ -891,7 +926,13 @@ _oalStateCreate(void *context)
         _oalState *cs = (_oalState *)malloc(sizeof(_oalState));
         if (cs)
         {
-            memcpy(cs, &_oalStateDefaults, sizeof(_oalState));
+            cs->error = AL_NONE;
+            cs->maxDistance = 1.0f;
+            cs->dopplerFactor = 1.0f;
+            cs->dopplerVelocity = 1.0f;
+            cs->soundVelocity = 343.3f;
+            cs->distanceModel = AL_INVERSE_DISTANCE_CLAMPED;
+            cs->src_dist_model = AAX_FALSE;
             ctx->state = cs;
         }
         else
