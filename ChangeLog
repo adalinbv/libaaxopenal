@@ -1,6 +1,7 @@
 * Thu Apr 2 2012 - tech@adalin.org
 - Proper support for 64-bit builds
 - Add support for ALC_AAX_capture_loopback
+- Add support for AL_EXT_source_distance_model
 - Limit the gain values for AeonWave version 2.2
 - Assorted small fixes for AeonWave version 2.2
 - Fix a problem where buffers where improperly removed.
