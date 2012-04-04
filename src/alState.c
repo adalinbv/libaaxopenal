@@ -70,7 +70,7 @@ void alEnable(ALenum attrib)
         switch(attrib)
         {
         case AL_SOURCE_DISTANCE_MODEL:
-            cs->src_dist_model = AAX_TRUE;
+            cs->src_dist_model = AL_TRUE;
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -89,7 +89,7 @@ void alDisable(ALenum attrib)
         switch(attrib)
         {
         case AL_SOURCE_DISTANCE_MODEL:
-            cs->src_dist_model = AAX_FALSE;
+            cs->src_dist_model = AL_FALSE;
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -101,7 +101,7 @@ void alDisable(ALenum attrib)
 ALboolean
 alIsEnabled (ALenum attrib)
 {
-    ALboolean rv = AAX_FALSE;
+    ALboolean rv = AL_FALSE;
     _intBufferData *dptr;
 
     dptr = _oalGetCurrentContext(0);
@@ -932,7 +932,7 @@ _oalStateCreate(void *context)
             cs->dopplerVelocity = 1.0f;
             cs->soundVelocity = 343.3f;
             cs->distanceModel = AL_INVERSE_DISTANCE_CLAMPED;
-            cs->src_dist_model = AAX_FALSE;
+            cs->src_dist_model = AL_FALSE;
             ctx->state = cs;
         }
         else

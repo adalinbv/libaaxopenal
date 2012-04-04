@@ -75,7 +75,7 @@ alGenBuffers(ALsizei num, ALuint *ids)
             for (r=i; r != 0; --r)
             {
                 pos = _intBufIdToPos(ids[r]);
-                _intBufRemove(db, _OAL_BUFFER, pos, AAX_FALSE);
+                _intBufRemove(db, _OAL_BUFFER, pos, AL_FALSE);
                 ids[r] = 0;
             }
             _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -122,7 +122,7 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
             {
                 aaxBuffer buf;
 
-                buf = _intBufRemove(db, _OAL_BUFFER, pos[i], AAX_FALSE);
+                buf = _intBufRemove(db, _OAL_BUFFER, pos[i], AL_FALSE);
                 if (buf) {
                     aaxBufferDestroy(buf);
                 }
@@ -624,7 +624,7 @@ _oalRemoveBufferByPos(void *device, unsigned int pos)
     if (d)
     {
         aaxBuffer buf;
-        buf = _intBufRemove(d->buffers, _OAL_BUFFER, pos, AAX_FALSE);
+        buf = _intBufRemove(d->buffers, _OAL_BUFFER, pos, AL_FALSE);
         if (buf) {
             aaxBufferDestroy(buf);
         }

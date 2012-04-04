@@ -133,7 +133,7 @@ alcCloseDevice(ALCdevice *device)
     if (pos != UINT_MAX)
     {
         _oalDevice *d;
-        d = _intBufRemove(_oalDevices, _OAL_DEVICE, pos, AAX_FALSE);
+        d = _intBufRemove(_oalDevices, _OAL_DEVICE, pos, AL_FALSE);
         if (d)
         {
             int32_t i;
@@ -963,7 +963,7 @@ _oalDestroyContextByPos(void *device, unsigned int ctx_num)
     }
 
     aaxMixerSetState(d->lst.handle, AAX_STOPPED);
-    ctx = _intBufRemove(d->contexts, _OAL_CONTEXT, ctx_num, AAX_FALSE);
+    ctx = _intBufRemove(d->contexts, _OAL_CONTEXT, ctx_num, AL_FALSE);
     if (ctx)
     {
         _intBufErase(&ctx->sources, _OAL_SOURCE, _oalRemoveSourceByPos, ctx);

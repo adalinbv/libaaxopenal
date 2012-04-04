@@ -118,7 +118,7 @@ alGenSources(ALsizei num, ALuint *ids)
             {
                 _oalSource *src;
                 pos = _intBufIdToPos(ids[r]);
-                src = _intBufRemove(cs, _OAL_SOURCE, pos, AAX_FALSE);
+                src = _intBufRemove(cs, _OAL_SOURCE, pos, AL_FALSE);
                 if (src->handle) {
                     aaxEmitterDestroy(src->handle);
                 }
@@ -178,7 +178,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
                 for (i=0; i<num; i++)
                 {
                     _oalSource *src;
-                    src = _intBufRemove(cs, _OAL_SOURCE, pos[i], AAX_FALSE);
+                    src = _intBufRemove(cs, _OAL_SOURCE, pos[i], AL_FALSE);
                     if (src)
                     {
                         aaxEmitterDestroy(src->handle);
@@ -1584,7 +1584,7 @@ _oalRemoveSourceByPos(void *context, unsigned int pos)
     if (ctx)
     {
         _oalSource *src;
-        src = _intBufRemove(ctx->sources, _OAL_SOURCE, pos, AAX_FALSE);
+        src = _intBufRemove(ctx->sources, _OAL_SOURCE, pos, AL_FALSE);
         if (src)
         {
             aaxEmitterSetState(src->handle, AAX_STOPPED);
