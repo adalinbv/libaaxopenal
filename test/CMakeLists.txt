@@ -19,8 +19,6 @@ ENDFUNCTION()
 CREATE_TEST(alcinfo)
 INSTALL(TARGETS alcinfo
           RUNTIME DESTINATION bin
-          LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-          ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
        )
 
 CREATE_TEST(testcapture)

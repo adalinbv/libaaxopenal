@@ -26,7 +26,7 @@ FIND_LIBRARY(AAX_LIBRARY
   NAMES AAX aax
   HINTS
   $ENV{AAXDIR}
-  PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
+  PATH_SUFFIXES lib lib/${CMAKE_LIBRARY_ARCHITECTURE} lib64 libs64 libs libs/Win32 libs/Win64
   PATHS
   ~/Library/Frameworks
   /Library/Frameworks
