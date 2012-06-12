@@ -903,7 +903,7 @@ static const _intBuffers _oalEnumValues =
 };
 #undef MAX_ENUM
 
-static const char *_oalStateErrorStrings[] =
+const char *_oalStateErrorStrings[] =
 {
     "Invalid name parameter.",
     "Invalid enum parameter value.",

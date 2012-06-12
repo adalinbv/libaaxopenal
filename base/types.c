@@ -23,8 +23,12 @@
 #endif
 
 #ifdef HAVE_TIME_H
-# include <time.h>             /* for nanosleep */
+# include <time.h>		/* for nanosleep */
 #endif
+#if HAVE_SYS_TIME_H
+# include <sys/time.h>		/* for struct timeval */
+#endif
+
 #include "types.h"
 
 

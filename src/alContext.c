@@ -656,11 +656,11 @@ _intBuffers *_oalDevices = 0;
 
 static unsigned int _oalCurrentContext = UINT_MAX;
 
-static const int _oalContextVersion[2] = {1, 1};
-static const int _oalEFXVersion[2] = {1, 0};
+const int _oalContextVersion[2] = {1, 1};
+const int _oalEFXVersion[2] = {1, 0};
 
 #define MAX_EXTENSIONS	2
-static const _intBufferData _oalContextExtensionsDeclaration[MAX_EXTENSIONS]=
+const _intBufferData _oalContextExtensionsDeclaration[MAX_EXTENSIONS]=
 {
     {0, 1, "ALC_enumeration_EXT"},
     {0, 1, "ALC_enumerate_all_EXT"}
@@ -706,7 +706,7 @@ static const _oalEnumValue_s _oalContextEnumValueDeclaration[MAX_ENUM] =
   {"ALC_EFX_MINOR_VERSION",		ALC_EFX_MINOR_VERSION}
 };
 
-static const _intBufferData _oalContextEnumValue[MAX_ENUM] =
+const _intBufferData _oalContextEnumValue[MAX_ENUM] =
 {
     {0, 1, (void *)&_oalContextEnumValueDeclaration[0]},
     {0, 1, (void *)&_oalContextEnumValueDeclaration[1]},
@@ -758,7 +758,7 @@ static const _intBuffers _oalContextEnumValues =
     (_intBufferData **)&_oalContextEnumValuePtr
 };
 
-static const char *_oalContextErrorStrings[] =
+const char *_oalContextErrorStrings[] =
 {
     "Invalid device specifier.",
     "Invalid context specifier.",
