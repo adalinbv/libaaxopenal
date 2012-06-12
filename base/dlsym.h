@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2005-2011 by Erik Hofman.
- * Copyright (C) 2007-2011 by Adalin B.V.
+ * Copyright (C) 2005-2012 by Erik Hofman.
+ * Copyright (C) 2007-2012 by Adalin B.V.
  *
  * This file is part of OpenAL-AeonWave.
  *
@@ -21,13 +21,25 @@
 #ifndef _OAL_DLSYM_H
 #define _OAL_DLSYM_H 1
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#define DECL_VARIABLE(v)	void* p##v = 0
+#define TIE_VARIABLE(v)		p##v = _oalGetProcAddress(audio, #v)
+
 #define DECL_FUNCTION(f)	static f##_proc p##f = 0
 #define TIE_FUNCTION(f)		p##f = (f##_proc)_oalGetProcAddress(audio, #f)
 
 char *_oalGetSymError(char *error);
-void *_oalIsLibraryPresent(const char *name);
+void *_oalIsLibraryPresent(const char *name, const char *version);
 void *_oalGetProcAddress(void *handle, const char *func);
 void *_oalGetGlobalProcAddress(const char *func);
+
+#if defined(__cplusplus)
+}  /* extern "C" */
+#endif
+
 
 #endif /* !_OAL_DLSYM_H */
 

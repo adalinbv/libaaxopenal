@@ -23,15 +23,21 @@
 #endif
 
 #include <stdio.h>	/* for snprintf */
-#include <strings.h>	/* for strcasecmp */
-#include <unistd.h>	/* for sysconf */
 #include <math.h>	/* for floorf */
+#if HAVE_STRINGS_H
+#include <strings.h>	/* for strcasecmp */
+# include <math.h>	/* for floorf */
+#endif
+#if HAVE_UNISTD_H
+# include <unistd.h>	/* for sysconf */
+#endif
 
 #include <aax.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
 
+#include <base/types.h>
 
 #include "api.h"
 #include "aax_support.h"

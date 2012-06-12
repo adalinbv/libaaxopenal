@@ -23,6 +23,11 @@
 #endif
 
 #include <assert.h>
+#include <stdlib.h>	/* for atoi */
+#include <stdio.h>	/* for snprintf */
+
+#include "types.h"
+
 
 char *_oalGetSymError(const char *err)
 {
@@ -35,7 +40,7 @@ char *_oalGetSymError(const char *err)
 #if defined( __APPLE__ )
 #include <CoreFoundation/CoreFoundation.h>
 
-void *_oalIsLibraryPresent(const char *name)
+void *_oalIsLibraryPresent(const char *name, const char *version)
 {
    return 0;
 }
@@ -80,22 +85,43 @@ void* _oalGetGlobalProcAddress(const char *func)
 #include <windows.h>
 
 void *
-_oalIsLibraryPresent(const char *name)
+_oalIsLibraryPresent(const char *name, const char *version)
 {
    HINSTANCE handle;
-   handle = LoadLibrary(TEXT(name));
+
+   if (name)
+   {
+      char libname[255];
+      snprintf(libname, 255, "%s", name); /* windows will add .dll */
+      handle = LoadLibrary(TEXT(libname));
+   }
+   else {
+      handle = GetModuleHandle(name);
+   }
+   if (!handle) _oalGetSymError("Library not found.");
+
    return handle;
 }
 
 void *
 _oalGetProcAddress(void *handle, const char *func)
 {
-   func_t* fptr;
+   void *rv = NULL;
 
    assert(handle);
    assert(func);
 
-   return (void *)GetProcAddress(handle, func);
+   rv = (void *)GetProcAddress(handle, func);
+   if (!rv)
+   {
+      static LPTSTR Error[255];
+      DWORD err = GetLastError();
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, (LPTSTR)Error,
+                    255, NULL);
+      _oalGetSymError((const char*)Error);
+   }
+
+   return rv;
 }
 
 /* TODO */
@@ -108,10 +134,23 @@ void *_oalGetGlobalProcAddress(const char *func)
 #include <dlfcn.h>
 
 void *
-_oalIsLibraryPresent(const char *name)
+_oalIsLibraryPresent(const char *name, const char *version)
 {
+   const char *lib = name;
+   char libname[255];
+
    _oalGetSymError(dlerror());
-   return dlopen(name, RTLD_LAZY);
+
+   if (name)
+   {
+      if (version && atoi(version) != 0) {
+         snprintf(libname, 255, "lib%s.so.%s", name, version);
+      } else {
+         snprintf(libname, 255, "lib%s.so", name);
+      }
+      lib = libname;
+   }
+   return dlopen(lib, RTLD_LAZY);
 }
 
 void *

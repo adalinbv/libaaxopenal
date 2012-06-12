@@ -25,8 +25,10 @@
 #if HAVE_ASSERT_H
 #include <math.h>
 #endif
+#if HAVE_STRINGS_H
+# include <strings.h>
+#endif
 #include <assert.h>
-#include <strings.h>
 
 #include <aax.h>
 #include <aaxdefs.h> 
@@ -36,15 +38,15 @@
 #include <AL/alext.h>
 
 #include <base/dlsym.h>
-
+#include <base/types.h>
 
 #include "api.h"
 #include "aax_support.h"
 
 /* forward declarations */
+const char *_oalStateErrorStrings[];
 static const _intBuffers _oalExtensions;
 static const _intBuffers _oalEnumValues;
-static const char *_oalStateErrorStrings[];
 
 static ALfloat _oalGetDopplerFactor();
 static void _oalSetDopplerFactor(ALfloat f);

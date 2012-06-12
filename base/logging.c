@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2005-2011 by Erik Hofman.
- *a Copyright (C) 2007-2011 by Adalin B.V.
+ * Copyright (C) 2007-2011 by Adalin B.V.
  *
  * This file is part of OpenAL-AeonWave.
  *
@@ -22,12 +22,22 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h>	/* for strtol */
 #include <assert.h>
 #if HAVE_SYSLOG_H
 # include <strings.h>	/* for strcasecmp */
 #endif
+#if WIN32
+	/* See: http://support.microsoft.com/kb/815661 */
+# include <tchar.h>
+# if defined(__cplusplus)
+#  using <system.dll>
+#  using <mscorlib.dll>
+# endif
+#endif
 
 #include "logging.h"
+#include "types.h"
 
 void __oal_log(int level, int id, const char *s, const char *id_s[], int current_level)
 {

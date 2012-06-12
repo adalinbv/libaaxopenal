@@ -83,8 +83,9 @@ alGenSources(ALsizei num, ALuint *ids)
     cs = _oalGetSources(ctx);
     if (cs)
     {
-        ALuint nsrcs, pos = UINT_MAX;
-        ALsizei i = 0;
+        ALuint pos = UINT_MAX;
+         ALsizei i = 0;
+        ALint nsrcs;
 
         nsrcs = _MIN(aaxMixerGetNoMonoSources(), 255);
         if (nsrcs < num) num = 0;
@@ -570,7 +571,7 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
         break;
     }
     case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
-        aaxEmitterSetFrequencyFilter(src->handle, value, AAX_FPNONE, AAX_FPNONE);
+        aaxEmitterSetFrequencyFilter(src->handle, (float)value, AAX_FPNONE, AAX_FPNONE);
         break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
@@ -1243,7 +1244,7 @@ alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
         if (dptr_src)
         {
             _oalSource *src = _intBufGetDataPtr(dptr_src);
-            unsigned int i;
+            int i;
 
             for (i=0; i<num; i++)
             {
@@ -1297,7 +1298,7 @@ alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
         {
             _oalSource *src = _intBufGetDataPtr(dptr_src);
 
-            if (num <= aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED))
+            if (num <= (int)aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED))
             {
                 _intBuffers *db = _oalGetBuffers();
                 unsigned int i;

@@ -268,7 +268,7 @@ alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
                 ptr = aaxBufferGetData(buf);
                 if (ptr)
                 {
-                    unsigned int chunk_size, no_samples;
+                    int chunk_size, no_samples;
 
                     no_samples = aaxBufferGetSetup(buf, AAX_NO_SAMPLES);
                     if (no_samples > samps)

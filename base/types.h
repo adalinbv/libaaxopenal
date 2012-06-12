@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2005-2011 by Erik Hofman.
- * Copyright (C) 2007-2011 by Adalin B.V.
+ * Copyright (C) 2005-2012 by Erik Hofman.
+ * Copyright (C) 2007-2012 by Adalin B.V.
  *
  * This file is part of OpenAL-AeonWave.
  *
@@ -21,14 +21,19 @@
 #ifndef __OAL_TYPES_H
 #define __OAL_TYPES_H 1
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
 
+#include <stdlib.h>
+
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #elif HAVE_STDINT_H
@@ -47,7 +52,27 @@ typedef int size_t;
 # endif
 #endif
 
-#define _MIN(a,b)	(((a)<(b)) ? (a) : (b))
+#define _MAX(a,b)       (((a)>(b)) ? (a) : (b))
+#define _MIN(a,b)       (((a)<(b)) ? (a) : (b))
+#define _MINMAX(a,b,c)  (((a)>(c)) ? (c) : (((a)<(b)) ? (b) : (a)))
+
+#if _MSC_VER
+# include <Windows.h>
+# include <stdio.h>
+# define strtoll _strtoi64
+# define snprintf _snprintf
+# define strcasecmp _stricmp
+# define strncasecmp _strnicmp
+# define rintf(v) (int)(v+0.5f)
+# define msecSleep(tms) SleepEx((DWORD)tms, FALSE)
+
+#else
+int msecSleep(unsigned int);
+#endif
+
+#if defined(__cplusplus)
+}  /* extern "C" */
+#endif
 
 #endif /* !__OAL_TYPES_H */
 

@@ -26,15 +26,18 @@
 #include <assert.h>
 #endif
 #include <errno.h>
-#include <strings.h>	/* strncpy */
+#if HAVE_STRINGS_H
+# include <strings.h>	/* strncpy */
+#endif
 #ifndef NDEBUG
-#include <unistd.h>
+#if HAVE_UNISTD_H
+#  include <unistd.h>
+# endif
 #else
-#include <stdio.h>
+# include <stdio.h>
 #endif
 
 #include <aaxdefs.h>
-// #include <AL/al.h>
 #include <AL/alc.h>
 
 #include <base/types.h>
@@ -43,14 +46,15 @@
 #include "aax_support.h"
 
 /* forward declarations */
-static const int _oalEFXVersion[];
-static const int _oalContextVersion[];
+const int _oalEFXVersion[];
+const int _oalContextVersion[];
+const _intBufferData _oalContextEnumValue[];
+const char *_oalContextErrorStrings[];
+const _intBufferData _oalContextExtensionsDeclaration[];
+
 static unsigned int _oalCurrentContext;
 static const _intBuffers _oalContextEnumValues;
-static const _intBufferData _oalContextExtensionsDeclaration[];
 static const _intBuffers _oalContextExtensions;
-static const _intBufferData _oalContextEnumValue[];
-static const char *_oalContextErrorStrings[];
 
 static _intBufferData *_oalDeviceContextAdd(_oalDevice *);
 
@@ -136,7 +140,7 @@ alcCloseDevice(ALCdevice *device)
         d = _intBufRemove(_oalDevices, _OAL_DEVICE, pos, AL_FALSE);
         if (d)
         {
-            int32_t i;
+            unsigned int i;
             for(i=0; i<_oalAAXGetNoCores()-1; i++) 
             {
                 aaxFrame frame = d->lst.frame[i];

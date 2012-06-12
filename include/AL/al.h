@@ -15,7 +15,11 @@ extern "C" {
 
 #if defined _WIN32 || defined __CYGWIN__
 # define AL_APIENTRY __cdecl
-# define AL_API __attribute__((dllexport))
+# ifdef ALC_BUILD_LIBRARY
+#  define AL_API __declspec(dllexport)
+# else
+#  define AL_API __declspec(dllimport)
+# endif
 #else
 # define AL_APIENTRY
 # if __GNUC__ >= 4

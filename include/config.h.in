@@ -35,6 +35,7 @@
 
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
+#cmakedefine HAVE_STRINGS_H @HAVE_STRINGS_H@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
@@ -54,6 +55,7 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
 
 /* Define to 1 if you have the <values.h> header file. */
 #undef HAVE_VALUES_H

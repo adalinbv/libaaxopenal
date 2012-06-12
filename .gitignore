@@ -13,6 +13,7 @@ build*
 Debug/
 *.o
 lib*.a
+.*.swp
 cmake_install.cmake
 CMakeFiles
 CMakeCache.txt

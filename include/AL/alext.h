@@ -11,13 +11,17 @@
 
 #include <AL/al.h>
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
 #if defined _WIN32 || defined __CYGWIN__
 # define ALEXT_APIENTRY __cdecl
-# define ALEXT_API __attribute__((dllexport))
+# ifdef ALC_BUILD_LIBRARY
+#  define ALEXT_API __declspec(dllexport)
+# else
+#  define ALEXT_API __declspec(dllimport)
+# endif
 #else
 # define ALEXT_APIENTRY
 # if __GNUC__ >= 4
@@ -219,7 +223,7 @@ extern void alGetFilterfv(ALuint id, ALenum attrib, ALfloat *values);
 #endif
 
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 

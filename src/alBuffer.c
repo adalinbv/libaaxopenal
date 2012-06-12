@@ -58,7 +58,7 @@ alGenBuffers(ALsizei num, ALuint *ids)
     if (db)
     {
         ALuint pos = UINT_MAX;
-        unsigned int i;
+        int i;
 
         for (i=0; i<num; i++)
         {
@@ -102,7 +102,7 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
     if (pos)
     {
         const _intBufferData *dptr = 0;
-        unsigned int i;
+        int i;
 
         for (i=0; i<num; i++)
         {
@@ -203,7 +203,7 @@ alBufferfv(ALuint id, ALenum attrib, const ALfloat *values)
 }
 
 void
-alBuffer3f(ALuint id, ALenum attrib, const ALfloat v1, const ALfloat v2, const ALfloat v3)
+alBuffer3f(ALuint id, ALenum attrib, ALfloat v1, ALfloat v2, ALfloat v3)
 {
     ALfloat fv[3];
 

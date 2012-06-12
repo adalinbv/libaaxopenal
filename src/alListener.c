@@ -224,7 +224,7 @@ alListeneri(ALenum attrib, ALint value)
         break;
     }
     case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
-        aaxScenerySetFrequencyFilter(lst->handle, value, AAX_FPNONE, AAX_FPNONE);
+        aaxScenerySetFrequencyFilter(lst->handle, (float)value, AAX_FPNONE, AAX_FPNONE);
         break;
 #if 0
     /* AL_AAX_environment */
