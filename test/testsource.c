@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <time.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>

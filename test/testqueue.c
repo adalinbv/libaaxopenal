@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -107,7 +109,7 @@ int main(int argc, char **argv)
 
          do
          {
-            nanoSleep(5e7);
+            msecSleep(50);
             alGetSourcei(source[0], AL_SOURCE_STATE, &status);
          }
          while (status == AL_PLAYING);

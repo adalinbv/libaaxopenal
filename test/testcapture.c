@@ -10,7 +10,9 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -83,7 +85,7 @@ int main(int argc, char **argv)
          exit(-1);
       }
   
-      no_samples = RECORD_TIME_SEC * freq;
+      no_samples = (unsigned int)(RECORD_TIME_SEC * freq);
       bytes = no_samples * channels * bps >> 3;
       data = malloc(bytes);
       if (!data) break;
@@ -99,13 +101,13 @@ int main(int argc, char **argv)
          alcCaptureStart(capture);
          do
          {
-            nanoSleep(1e7);
+            msecSleep(10);
             alcGetIntegerv(capture, ALC_CAPTURE_SAMPLES, 1, &status);
 #if 1
             printf("Record buffer position: %3i%%\r", (status*100)/no_samples);
 #endif
          }
-         while (status < no_samples);
+         while ((unsigned int)status < no_samples);
          printf("\n");
 
          alcCaptureSamples(capture, data, no_samples);
@@ -127,7 +129,7 @@ int main(int argc, char **argv)
 
          do
          {
-            nanoSleep(1e7);
+            msecSleep(10);
             alGetSourcei(source, AL_SOURCE_STATE, &status);
          }
          while (status == AL_PLAYING);

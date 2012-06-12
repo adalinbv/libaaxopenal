@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -111,7 +113,7 @@ int main(int argc, char **argv)
          {
             ALfloat pos[3];
 
-            nanoSleep(4e7);
+            msecSleep(50);
 
             SourcePos[0] = 100 + dist;
             dist -= 0.33f;

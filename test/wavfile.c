@@ -3,8 +3,13 @@
 #include "config.h"
 #endif
 
+#ifdef _WIN32
+# include <io.h>
+#endif
 #include <fcntl.h>
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #include <aax.h>
 #include <base/types.h>
@@ -359,7 +364,7 @@ bufferComvertMSIMA_IMA4(void *data, unsigned channels, unsigned int no_samples, 
    buf = malloc(blocksize);
    if (buf)
    {
-      unsigned b, blocks, block_bytes, chunks;
+      unsigned int b, blocks, block_bytes, chunks;
       int32_t* dptr = (int32_t*)data;
 
       blocks = no_samples/blocksize;
@@ -368,7 +373,7 @@ bufferComvertMSIMA_IMA4(void *data, unsigned channels, unsigned int no_samples, 
 
       for (b=0; b<blocks; b++)
       {
-         int t, i;
+         unsigned int t, i;
 
          /* block shuffle */
          memcpy(buf, dptr, blocksize);

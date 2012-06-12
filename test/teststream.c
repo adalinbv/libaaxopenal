@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -36,6 +38,7 @@
 #include "driver.h"
 #include "wavfile.h"
 
+#define NUM_BUFFERS		8
 #define FILE_PATH		SRC_PATH"/tictac.wav"
 
 
@@ -68,7 +71,6 @@ int main(int argc, char **argv)
 
       if (data)
       {
-         const unsigned int NUM_BUFFERS = 8;
          ALuint buffers[NUM_BUFFERS];
          ALuint source[2];
          ALuint i, num = 0;
@@ -121,7 +123,7 @@ int main(int argc, char **argv)
             if (state == AL_STOPPED)
                break;
 
-            nanoSleep(5e7);
+            msecSleep(50);
          }
          printf("\n");
       }

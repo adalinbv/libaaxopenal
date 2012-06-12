@@ -24,7 +24,6 @@ void testForError(void *, char *);
 void testForALCError(void *);
 void testForALError();
 
-void nanoSleep(unsigned long);
 char *strDup(const char *);
 
 #endif

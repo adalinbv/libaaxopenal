@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -103,11 +105,11 @@ int main(int argc, char **argv)
          pitch = 1.0f;
          gain = 1.0f;
          do {
-            nanoSleep(1e5);
-            _time += 1e5 * 1e-9;
+            msecSleep(10);
+            _time += 0.01f;
 
-            if ((pitch <= 0.1) || (pitch >= 2.0)) pf = -pf;
-            if ((gain <= 0.001) || (gain >= 1.0)) gf = -gf;
+            if ((pitch <= 0.1f) || (pitch >= 2.0f)) pf = -pf;
+            if ((gain <= 0.001f) || (gain >= 1.0f)) gf = -gf;
 
 #if 1
             pitch += pf;

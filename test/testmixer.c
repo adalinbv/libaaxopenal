@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -165,13 +167,13 @@ ALvoid
 testMultiplesource (ALuint buffer, ALint sources)
 {
    ALuint source[MAX_SOURCES] = { 0 };
-   ALuint no_sources = 0;
+   ALint no_sources = 0;
    float dt = 0.0;
    ALfloat radius;
    double anglestep;
    ALfloat pos[3];
    ALint error;
-   ALuint i;
+   ALint i;
 
    if (sources > MAX_SOURCES)
    {
@@ -213,7 +215,7 @@ testMultiplesource (ALuint buffer, ALint sources)
       alSourcefv(source[i], AL_POSITION, pos);
       alSourcei(source[i], AL_LOOPING, AL_TRUE);
 
-      pitch = 0.8 + (float)(rand()/RAND_MAX) * 0.4;
+      pitch = 0.8f + (float)(rand()/RAND_MAX) * 0.4f;
       alSourcef(source[i], AL_PITCH, pitch);
    }
 
@@ -224,11 +226,11 @@ testMultiplesource (ALuint buffer, ALint sources)
       {
          alSourcePlay(source[i]);
          testForALError();
-         nanoSleep(100e6);
-         dt += 0.1;
+         msecSleep(100);
+         dt += 0.1f;
       }
-      nanoSleep(300e6);
-      dt += 0.3;
+      msecSleep(300);
+      dt += 0.3f;
    }
    while (dt < 30.0);
 

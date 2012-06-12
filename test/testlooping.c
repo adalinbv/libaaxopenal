@@ -10,14 +10,12 @@
 #endif
 
 #define  DEVICE_NAME	"Software"	/* NULL, "Software", "DMedia", "ALSA" */
-#if 0
-#undef DEVICE_NAME
-#define  DEVICE_NAME	"Software"
-#endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -103,7 +101,7 @@ int main(int argc, char **argv)
 
          q = 0;
          do {
-            nanoSleep(5e5);
+            msecSleep(500);
             _time += 0.5;
 
             q++;

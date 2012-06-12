@@ -10,7 +10,9 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -90,9 +92,9 @@ int main(int argc, char **argv)
          testForALError();
 
          alSourcei(source, AL_BUFFER, buffer);
-         alSourcef(source, AL_FREQUENCY_FILTER_GAINLF_AAX, 0.03);
-         alSourcef(source, AL_FREQUENCY_FILTER_GAINHF_AAX, 1.0);
-         alSourcef(source, AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 5000.0);
+         alSourcef(source, AL_FREQUENCY_FILTER_GAINLF_AAX, 0.03f);
+         alSourcef(source, AL_FREQUENCY_FILTER_GAINHF_AAX, 1.0f);
+         alSourcef(source, AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX, 5000.0f);
          alSourcei(source, AL_FREQUENCY_FILTER_ENABLE_AAX, AL_TRUE);
          alSourcePlay(source);
          testForALError();
@@ -100,7 +102,7 @@ int main(int argc, char **argv)
          q = 0;
          do
          {
-            nanoSleep(5e7);
+            msecSleep(50);
 #if 1
             q++;
             if (q > 10)

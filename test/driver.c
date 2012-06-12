@@ -1,8 +1,14 @@
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
-#include <strings.h>
 #include <stdlib.h>
 #include <time.h>	/* nanosleep */
+#if HAVE_STRINGS_H
+# include <strings.h>
+#endif
 
 #include <AL/alc.h>
 #include <AL/al.h>
@@ -70,7 +76,7 @@ getPitch(int argc, char **argv)
 {
    float num = 1.0;
    char *ret = getCommandLineOption(argc, argv, "-p");
-   if (ret) num = atof(ret);
+   if (ret) num = (float)atof(ret);
    return num;
 }
 
@@ -143,15 +149,6 @@ getCommandLineOption(int argc, char **argv, char *option)
    }
 
    return rv;
-}
-
-void nanoSleep(unsigned long st)
-{
-   struct timespec sleept;
-
-   sleept.tv_sec = 0;
-   sleept.tv_nsec = st;
-   nanosleep(&sleept, 0);
 }
 
 char *strDup(const char *s)

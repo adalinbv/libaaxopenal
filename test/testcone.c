@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -119,7 +121,7 @@ int main(int argc, char **argv)
          deg = 0;
          while(deg < 360)
          {
-            nanoSleep(5e7);
+            msecSleep(50);
 
             ang = (float)deg * GMATH_DEG_TO_RAD;
             SourceDir[0] = sinf(ang);

@@ -10,7 +10,9 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -91,10 +93,10 @@ int main(int argc, char **argv)
          testForALError();
 
          alSourcei(source, AL_BUFFER, buffer);
-         alListenerf(AL_REVERB_PRE_DELAY_TIME_AAX, 0.0033);
-         alListenerf(AL_REVERB_REFLECTION_TIME_AAX, 0.03);
-         alListenerf(AL_REVERB_REFLECTION_FACTOR_AAX, 0.4);
-         alListenerf(AL_REVERB_DECAY_TIME_AAX, 0.6);
+         alListenerf(AL_REVERB_PRE_DELAY_TIME_AAX, 0.0033f);
+         alListenerf(AL_REVERB_REFLECTION_TIME_AAX, 0.03f);
+         alListenerf(AL_REVERB_REFLECTION_FACTOR_AAX, 0.4f);
+         alListenerf(AL_REVERB_DECAY_TIME_AAX, 0.6f);
          alListeneri(AL_REVERB_ENABLE_AAX, AL_TRUE);
          alSourcePlay(source);
          testForALError();
@@ -102,7 +104,7 @@ int main(int argc, char **argv)
          q = 0;
          do
          {
-            nanoSleep(5e7);
+            msecSleep(50);
 
             q++;
             if (q > 10)

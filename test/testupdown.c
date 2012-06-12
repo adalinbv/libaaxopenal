@@ -10,8 +10,10 @@
 #endif
 
 #include <stdio.h>
-#include <unistd.h>
 #include <math.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -124,9 +126,9 @@ int main(int argc, char **argv)
 
          while(d > -25.0)
          {
-            nanoSleep(5e7);
+            msecSleep(50);
 
-            d -= 0.166;	/* 120 km/h */
+            d -= 0.166f;	/* 120 km/h */
             SourcePos[1] = d;
 #if 1
             printf("dist: %3.4f\tpos (% f, % f, % f)\n", d,
