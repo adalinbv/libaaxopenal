@@ -267,14 +267,16 @@ TARGET_LINK_LIBRARIES(${LIBOPENAL} ${EXTRA_LIBS} ${AAX_LIBRARY})
 
 # Add an install target here
 INSTALL(TARGETS ${LIBOPENAL}
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         COMPONENT libraries
 )
-INSTALL(FILES include/AL/al.h
-              include/AL/alc.h
-              include/AL/alext.h
-              include/AL/alcext.h
+INSTALL(FILES
+        include/AL/al.h
+        include/AL/alc.h
+        include/AL/alext.h
+        include/AL/alcext.h
         DESTINATION include/AL
         COMPONENT headers
 )
