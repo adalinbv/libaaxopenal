@@ -192,7 +192,7 @@ IF(MSVC)
         ENDFOREACH(flag_var)
     ENDIF()
 ELSE(MSVC)
-    SET(C_FLAGS "${C_FLAGS} -Os -march=i586 -Werror=format-security -std=c99 -Wall -fvisibility=hidden -Wl,--hash-style=both -shared -fPIC -funroll-loops -fomit-frame-pointer" CACHE STRING
+    SET(C_FLAGS "${C_FLAGS} -Os -march=i586 -Werror=format-security -Wall -fomit-frame-pointer" CACHE STRING
         "Flags used by al build types."
         FORCE)
     SET(CMAKE_C_FLAGS_RELWITHDEBINFO "${C_FLAGS} -g -O2 -D_DEBUG" CACHE STRING
