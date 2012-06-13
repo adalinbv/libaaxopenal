@@ -19,6 +19,7 @@ ENDFUNCTION()
 CREATE_TEST(alcinfo)
 INSTALL(TARGETS alcinfo
           RUNTIME DESTINATION bin
+          COMPONENT applications
        )
 
 CREATE_TEST(testcapture)

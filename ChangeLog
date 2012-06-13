@@ -1,3 +1,7 @@
+* Wed Jun 13 2012 - tech@adalin.org
+- Added windows build support
+- Added cpack module support
+
 * Thu Apr 2 2012 - tech@adalin.org
 - Proper support for 64-bit builds
 - Add support for ALC_AAX_capture_loopback
