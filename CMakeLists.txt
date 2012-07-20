@@ -15,7 +15,8 @@ INCLUDE(CheckIncludeFile)
 INCLUDE (CheckIncludeFiles)
 
 PROJECT(aaxopenal C)
-SET(PACKAGE "AeonWave-OpenAL")
+SET(PACKAGE_NAME "AeonWave-OpenAL")
+SET(PACKAGE "libaaxopenal")
 
 OPTION(DLOPEN "Check for the dlopen API for loading optional libs" ON)
 OPTION(UTILS  "Build and install utility programs" ON)
@@ -32,6 +33,9 @@ ENDIF(WIN32)
 IF(NOT LIBTYPE)
     SET(LIBTYPE SHARED)
 ENDIF(NOT LIBTYPE)
+
+# We have some custom .cmake scripts not in the official distribution.
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
 # read 'version' file into a variable (stripping any newlines or spaces)
 file(READ version versionFile)
@@ -77,7 +81,8 @@ SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 #set(CPACK_PACKAGE_EXECUTABLES "alcinfo" "OpenAL information")
 
 IF(WIN32)
-  SET(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+  SET(CPACK_PACKAGE_FILE_NAME "${PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+  SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${PACKAGE_NAME}")
   SET(CPACK_GENERATOR NSIS)
 
 ELSE(WIN32)
@@ -120,38 +125,10 @@ ELSE(WIN32)
     "^${PROJECT_BINARY_DIR};${CMAKE_SOURCE_DIR}/.git;\\\\.gitignore;Makefile.am;~$;${CPACK_SOURCE_IGNORE_FILES}")
 ENDIF(WIN32)
 
-SET(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "Applications")
-SET(CPACK_COMPONENT_APPLICATIONS_DESCRIPTION 
-   "A command-line utility that tests and shows the capabilities of OpenAL")
-
-SET(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Libraries")
-SET(CPACK_COMPONENT_LIBRARIES_DESCRIPTION
-   "OpenAL library which models a collection of audio sources moving in a 3D space")
-
-SET(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Development Headers")
-SET(CPACK_COMPONENT_HEADERS_DESCRIPTION
-   "Development header files for use with OpenAL")
-
-SET(CPACK_COMPONENT_HEADERS_DEPENDS libraries)
-SET(CPACK_COMPONENT_APPLICATIONS_GROUP "Runtime")
-SET(CPACK_COMPONENT_LIBRARIES_GROUP "Development")
-SET(CPACK_COMPONENT_HEADERS_GROUP "Development")
-
-SET(CPACK_COMPONENT_GROUP_DEVELOPMENT_DESCRIPTION
-   "Development headers and libraries")
-
-SET(CPACK_COMPONENTS_ALL applications libraries headers)
-
-# NSIS only (for now?)
-SET(CPACK_ALL_INSTALL_TYPES Runtime Developer)
-SET(CPACK_COMPONENT_HEADERS_INSTALL_TYPES Developer)
-SET(CPACK_COMPONENT_LIBRARIES_INSTALL_TYPES Developer Runtime)
-SET(CPACK_COMPONENT_APPLICATIONS_INSTALL_TYPES Runtime)
+# Component support
+INCLUDE(CPack_Modules)
 
 INCLUDE (CPack)
-
-# We have some custom .cmake scripts not in the official distribution.
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
 # Required libraries
 FIND_PACKAGE(AAX COMPONENTS aax REQUIRED)
@@ -262,10 +239,11 @@ ENDIF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
 TARGET_LINK_LIBRARIES(${LIBOPENAL} ${EXTRA_LIBS} ${AAX_LIBRARY})
 
 # Add an install target here
+# Note Windows DLL are specified by RUNTIME
 INSTALL(TARGETS ${LIBOPENAL}
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT runtime
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT devel
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT devel
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Libraries
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Libraries
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Headers
 )
 INSTALL(FILES
         include/AL/al.h
@@ -273,7 +251,7 @@ INSTALL(FILES
         include/AL/alext.h
         include/AL/alcext.h
         DESTINATION include/AL
-        COMPONENT headers
+        COMPONENT Headers
 )
 
 IF (UNIX AND NOT WIN32)
