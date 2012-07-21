@@ -13,7 +13,7 @@
 FIND_PATH(AAX_INCLUDE_DIR aax.h
   HINTS
   $ENV{AAXDIR}
-  $ENV{ProgramFiles}/AAX
+  $ENV{ProgramFiles}/aax
   $ENV{ProgramFiles}/AeonWave
   PATH_SUFFIXES include
   PATHS

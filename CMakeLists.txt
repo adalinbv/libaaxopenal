@@ -34,18 +34,34 @@ IF(NOT LIBTYPE)
     SET(LIBTYPE SHARED)
 ENDIF(NOT LIBTYPE)
 
+# read 'version' file into a variable (stripping any newlines or spaces)
+FILE(READ version versionFile)
+STRING(STRIP ${versionFile} AL_VERSION)
+SET(VERSION AL_VERSION)
+
+# split version string into components, note CMAKE_MATCH_0 is the entire regexp match
+STRING(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)" CPACK_PACKAGE_VERSION ${AL_VERSION})
+
+
+SET(CPACK_PACKAGE_VERSION_MAJOR ${CMAKE_MATCH_1})
+SET(CPACK_PACKAGE_VERSION_MINOR ${CMAKE_MATCH_2})
+SET(CPACK_PACKAGE_VERSION_PATCH ${CMAKE_MATCH_3})
+
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenAL layer for the AeonWave 4D audio library")
+
 # We have some custom .cmake scripts not in the official distribution.
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
-INCLUDE(CPack_Defaults)
 INCLUDE(CPack_Modules)
-
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenAL layer for the AeonWave 4D audio library")
+INCLUDE(CPack_Defaults)
 
 # Used to create Start Menu shortcuts <EXEC> <LABEL>
 #set(CPACK_PACKAGE_EXECUTABLES "alcinfo" "OpenAL information")
 
-IF(UNIX AND NOT WIN32)
+IF(WIN32)
+  SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+
+ELSE(WIN32)
 
 # DEBIAN
   SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
@@ -63,7 +79,11 @@ IF(UNIX AND NOT WIN32)
   SET(CPACK_RPM_PACKAGE_CONFLICTS "libopenal1, libopenal-dev")
   SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data")
 
-ENDIF(UNIX AND NOT WIN32)
+ENDIF(WIN32)
+
+# ZIP
+SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${AL_VERSION}" CACHE INTERNAL "tarball basename")
+
 
 INCLUDE (CPack)
 
