@@ -65,16 +65,16 @@ ELSE(WIN32)
 
 # DEBIAN
   SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2 (>= 2.2)")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-runtime (>= 2.2)")
   SET(CPACK_DEBIAN_PACKAGE_ENHANCES "libopenal1")
-  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal1-dev, libopenal, libopenal-dev")
+  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal1-dev, libopenal, libopenal-dev, libaaxopenal")
 #  SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1")
 #  SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
 
 # RPM
   SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
   SET(CPACK_RPM_PACKAGE_GROUP "System/Libraries")
-  SET(CPACK_RPM_PACKAGE_REQUIRES "libaax2 >= 2.2")
+  SET(CPACK_RPM_PACKAGE_REQUIRES "libaax2-runtime >= 2.2")
   SET(CPACK_RPM_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
   SET(CPACK_RPM_PACKAGE_CONFLICTS "libopenal1, libopenal-dev")
   SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data")
@@ -111,7 +111,7 @@ IF(MSVC)
     ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
     ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
 
-    OPTION(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" OFF)
+    OPTION(FORCE_STATIC_VCRT "Force /MT for static VC runtimes" ON)
     IF(FORCE_STATIC_VCRT)
         FOREACH(flag_var
                 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
