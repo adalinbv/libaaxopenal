@@ -99,7 +99,7 @@
 
 /* Version number of package */
 #undef VERSION
-#cmakedefine VERSION "@AAXOPENAL_VERSION@"
+#cmakedefine VERSION "@AL_VERSION@"
 
 /* OpenAL doesn't use threads */
 #define _AL_NOTHREADS 1

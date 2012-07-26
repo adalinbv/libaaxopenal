@@ -65,19 +65,19 @@ ELSE(WIN32)
 
 # DEBIAN
   SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-runtime (>= 2.2)")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-bin (>= 2.2)")
   SET(CPACK_DEBIAN_PACKAGE_ENHANCES "libopenal1")
-  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal1-dev, libopenal, libopenal-dev, libaaxopenal")
+  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal1-dev, libopenal, libopenal-dev, libaaxopenal, aaxopenal")
 #  SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1")
 #  SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
 
 # RPM
   SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
   SET(CPACK_RPM_PACKAGE_GROUP "System/Libraries")
-  SET(CPACK_RPM_PACKAGE_REQUIRES "libaax2-runtime >= 2.2")
-  SET(CPACK_RPM_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
-  SET(CPACK_RPM_PACKAGE_CONFLICTS "libopenal1, libopenal-dev")
-  SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data")
+  SET(CPACK_RPM_PACKAGE_REQUIRES "libaax2 >= 2.2, libaax2-bin >= 2.2")
+#  SET(CPACK_RPM_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
+#  SET(CPACK_RPM_PACKAGE_CONFLICTS "libopenal1, libopenal-dev")
+  SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data, aaxopenal")
 
 ENDIF(WIN32)
 
@@ -122,7 +122,10 @@ IF(MSVC)
         ENDFOREACH(flag_var)
     ENDIF()
 ELSE(MSVC)
-    SET(C_FLAGS "${C_FLAGS} -Os -march=i586 -Werror=format-security -Wall -fomit-frame-pointer" CACHE STRING
+    IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+       SET(C_FLAGS "${C_FLAGS} -march=i386")
+    ENDIF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    SET(C_FLAGS "${C_FLAGS} -Os -Werror=format-security -Wall -fomit-frame-pointer" CACHE STRING
         "Flags used by al build types."
         FORCE)
     SET(CMAKE_C_FLAGS_RELWITHDEBINFO "${C_FLAGS} -g -O2 -D_DEBUG" CACHE STRING
