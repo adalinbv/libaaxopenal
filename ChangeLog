@@ -1,3 +1,6 @@
+* Tue Jul 31 2012 - tech@adalin.org
+- Enabled multi-core support and add the posibility to disable it by specifying the environment variable OPENAL_ENABLE_MULTICORE=0
+
 * Wed Jun 13 2012 - tech@adalin.org
 - Added windows build support
 - Added cpack module support

@@ -69,7 +69,7 @@ ELSE(WIN32)
   SET(CPACK_DEBIAN_PACKAGE_ENHANCES "libopenal1")
   SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal1-dev, libopenal, libopenal-dev, libaaxopenal, aaxopenal")
 #  SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1")
-#  SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
+   SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
 
 # RPM
   SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
