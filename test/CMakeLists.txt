@@ -21,6 +21,7 @@ INSTALL(TARGETS alcinfo
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Applications
 )
 
+CREATE_TEST(testmixer)
 CREATE_TEST(testcapture)
 CREATE_TEST(testloopback)
 CREATE_TEST(testcone)
@@ -29,7 +30,6 @@ CREATE_TEST(testerrors)
 CREATE_TEST(testleftright)
 CREATE_TEST(testlistener3d)
 CREATE_TEST(testlooping)
-CREATE_TEST(testmixer)
 CREATE_TEST(testmono3d)
 CREATE_TEST(testmono3d_lowpass)
 CREATE_TEST(testmono3d_multi)

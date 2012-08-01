@@ -726,13 +726,13 @@ _oalAAXGetRendererString(const void* config)
     if (!init && cfg)
     {
         const char *rstr = aaxDriverGetSetup(cfg, AAX_RENDERER_STRING);
-        unsigned int ncpu = _oalAAXGetNoCores();
+        unsigned int ncpu = _oalAAXGetNoCores(cfg);
         if (ncpu == 1) {
             snprintf(renderer, 80, "%s", rstr);
         } else
         {
             if (ncpu > _MAX_THREADS) ncpu = _MAX_THREADS;
-            snprintf(renderer, 80, "%s on %i cores", rstr, ncpu);
+            snprintf(renderer, 80, "%s using %i cores", rstr, ncpu);
         }
         init = -1;
     }
@@ -741,48 +741,18 @@ _oalAAXGetRendererString(const void* config)
 }
 
 unsigned int
-_oalAAXGetNoCores()
+_oalAAXGetNoCores(const void* config)
 {
     const char *enabled = getenv("OPENAL_ENABLE_MULTICORE");
     int cores = 1;
 
     if (!enabled || atoi(enabled))
     {
-#if defined(__MACH__)
-        sysctlbyname("hw.physicalcpu", &cores, sizeof(cores), NULL, 0);
+        aaxConfig cfg = (aaxConfig)config;
+        cores = aaxGetNoCores(cfg);
+    }
 
-#elif defined(freebsd) || defined(bsdi) || defined(__darwin__) || defined(openbsd)
-        size_t len = sizeof(rv);
-        int mib[4];
-
-        mib[0] = CTL_HW;
-        mib[1] = HW_AVAILCPU;
-        sysctl(mib, 2, &cores, &len, NULL, 0);
-        if(cores < 1)
-        {
-            mib[1] = HW_NCPU;
-            sysctl(mib, 2, &cores, &len, NULL, 0);
-        }
-#elif defined(WIN32)
-        SYSTEM_INFO sysinfo;
-
-        GetSystemInfo(&sysinfo);
-        cores = sysinfo.dwNumberOfProcessors;
-
-#elif defined(IRIX)
-        cores = sysconf(_SC_NPROC_ONLN);
-
-#elif defined(__linux__) || (__linux) || (defined (__SVR4) && defined (__sun))
-        /* also for AIX */
-        cores = sysconf(_SC_NPROCESSORS_ONLN);
-
-#elif defined(HPUX)
-        cores = mpctl(MPC_GETNUMSPUS, NULL, NULL);
-
-#endif
-   }
-
-   return (cores > 0) ? cores : 1;
+    return cores;
 }
 
 /*-------------------------------------------------------------------------- */

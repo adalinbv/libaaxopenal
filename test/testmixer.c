@@ -52,6 +52,22 @@
 /* Test Function prototypes */
 ALvoid testMultiplesource(ALuint, ALint);
 
+#if 0
+#ifdef HAVE_TIME_H
+# include <time.h>              /* for nanosleep */
+#endif
+#if HAVE_SYS_TIME_H
+# include <sys/time.h>          /* for struct timeval */
+#endif
+int msecSleep(unsigned int dt_ms)
+{
+   static struct timespec s;
+   s.tv_sec = (dt_ms/1000);
+   s.tv_nsec = (dt_ms-s.tv_sec*1000)*1000000;
+   return nanosleep(&s, 0);
+}
+#endif
+
 int main (int argc, char *argv[])
 {
    const ALCint attr[] = { ALC_FREQUENCY, 44100, ALC_REFRESH, 46 };
