@@ -66,10 +66,10 @@ ELSE(WIN32)
 # DEBIAN
   SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
   SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-bin (>= 2.2.2)")
-  SET(CPACK_DEBIAN_PACKAGE_ENHANCES "libopenal1")
-  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal1-dev, libopenal, libopenal-dev, libaaxopenal, aaxopenal")
-#  SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1")
-   SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
+  SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev, libopenal-data")
+#  SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1, libopenal-dev, libopenal-data")
+  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal-data, libopenal, libaaxopenal, aaxopenal")
+#  SET(CPACK_DEBIAN_PACKAGE_BREAKS "libopenal1, libopenal-dev, libopenal-data")
 
 # RPM
   SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
@@ -125,7 +125,7 @@ ELSE(MSVC)
     IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
        SET(C_FLAGS "${C_FLAGS} -march=i386")
     ENDIF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
-    SET(C_FLAGS "${C_FLAGS} -Os -Werror=format-security -Wall -fomit-frame-pointer" CACHE STRING
+    SET(C_FLAGS "${C_FLAGS} -Os -s -Werror=format-security -Wall -fomit-frame-pointer" CACHE STRING
         "Flags used by al build types."
         FORCE)
     SET(CMAKE_C_FLAGS_RELWITHDEBINFO "${C_FLAGS} -g -O2 -D_DEBUG" CACHE STRING
@@ -202,8 +202,12 @@ TARGET_LINK_LIBRARIES(${LIBOPENAL} ${EXTRA_LIBS} ${AAX_LIBRARY})
 # Note Windows DLL are specified by RUNTIME
 INSTALL(TARGETS ${LIBOPENAL}
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Libraries
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Libraries
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Headers
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP COMPONENT Libraries
+)
+INSTALL(TARGETS ${LIBOPENAL}
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_ONLY
+        COMPONENT Headers
 )
 INSTALL(FILES
         include/AL/al.h
