@@ -19,7 +19,6 @@ CMakeFiles
 CMakeCache.txt
 CPackConfig.cmake
 CPackSourceConfig.cmake
-cmake_uninstall.cmake
 CTestTestfile.cmake
 .kdev4
 *.kdev4
