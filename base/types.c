@@ -32,13 +32,37 @@
 #include "types.h"
 
 
-#ifndef _WIN32
+#ifdef WIN32
+#include <Windows.h>
+
+int msecSleep(unsigned int dt_ms)
+{
+   DWORD res = SleepEx((DWORD)dt_ms, 0);
+   return (res != 0) ? -1 : 0;
+}
+
+#else	/* WIN32 */
+/*
+ * dt_ms == 0 is a special case which make the time-slice available for other
+ * waiting processes
+ */
 int msecSleep(unsigned int dt_ms)
 {
    static struct timespec s;
-   s.tv_sec = (dt_ms/1000);
-   s.tv_nsec = (dt_ms-s.tv_sec*1000)*1000000;
-   return nanosleep(&s, 0);
+   if (dt_ms > 0)
+   {
+      s.tv_sec = (dt_ms/1000);
+      s.tv_nsec = (dt_ms % 1000)*1000000L;
+      while(nanosleep(&s,&s)==-1 && errno == EINTR)
+         continue;
+   }
+   else
+   {
+      s.tv_sec = 0;
+      s.tv_nsec = 500000L;
+      return nanosleep(&s, 0);
+   }
+   return 0;
 }
 #endif
 

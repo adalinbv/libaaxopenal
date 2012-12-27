@@ -64,11 +64,13 @@ typedef int size_t;
 # define strcasecmp _stricmp
 # define strncasecmp _strnicmp
 # define rintf(v) (int)(v+0.5f)
-# define msecSleep(tms) SleepEx((DWORD)tms, FALSE)
-
-#else
-int msecSleep(unsigned int);
 #endif
+
+#if defined( WIN32 )
+#else
+#endif
+
+int msecSleep(unsigned int);
 
 #if defined(__cplusplus)
 }  /* extern "C" */
