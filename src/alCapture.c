@@ -287,7 +287,7 @@ alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
 
                     chunk_size = no_samples*frame_size;
                     memcpy(data, *ptr, chunk_size);
-                    free(ptr);
+                    aaxFree(ptr);
 
                     data += chunk_size;
                     samps -= no_samples;

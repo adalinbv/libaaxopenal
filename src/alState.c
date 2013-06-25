@@ -54,7 +54,7 @@ static ALfloat _oalGetDopplerVelocity();
 static void _oalSetDopplerVelocity(ALfloat f);
 static ALfloat _oalGetSoundVelocity();
 static void _oalSetSoundVelocity(ALfloat f);
-static ALenum _oalGetDistanceModel();
+static ALenum _oalGetDistanceModel(ALboolean b);
 static void _oalSetDistanceModel(ALenum e);
 
 ALenum alGetError(void)
@@ -142,13 +142,16 @@ alGetBooleanv(ALenum attrib, ALboolean *value)
         *value = (_oalGetSoundVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
         break;
     case AL_DISTANCE_MODEL:
-        *value = (_oalGetDistanceModel() == AL_NONE) ? AL_FALSE : AL_TRUE;
+        *value = (_oalGetDistanceModel(AL_FALSE) == AL_NONE) ? AL_FALSE : AL_TRUE;
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         *value = (_oalGetDopplerVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        *value = (_oalGetDistanceModel(AL_TRUE) == AL_NONE) ? AL_FALSE : AL_TRUE;
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -172,13 +175,16 @@ alGetIntegerv(ALenum attrib, ALint *value)
         *value = (ALint)_oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        *value = _oalGetDistanceModel();
+        *value = _oalGetDistanceModel(AL_FALSE);
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         *value = (ALint)_oalGetDopplerVelocity();
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        *value = _oalGetDistanceModel(AL_TRUE);
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -202,13 +208,16 @@ alGetFloatv(ALenum attrib, ALfloat *value)
         *value = _oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        *value = (ALfloat)_oalGetDistanceModel();
+        *value = (ALfloat)_oalGetDistanceModel(AL_FALSE);
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         *value = _oalGetDopplerVelocity();
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        *value = (ALfloat)_oalGetDistanceModel(AL_TRUE);
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -232,13 +241,16 @@ alGetDoublev(ALenum attrib, ALdouble *value)
         *value = _oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        *value = (ALdouble)_oalGetDistanceModel();
+        *value = (ALdouble)_oalGetDistanceModel(AL_FALSE);
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         *value = _oalGetDopplerVelocity();
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        *value = (ALdouble)_oalGetDistanceModel(AL_TRUE);
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -258,13 +270,16 @@ alGetBoolean(ALenum attrib)
         ret = (_oalGetSoundVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
         break;
     case AL_DISTANCE_MODEL:
-        ret = (_oalGetDistanceModel() == 0) ? AL_FALSE : AL_TRUE;
+        ret = (_oalGetDistanceModel(AL_FALSE) == 0) ? AL_FALSE : AL_TRUE;
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         ret = (_oalGetDopplerVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        ret = (_oalGetDistanceModel(AL_TRUE) == 0) ? AL_FALSE : AL_TRUE;
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -286,13 +301,16 @@ alGetInteger(ALenum attrib)
         ret = (ALint)_oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        ret = _oalGetDistanceModel();
+        ret = _oalGetDistanceModel(AL_FALSE);
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         ret = (ALint)_oalGetDopplerVelocity();
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        ret = _oalGetDistanceModel(AL_TRUE);
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -314,13 +332,16 @@ alGetFloat(ALenum attrib)
         ret = _oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        ret = (ALfloat)_oalGetDistanceModel();
+        ret = (ALfloat)_oalGetDistanceModel(AL_FALSE);
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         ret = _oalGetDopplerVelocity();
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        ret = (ALfloat)_oalGetDistanceModel(AL_TRUE);
+        break;
     default:
          _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -342,13 +363,16 @@ alGetDouble(ALenum attrib)
         ret = _oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        ret = (ALdouble)_oalGetDistanceModel();
+        ret = (ALdouble)_oalGetDistanceModel(AL_FALSE);
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
         ret = _oalGetDopplerVelocity();
         break;
 #endif
+    case AL_DISTANCE_DELAY_AAX:
+        ret = (ALdouble)_oalGetDistanceModel(AL_TRUE);
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -1147,7 +1171,7 @@ _oalSetMaxDistance(ALfloat f)
 #endif
 
 ALenum
-_oalGetDistanceModel()
+_oalGetDistanceModel(ALboolean b)
 {
     _intBufferData *dptr;
     ALenum ret = AL_NONE;
@@ -1161,7 +1185,9 @@ _oalGetDistanceModel()
         ctx = _intBufGetDataPtr(dptr);
 
         cs = ctx->state;
-        ret = cs->distanceModel;
+        if (b) ret = cs->distanceModel & AAX_DISTANCE_DELAY;
+        else ret = cs->distanceModel & ~AAX_DISTANCE_DELAY;
+        
     }
 
     return ret;
@@ -1179,17 +1205,22 @@ _oalSetDistanceModel(ALenum e)
         _oalContext *ctx;
         _oalDevice *dev;
         _oalState *cs;
+        aaxFilter flt;
+        int delay;
 
         ctx = _intBufGetDataPtr(dptr);
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
 
+        flt = aaxEmitterGetFilter(handle, AAX_DISTANCE_FILTER);
+        delay = aaxFilterGetState(flt) & AAX_DISTANCE_DELAY;
+        aaxFilterDestroy(flt);
 
         cs = ctx->state;
         cs->distanceModel = e;
 
         e -= AL_INVERSE_DISTANCE;
         e += AAX_AL_INVERSE_DISTANCE;
-        aaxScenerySetDistanceModel(handle, e);
+        aaxScenerySetDistanceModel(handle, e | delay);
     }
 }

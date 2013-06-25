@@ -42,6 +42,7 @@ int msecSleep(unsigned int dt_ms)
 }
 
 #else	/* WIN32 */
+# include <errno.h>
 /*
  * dt_ms == 0 is a special case which make the time-slice available for other
  * waiting processes

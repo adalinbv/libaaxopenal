@@ -90,10 +90,6 @@ alListenerf(ALenum attrib, ALfloat value)
         lst->scene.diffuse = value;
         _PROP_REVERB_SET_CHANGED(lst->props);
         break;
-    case AL_DISTANCE_DELAY_AAX:
-        lst->distance_delay = (char)value;
-         _PROP_DISTDELAY_SET_DEFINED(lst->props);
-        break;
     case AL_WIND_SPEED_AAX:
         lst->wind.speed = value;
         _PROP_WIND_SET_CHANGED(lst->props);
@@ -239,10 +235,6 @@ alListeneri(ALenum attrib, ALint value)
     case AL_SCENE_HEIGHT_AAX:
         lst->scene.dimension[2] = (float)value;
         _PROP_SCENE_SET_CHANGED(lst->props);
-        break;
-    case AL_DISTANCE_DELAY_AAX:
-        lst->distance_delay = (char)value;
-        _PROP_DISTDELAY_SET_DEFINED(lst->props);
         break;
     case AL_WIND_SPEED_AAX:
         lst->wind.speed = (float)value;

@@ -482,8 +482,16 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
         {
             value -= AL_INVERSE_DISTANCE;
             value += AAX_AL_INVERSE_DISTANCE;
-            if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL)) {
-                aaxEmitterSetDistanceModel(src->handle, value);
+            if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
+            {
+                aaxFilter flt;
+                int delay;
+
+                flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+                delay = aaxFilterGetState(flt) & AAX_DISTANCE_DELAY;
+                aaxFilterDestroy(flt);
+
+                aaxEmitterSetDistanceModel(src->handle, value | delay);
             }
         } else {
             _oalStateSetError(AL_INVALID_ENUM);
@@ -560,6 +568,20 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
         unsigned long offs = _oalOffsetInBytesToAAXOffset(value, tracks, fmt);
         aaxEmitterSetOffset(src->handle, offs, AAX_SAMPLES);
         break;
+    }
+    /* AL_AAX_environment */
+    case AL_DISTANCE_DELAY_AAX:
+    {
+       aaxFilter flt;
+       int distmodel;
+
+       flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+       distmodel = aaxFilterGetState(flt);
+       aaxFilterDestroy(flt);
+
+       if (value) distmodel |= AAX_DISTANCE_DELAY;
+       else distmodel &= ~AAX_DISTANCE_DELAY;
+       aaxEmitterSetDistanceModel(src->handle, distmodel);
     }
     /* AL_AAX_frequency_filter */
     case AL_FREQUENCY_FILTER_ENABLE_AAX:
@@ -719,8 +741,16 @@ alSourceiv(ALuint id, ALenum attrib, const ALint *values)
             ALint value = *values;
             value -= AL_INVERSE_DISTANCE;
             value += AAX_AL_INVERSE_DISTANCE;
-            if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL)) {
-                aaxEmitterSetDistanceModel(src->handle, value);
+            if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
+            {
+                aaxFilter flt;
+                int delay;
+
+                flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+                delay = aaxFilterGetState(flt) & AAX_DISTANCE_DELAY;
+                aaxFilterDestroy(flt);
+
+                aaxEmitterSetDistanceModel(src->handle, value | delay);
             }
         } else {
             _oalStateSetError(AL_INVALID_ENUM);
@@ -755,6 +785,32 @@ alSourceiv(ALuint id, ALenum attrib, const ALint *values)
         aaxEmitterSetOffset(src->handle, offs, AAX_SAMPLES);
         break;
     }
+    /* AL_AAX_environment */
+    case AL_DISTANCE_DELAY_AAX:
+    {
+       aaxFilter flt;
+       int distmodel;
+
+       flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+       distmodel = aaxFilterGetState(flt);
+       aaxFilterDestroy(flt);
+
+       if (*values) distmodel |= AAX_DISTANCE_DELAY;
+       else distmodel &= ~AAX_DISTANCE_DELAY;
+       aaxEmitterSetDistanceModel(src->handle, distmodel);
+    }
+     /* AL_AAX_frequency_filter */
+    case AL_FREQUENCY_FILTER_ENABLE_AAX:
+    {
+        aaxFilter f = aaxEmitterGetFilter(src->handle, AAX_FREQUENCY_FILTER);
+        aaxFilterSetState(f, *values ? AAX_TRUE : AAX_FALSE);
+        aaxEmitterSetFilter(src->handle, f);
+        aaxFilterDestroy(f);
+        break;
+    }
+    case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
+        aaxEmitterSetFrequencyFilter(src->handle, (float)*values, AAX_FPNONE, AAX_FPNONE);
+        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
