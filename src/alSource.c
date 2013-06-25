@@ -484,14 +484,10 @@ alSourcei(ALuint id, ALenum attrib, ALint value)
             value += AAX_AL_INVERSE_DISTANCE;
             if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
             {
-                aaxFilter flt;
-                int delay;
-
-                flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
-                delay = aaxFilterGetState(flt) & AAX_DISTANCE_DELAY;
-                aaxFilterDestroy(flt);
-
-                aaxEmitterSetDistanceModel(src->handle, value | delay);
+                if (alIsEnabled(AL_DISTANCE_DELAY_AAX)) {
+                   value |= AAX_DISTANCE_DELAY;
+                }
+                aaxEmitterSetDistanceModel(src->handle, value);
             }
         } else {
             _oalStateSetError(AL_INVALID_ENUM);
@@ -743,14 +739,10 @@ alSourceiv(ALuint id, ALenum attrib, const ALint *values)
             value += AAX_AL_INVERSE_DISTANCE;
             if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
             {
-                aaxFilter flt;
-                int delay;
-
-                flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
-                delay = aaxFilterGetState(flt) & AAX_DISTANCE_DELAY;
-                aaxFilterDestroy(flt);
-
-                aaxEmitterSetDistanceModel(src->handle, value | delay);
+                if (alIsEnabled(AL_DISTANCE_DELAY_AAX)) {
+                   value |= AAX_DISTANCE_DELAY;
+                }
+                aaxEmitterSetDistanceModel(src->handle, value);
             }
         } else {
             _oalStateSetError(AL_INVALID_ENUM);

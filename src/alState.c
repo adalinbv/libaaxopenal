@@ -74,6 +74,9 @@ void alEnable(ALenum attrib)
         case AL_SOURCE_DISTANCE_MODEL:
             cs->src_dist_model = AL_TRUE;
             break;
+        case AL_DISTANCE_DELAY_AAX:
+            cs->distance_delay = AL_TRUE;
+            break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
             break;
@@ -92,6 +95,9 @@ void alDisable(ALenum attrib)
         {
         case AL_SOURCE_DISTANCE_MODEL:
             cs->src_dist_model = AL_FALSE;
+            break;
+        case AL_DISTANCE_DELAY_AAX:
+            cs->distance_delay = AL_FALSE;
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -115,6 +121,9 @@ alIsEnabled (ALenum attrib)
         {
         case AL_SOURCE_DISTANCE_MODEL:
             rv = cs->src_dist_model;
+            break;
+        case AL_DISTANCE_DELAY_AAX:
+            rv = cs->distance_delay;
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -982,22 +991,19 @@ _oalSetDistanceModel(ALenum e)
         _oalContext *ctx;
         _oalDevice *dev;
         _oalState *cs;
-        aaxFilter flt;
-        int delay;
 
         ctx = _intBufGetDataPtr(dptr);
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
-
-        flt = aaxEmitterGetFilter(handle, AAX_DISTANCE_FILTER);
-        delay = aaxFilterGetState(flt) & AAX_DISTANCE_DELAY;
-        aaxFilterDestroy(flt);
 
         cs = ctx->state;
         cs->distanceModel = e;
 
         e -= AL_INVERSE_DISTANCE;
         e += AAX_AL_INVERSE_DISTANCE;
-        aaxScenerySetDistanceModel(handle, e | delay);
+        if (alIsEnabled(AL_DISTANCE_DELAY_AAX)) {
+            e |= AAX_DISTANCE_DELAY;
+        }
+        aaxScenerySetDistanceModel(handle, e);
     }
 }

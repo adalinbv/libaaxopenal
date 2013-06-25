@@ -72,6 +72,7 @@ typedef struct
      ALenum distanceModel;
 
      char src_dist_model;
+     char distance_delay;
 
 } _oalState;
 

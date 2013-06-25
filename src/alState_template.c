@@ -52,9 +52,6 @@ ALGETV(N)(ALenum attrib, T *value)
         *value = (T)_oalGetDopplerVelocity();
         break;
 #endif
-    case AL_DISTANCE_DELAY_AAX:
-        *value = (T)_oalGetDistanceModel(AL_TRUE);
-        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
@@ -81,9 +78,6 @@ ALGET(N)(ALenum attrib)
         ret = (T)_oalGetDopplerVelocity();
         break;
 #endif
-    case AL_DISTANCE_DELAY_AAX:
-        ret = (T)_oalGetDistanceModel(AL_TRUE);
-        break;
     default:
         _oalStateSetError(AL_INVALID_ENUM);
     }
