@@ -1,6 +1,6 @@
-/*L_EXT_ima4
- * Copyright (C) 2007-2011 by Erik Hofman.
- * Copyright (C) 2007-2011 by Adalin B.V.
+/*
+ * Copyright (C) 2007-2013 by Erik Hofman.
+ * Copyright (C) 2007-2013 by Adalin B.V.
  *
  * This file is part of AeonWave-OpenAL.
  *
@@ -122,262 +122,6 @@ alIsEnabled (ALenum attrib)
         }
     }
     return rv;
-}
-
-void
-alGetBooleanv(ALenum attrib, ALboolean *value)
-{
-    if (!value)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        *value = (_oalGetDopplerFactor() == 0.0) ? AL_FALSE : AL_TRUE;
-        break;
-    case AL_SPEED_OF_SOUND:
-        *value = (_oalGetSoundVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
-        break;
-    case AL_DISTANCE_MODEL:
-        *value = (_oalGetDistanceModel(AL_FALSE) == AL_NONE) ? AL_FALSE : AL_TRUE;
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        *value = (_oalGetDopplerVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        *value = (_oalGetDistanceModel(AL_TRUE) == AL_NONE) ? AL_FALSE : AL_TRUE;
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-}
-
-void
-alGetIntegerv(ALenum attrib, ALint *value)
-{
-    if (!value)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
- 
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        *value = (ALint)_oalGetDopplerFactor();
-        break;
-    case AL_SPEED_OF_SOUND:
-        *value = (ALint)_oalGetSoundVelocity();
-        break;
-    case AL_DISTANCE_MODEL:
-        *value = _oalGetDistanceModel(AL_FALSE);
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        *value = (ALint)_oalGetDopplerVelocity();
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        *value = _oalGetDistanceModel(AL_TRUE);
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-}
-
-void
-alGetFloatv(ALenum attrib, ALfloat *value)
-{
-    if (!value)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        *value = _oalGetDopplerFactor();
-        break;
-    case AL_SPEED_OF_SOUND:
-        *value = _oalGetSoundVelocity();
-        break;
-    case AL_DISTANCE_MODEL:
-        *value = (ALfloat)_oalGetDistanceModel(AL_FALSE);
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        *value = _oalGetDopplerVelocity();
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        *value = (ALfloat)_oalGetDistanceModel(AL_TRUE);
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-}
-
-void
-alGetDoublev(ALenum attrib, ALdouble *value)
-{
-    if (!value)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        *value = _oalGetDopplerFactor();
-        break;
-    case AL_SPEED_OF_SOUND:
-        *value = _oalGetSoundVelocity();
-        break;
-    case AL_DISTANCE_MODEL:
-        *value = (ALdouble)_oalGetDistanceModel(AL_FALSE);
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        *value = _oalGetDopplerVelocity();
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        *value = (ALdouble)_oalGetDistanceModel(AL_TRUE);
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-}
-
-ALboolean
-alGetBoolean(ALenum attrib)
-{
-    ALboolean ret = AL_FALSE;
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        ret = (_oalGetDopplerFactor() == 0.0) ? AL_FALSE : AL_TRUE;
-        break;
-    case AL_SPEED_OF_SOUND:
-        ret = (_oalGetSoundVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
-        break;
-    case AL_DISTANCE_MODEL:
-        ret = (_oalGetDistanceModel(AL_FALSE) == 0) ? AL_FALSE : AL_TRUE;
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        ret = (_oalGetDopplerVelocity() == 0.0) ? AL_FALSE : AL_TRUE;
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        ret = (_oalGetDistanceModel(AL_TRUE) == 0) ? AL_FALSE : AL_TRUE;
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-
-    return ret;
-}
-
-ALint
-alGetInteger(ALenum attrib)
-{
-    ALint ret = 0;
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        ret = (ALint)_oalGetDopplerFactor();
-        break;
-    case AL_SPEED_OF_SOUND:
-        ret = (ALint)_oalGetSoundVelocity();
-        break;
-    case AL_DISTANCE_MODEL:
-        ret = _oalGetDistanceModel(AL_FALSE);
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        ret = (ALint)_oalGetDopplerVelocity();
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        ret = _oalGetDistanceModel(AL_TRUE);
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-
-    return ret;
-}
-
-ALfloat
-alGetFloat(ALenum attrib)
-{
-    ALfloat ret = 0.0f;
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        ret = _oalGetDopplerFactor();
-        break;
-    case AL_SPEED_OF_SOUND:
-        ret = _oalGetSoundVelocity();
-        break;
-    case AL_DISTANCE_MODEL:
-        ret = (ALfloat)_oalGetDistanceModel(AL_FALSE);
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        ret = _oalGetDopplerVelocity();
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        ret = (ALfloat)_oalGetDistanceModel(AL_TRUE);
-        break;
-    default:
-         _oalStateSetError(AL_INVALID_ENUM);
-    }
-
-    return ret;
-}
-
-ALdouble
-alGetDouble(ALenum attrib)
-{
-    ALdouble ret = 0;
-
-    switch (attrib)
-    {
-    case AL_DOPPLER_FACTOR:
-        ret = _oalGetDopplerFactor();
-        break;
-    case AL_SPEED_OF_SOUND:
-        ret = _oalGetSoundVelocity();
-        break;
-    case AL_DISTANCE_MODEL:
-        ret = (ALdouble)_oalGetDistanceModel(AL_FALSE);
-        break;
-#ifdef AL_VERSION_1_0
-    case AL_DOPPLER_VELOCITY:
-        ret = _oalGetDopplerVelocity();
-        break;
-#endif
-    case AL_DISTANCE_DELAY_AAX:
-        ret = (ALdouble)_oalGetDistanceModel(AL_TRUE);
-        break;
-    default:
-        _oalStateSetError(AL_INVALID_ENUM);
-    }
-
-    return ret;
 }
 
 const ALchar *
@@ -549,6 +293,39 @@ alHint(ALenum target, ALenum mode)
         _oalStateSetError(AL_INVALID_ENUM);
     }
 }
+
+/*
+ * void alGetBooleanv(ALenum attrib, ALboolean *value)
+ * ALboolean alGetBoolean(ALenum attrib)
+ */
+#define N Boolean
+#define T ALboolean
+#include "alState_template.c"
+
+/*
+ * void alGetIntegerv(ALenum attrib, ALint *value)
+ * ALint alGetInteger(ALenum attrib)
+ */
+#define N Integer
+#define T ALint
+#include "alState_template.c"
+
+/*
+ * void alGetFloatv(ALenum attrib, ALfloat *value)
+ * ALfloat alGetFloat(ALenum attrib)
+ */
+#define N Float
+#define T ALfloat
+#include "alState_template.c"
+
+/*
+ * void alGetDoublev(ALenum attrib, ALdouble *value)
+ * ALdouble alGetDouble(ALenum attrib)
+ */
+#define N Double
+#define T ALdouble
+#include "alState_template.c"
+
 
 /* -------------------------------------------------------------------------- */
 
