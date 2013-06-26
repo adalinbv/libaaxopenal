@@ -622,28 +622,50 @@ static const _intBuffers _oalContextExtensions =
     (_intBufferData **)&_oalContextExtensionsPtr
 };
 
-#define MAX_ENUM	19
+#define MAX_ENUM	31
 static const _oalEnumValue_s _oalContextEnumValueDeclaration[MAX_ENUM] =
 {
   {"ALC_FALSE",				ALC_FALSE},
   {"ALC_TRUE",				ALC_TRUE},
+
+  {"ALC_FREQUENCY",			ALC_FREQUENCY},
+  {"ALC_REFRESH",			ALC_REFRESH},
+  {"ALC_SYNC",				ALC_SYNC},
+  {"ALC_MONO_SOURCES",			ALC_MONO_SOURCES},
+  {"ALC_STEREO_SOURCES",		ALC_STEREO_SOURCES},
+
   {"ALC_NO_ERROR",			ALC_NO_ERROR},
   {"ALC_INVALID_DEVICE",		ALC_INVALID_DEVICE},
   {"ALC_INVALID_CONTEXT",		ALC_INVALID_CONTEXT},
   {"ALC_INVALID_ENUM",			ALC_INVALID_ENUM},
   {"ALC_INVALID_VALUE",			ALC_INVALID_VALUE},
   {"ALC_OUT_OF_MEMORY",			ALC_OUT_OF_MEMORY},
+
   {"ALC_DEFAULT_DEVICE_SPECIFIER",	ALC_DEFAULT_DEVICE_SPECIFIER},
-  {"ALC_ALL_DEVICES_SPECIFIER", 	ALC_ALL_DEVICES_SPECIFIER},
-  {"ALC_DEFAULT_ALL_DEVICES_SPECIFIER",	ALC_DEFAULT_ALL_DEVICES_SPECIFIER},
   {"ALC_DEVICE_SPECIFIER",		ALC_DEVICE_SPECIFIER},
   {"ALC_EXTENSIONS",			ALC_EXTENSIONS},
+
   {"ALC_ATTRIBUTES_SIZE",		ALC_ATTRIBUTES_SIZE},
   {"ALC_ALL_ATTRIBUTES",		ALC_ALL_ATTRIBUTES},
+
   {"ALC_MAJOR_VERSION",			ALC_MAJOR_VERSION},
   {"ALC_MINOR_VERSION",			ALC_MINOR_VERSION},
+
+  {"ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER",ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER},
+  {"ALC_CAPTURE_DEVICE_SPECIFIER",	ALC_CAPTURE_DEVICE_SPECIFIER},
+
+  {"ALC_DEFAULT_ALL_DEVICES_SPECIFIER",	ALC_DEFAULT_ALL_DEVICES_SPECIFIER},
+  {"ALC_ALL_DEVICES_SPECIFIER",		ALC_ALL_DEVICES_SPECIFIER},
+
+  /* extensions */
+  {"ALC_FORMAT_AAX",			ALC_FORMAT_AAX},
+  {"ALC_FREQUENCY_AAX",			ALC_FREQUENCY_AAX},
+  {"ALC_BITS_AAX",			ALC_BITS_AAX},
+  {"ALC_CHANNELS_AAX",			ALC_CHANNELS_AAX},
+
   {"ALC_EFX_MAJOR_VERSION",		ALC_EFX_MAJOR_VERSION},
-  {"ALC_EFX_MINOR_VERSION",		ALC_EFX_MINOR_VERSION}
+  {"ALC_EFX_MINOR_VERSION",		ALC_EFX_MINOR_VERSION},
+  {"ALC_MAX_AUXILIARY_SENDS",		ALC_MAX_AUXILIARY_SENDS}
 };
 
 const _intBufferData _oalContextEnumValue[MAX_ENUM] =
@@ -664,7 +686,21 @@ const _intBufferData _oalContextEnumValue[MAX_ENUM] =
     {0, 1, (void *)&_oalContextEnumValueDeclaration[13]},
     {0, 1, (void *)&_oalContextEnumValueDeclaration[14]},
     {0, 1, (void *)&_oalContextEnumValueDeclaration[15]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[16]}
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[16]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[17]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[18]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[19]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[20]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[21]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[22]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[23]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[24]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[24]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[26]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[27]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[28]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[29]},
+    {0, 1, (void *)&_oalContextEnumValueDeclaration[30]}
 };
 
 static const void *_oalContextEnumValuePtr[MAX_ENUM] =
@@ -685,7 +721,21 @@ static const void *_oalContextEnumValuePtr[MAX_ENUM] =
     (void *)&_oalContextEnumValue[13],
     (void *)&_oalContextEnumValue[14],
     (void *)&_oalContextEnumValue[15],
-    (void *)&_oalContextEnumValue[16]
+    (void *)&_oalContextEnumValue[16],
+    (void *)&_oalContextEnumValue[17],
+    (void *)&_oalContextEnumValue[18],
+    (void *)&_oalContextEnumValue[19],
+    (void *)&_oalContextEnumValue[20],
+    (void *)&_oalContextEnumValue[21],
+    (void *)&_oalContextEnumValue[22],
+    (void *)&_oalContextEnumValue[23],
+    (void *)&_oalContextEnumValue[24],
+    (void *)&_oalContextEnumValue[25],
+    (void *)&_oalContextEnumValue[26],
+    (void *)&_oalContextEnumValue[27],
+    (void *)&_oalContextEnumValue[28],
+    (void *)&_oalContextEnumValue[29],
+    (void *)&_oalContextEnumValue[30]
 };
 
 static const _intBuffers _oalContextEnumValues =
@@ -722,7 +772,8 @@ __oalContextSetErrorNormal(ALCenum error)
         _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
         /*
-         * safegaurd to prevent calling this function within _oalGetCurrentContext
+         * safegaurd to prevent calling this function from within
+         * _oalGetCurrentContext
          */
         been_here_before = 1;
 
@@ -884,7 +935,7 @@ _oalFindContextByDeviceId(uint32_t id)
         {
             ctx = dev->contexts;
             if (ctx) {
-                dptr = _intBufGetNoLock(ctx, _OAL_CONTEXT, dev->current_context);
+                dptr =_intBufGetNoLock(ctx, _OAL_CONTEXT, dev->current_context);
             }
         }
     }

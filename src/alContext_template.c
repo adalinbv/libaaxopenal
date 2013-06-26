@@ -38,10 +38,10 @@ ALGETCONTEXTV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
     switch(attrib)
     {
     case ALC_MONO_SOURCES:
-        *value = _MIN((T)aaxMixerGetNoMonoSources(), 255);
+        *value = (T)_MIN((unsigned)aaxMixerGetNoMonoSources(), 255);
         break;
     case ALC_STEREO_SOURCES:
-        *value = _MIN((T)aaxMixerGetNoStereoSources(), 255);
+        *value = (T)_MIN((unsigned)aaxMixerGetNoStereoSources(), 255);
         break;
     case ALC_MAJOR_VERSION:
         *value = (T)_oalContextVersion[0];
