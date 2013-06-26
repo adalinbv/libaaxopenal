@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007-2012 by Erik Hofman.
- * Copyright (C) 2007-2012 by Adalin B.V.
+ * Copyright (C) 2007-2013 by Erik Hofman.
+ * Copyright (C) 2007-2013 by Adalin B.V.
  *
  * This file is part of AeonWave-OpenAL.
  *
@@ -424,74 +424,6 @@ alcGetError(ALCdevice *device)
     return ret;
 }
 
-void
-alcGetIntegerv(ALCdevice *device, ALCenum attrib, ALCsizei size, ALCint *value)
-{
-    _oalDevice *dev;
-    uint32_t id;
-    char done = 1;
-
-    if ((size <= 0) || !value)
-    {
-        _oalContextSetError(ALC_INVALID_VALUE);
-        return;
-    }
-
-    switch(attrib)
-    {
-    case ALC_MONO_SOURCES:
-        *value = _MIN((ALCuint)aaxMixerGetNoMonoSources(), 255);
-        break;
-    case ALC_STEREO_SOURCES:
-        *value = _MIN((ALCuint)aaxMixerGetNoStereoSources(), 255);
-        break;
-    case ALC_MAJOR_VERSION:
-        *value = _oalContextVersion[0];
-        break;
-    case ALC_MINOR_VERSION:
-        *value = _oalContextVersion[1];
-        break;
-    case ALC_EFX_MAJOR_VERSION:
-        *value = _oalEFXVersion[0];
-        break;
-    case ALC_EFX_MINOR_VERSION:
-        *value = _oalEFXVersion[1];
-        break;
-    case ALC_ATTRIBUTES_SIZE:			/* TODO */
-    case ALC_ALL_ATTRIBUTES:
-        *value = 0;
-        break;
-    default:
-        done = 0;
-    }
-
-    if (done) return;
-
-    id = _oalDeviceToId(device);
-    dev = (_oalDevice *)_oalFindDeviceById(id);
-    if (dev)
-    {
-        aaxConfig config = dev->lst.handle;
-        switch(attrib)
-        {
-        case ALC_FREQUENCY:
-            *value = (ALint)aaxMixerGetFrequency(config);
-            break;
-        case ALC_REFRESH:
-            *value = (ALint)aaxMixerGetSetup(config, AAX_REFRESHRATE);
-            break;
-        case ALC_CAPTURE_SAMPLES:
-            *value = (ALint)aaxSensorGetOffset(config, AAX_SAMPLES);
-            break;
-        default:
-            *value = 0;
-            _oalContextSetError(ALC_INVALID_ENUM);
-        }
-    }
-    else
-        _oalContextSetError(ALC_INVALID_DEVICE);
-}
-
 ALCboolean
 alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
 {
@@ -649,6 +581,14 @@ alcGetString(ALCdevice *device, ALCenum attrib)
     return retstr;
 }
 
+/*
+ * void alcGetIntegerv(ALCdevice *device, ALCenum attrib, ALCsizei size,
+ *                     ALCint *value)
+ */
+#define N Integer
+#define T ALCint
+#include "alContext_template.c"
+
 
 /*-------------------------------------------------------------------------- */
 
@@ -685,23 +625,23 @@ static const _intBuffers _oalContextExtensions =
 #define MAX_ENUM	19
 static const _oalEnumValue_s _oalContextEnumValueDeclaration[MAX_ENUM] =
 {
-  {"ALC_FALSE",                                 ALC_FALSE},
-  {"ALC_TRUE",                                  ALC_TRUE},
-  {"ALC_NO_ERROR",                             ALC_NO_ERROR},
-  {"ALC_INVALID_DEVICE",                     ALC_INVALID_DEVICE},
-  {"ALC_INVALID_CONTEXT",                    ALC_INVALID_CONTEXT},
-  {"ALC_INVALID_ENUM",                        ALC_INVALID_ENUM},
-  {"ALC_INVALID_VALUE",                      ALC_INVALID_VALUE},
-  {"ALC_OUT_OF_MEMORY",                      ALC_OUT_OF_MEMORY},
-  {"ALC_DEFAULT_DEVICE_SPECIFIER",        ALC_DEFAULT_DEVICE_SPECIFIER},
+  {"ALC_FALSE",				ALC_FALSE},
+  {"ALC_TRUE",				ALC_TRUE},
+  {"ALC_NO_ERROR",			ALC_NO_ERROR},
+  {"ALC_INVALID_DEVICE",		ALC_INVALID_DEVICE},
+  {"ALC_INVALID_CONTEXT",		ALC_INVALID_CONTEXT},
+  {"ALC_INVALID_ENUM",			ALC_INVALID_ENUM},
+  {"ALC_INVALID_VALUE",			ALC_INVALID_VALUE},
+  {"ALC_OUT_OF_MEMORY",			ALC_OUT_OF_MEMORY},
+  {"ALC_DEFAULT_DEVICE_SPECIFIER",	ALC_DEFAULT_DEVICE_SPECIFIER},
   {"ALC_ALL_DEVICES_SPECIFIER", 	ALC_ALL_DEVICES_SPECIFIER},
   {"ALC_DEFAULT_ALL_DEVICES_SPECIFIER",	ALC_DEFAULT_ALL_DEVICES_SPECIFIER},
-  {"ALC_DEVICE_SPECIFIER",                  ALC_DEVICE_SPECIFIER},
-  {"ALC_EXTENSIONS",                          ALC_EXTENSIONS},
-  {"ALC_ATTRIBUTES_SIZE",                    ALC_ATTRIBUTES_SIZE},
-  {"ALC_ALL_ATTRIBUTES",                     ALC_ALL_ATTRIBUTES},
-  {"ALC_MAJOR_VERSION",                      ALC_MAJOR_VERSION},
-  {"ALC_MINOR_VERSION",                      ALC_MINOR_VERSION},
+  {"ALC_DEVICE_SPECIFIER",		ALC_DEVICE_SPECIFIER},
+  {"ALC_EXTENSIONS",			ALC_EXTENSIONS},
+  {"ALC_ATTRIBUTES_SIZE",		ALC_ATTRIBUTES_SIZE},
+  {"ALC_ALL_ATTRIBUTES",		ALC_ALL_ATTRIBUTES},
+  {"ALC_MAJOR_VERSION",			ALC_MAJOR_VERSION},
+  {"ALC_MINOR_VERSION",			ALC_MINOR_VERSION},
   {"ALC_EFX_MAJOR_VERSION",		ALC_EFX_MAJOR_VERSION},
   {"ALC_EFX_MINOR_VERSION",		ALC_EFX_MINOR_VERSION}
 };

@@ -266,7 +266,7 @@ AL_API void AL_APIENTRY alBuffer3f(ALuint id, ALenum attrib, ALfloat value1, ALf
 AL_API void AL_APIENTRY alBufferfv(ALuint id, ALenum attrib, const ALfloat* values);
 
 AL_API void AL_APIENTRY alBufferi(ALuint id, ALenum attrib, ALint value);
-AL_API void AL_APIENTRY alBuffer3i(ALuint id, ALenum attrib, const ALint, const ALint, const ALint);
+AL_API void AL_APIENTRY alBuffer3i(ALuint id, ALenum attrib, ALint, ALint, ALint);
 AL_API void AL_APIENTRY alBufferiv(ALuint id, ALenum attrib, const ALint* values);
 
 /**

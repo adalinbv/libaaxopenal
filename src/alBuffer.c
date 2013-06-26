@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007-2011 by Erik Hofman.
- * Copyright (C) 2007-2011 by Adalin B.V.
+ * Copyright (C) 2007-2013 by Erik Hofman.
+ * Copyright (C) 2007-2013 by Adalin B.V.
  *
  * This file is part of AeonWave-OpenAL.
  *
@@ -137,353 +137,6 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
 }
 
 void
-alBufferf(ALuint id, ALenum attrib, ALfloat value)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (value < 0.0f)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            aaxBufferSetFrequency(buf, (unsigned)value);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alBufferfv(ALuint id, ALenum attrib, const ALfloat *values)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (!values)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            aaxBufferSetFrequency(buf, (unsigned)*values);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alBuffer3f(ALuint id, ALenum attrib, ALfloat v1, ALfloat v2, ALfloat v3)
-{
-    ALfloat fv[3];
-
-    fv[0] = v1;
-    fv[1] = v2;
-    fv[2] = v3;
-    alBufferfv(id, attrib, (ALfloat *)&fv);
-}
-
-void
-alBufferi(ALuint id, ALenum attrib, ALint value)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (value < 0)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            aaxBufferSetFrequency(buf, (unsigned)value);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alBufferiv(ALuint id, ALenum attrib, const ALint *values)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (!values)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer  buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            aaxBufferSetFrequency(buf, values[0]);
-            break;
-        case AL_LOOP_POINTS:
-            aaxBufferSetLoopPoints(buf, values[0], values[1]);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alBuffer3i(ALuint id, ALenum attrib, const ALint v1, const ALint v2, const ALint v3)
-{
-    ALint iv[3];
-
-    iv[0] = v1;
-    iv[1] = v2;
-    iv[2] = v3;
-    alBufferiv(id, attrib, (ALint *)&iv);
-}
-
-void
-alGetBufferf(ALuint id, ALenum attrib, ALfloat* value)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (!value)
-    {
-        _oalStateSetError(AL_INVALID_NAME);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            *value = (ALfloat)aaxBufferGetFrequency(buf);
-            break;
-        case AL_SIZE:
-            *value = (ALfloat)aaxBufferGetSize(buf);
-            break;
-        case AL_BITS:
-            *value = (ALfloat)aaxBufferGetBytesPerSample(buf)*8.0f;
-            break;
-        case AL_CHANNELS:
-            *value = (ALfloat)aaxBufferGetNoTracks(buf);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alGetBufferfv(ALuint id, ALenum attrib, ALfloat *values)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (!values)
-    {
-        _oalStateSetError(AL_INVALID_VALUE);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            *values = (ALfloat)aaxBufferGetFrequency(buf);
-            break;
-        case AL_SIZE:
-            *values = (ALfloat)aaxBufferGetSize(buf);
-            break;
-        case AL_BITS:
-            *values = (ALfloat)aaxBufferGetBytesPerSample(buf)*8.0f;
-            break;
-        case AL_CHANNELS:
-            *values = (ALfloat)aaxBufferGetNoTracks(buf);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alGetBuffer3f(ALuint id, ALenum attrib, ALfloat* v1, ALfloat* v2, ALfloat* v3)
-{
-    ALfloat fv[3];
-
-    alGetBufferfv(id, attrib, (ALfloat *)&fv);
-    *v1 = fv[0];
-    *v2 = fv[1];
-    *v3 = fv[2];
-}
-
-void
-alGetBufferi(ALuint id, ALenum attrib, ALint *value)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (!value)
-    {
-        _oalStateSetError(AL_INVALID_NAME);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            *value = (ALint)aaxBufferGetFrequency(buf);
-            break;
-        case AL_SIZE:
-            *value = (ALint)aaxBufferGetSize(buf);
-            break;
-        case AL_BITS:
-            *value = (ALint)aaxBufferGetBytesPerSample(buf)*8;
-            break;
-        case AL_CHANNELS:
-            *value = (ALint)aaxBufferGetNoTracks(buf);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alGetBufferiv(ALuint id, ALenum attrib, ALint *values)
-{
-    const _intBufferData *dptr;
-    unsigned int pos;
-
-    _AL_LOG(LOG_INFO, __FUNCTION__);
-
-    if (!id) return;	/* nop */
-
-    if (!values)
-    {
-        _oalStateSetError(AL_INVALID_NAME);
-        return;
-    }
-
-    dptr = _oalFindBufferById(id, &pos);
-    if (dptr)
-    {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
-        switch (attrib)
-        {
-        case AL_FREQUENCY:
-            *values = (ALint)aaxBufferGetFrequency(buf);
-            break;
-        case AL_SIZE:
-            *values = (ALint)aaxBufferGetSize(buf);
-            break;
-        case AL_BITS:
-            *values = (ALint)aaxBufferGetBytesPerSample(buf)*8;
-            break;
-        case AL_CHANNELS:
-            *values = (ALint)aaxBufferGetNoTracks(buf);
-            break;
-        default:
-            _oalStateSetError(AL_INVALID_ENUM);
-        }
-    } else {
-        _oalStateSetError(AL_INVALID_NAME);
-    }
-}
-
-void
-alGetBuffer3i(ALuint id, ALenum attrib, ALint *v1, ALint *v2, ALint *v3)
-{
-    ALint iv[3];
-
-    alGetBufferiv(id, attrib, (ALint *)&iv);
-    *v1 = iv[0];
-    *v2 = iv[1];
-    *v3 = iv[2];
-}
-
-void
 alBufferData(ALuint id, ALenum format,
                  const ALvoid *data, ALsizei size, ALsizei frequency)
 {
@@ -549,6 +202,32 @@ alBufferData(ALuint id, ALenum format,
     }
 }
 
+
+/*
+ * void alBufferi(ALuint id, ALenum attrib, ALint value)
+ * void alBufferiv(ALuint id, ALenum attrib, const ALint *values) 
+ * void alBuffer3i(ALuint id, ALenum attrib, ALint v1, ALint v2,ALint v3)
+ *
+ * void alGetBufferi(ALuint id, ALenum attrib, ALint *value)
+ * void alGetBufferiv(ALuint id, ALenum attrib, ALint *values)
+ * void alGetBuffer3i(ALuint id, ALenum attrib, ALint *v1, ALint *v2, ALint *v3)
+ */
+#define N i
+#define T ALint
+#include "alBuffer_template.c"
+
+/*
+ * void alBufferf(ALuint id, ALenum attrib, ALfloat value)
+ * void alBufferfv(ALuint id, ALenum attrib, const ALfloat *values) 
+ * void alBuffer3f(ALuint id, ALenum attrib, ALfloat v1, ALfloat v2,ALfloat v3)
+ *
+ * void alGetBufferf(ALuint id, ALenum attrib, ALfloat *value)
+ * void alGetBufferfv(ALuint id, ALenum attrib, ALfloat *values)
+ * void alGetBuffer3f(ALuint id, ALenum attrib, ALfloat *v1, ALfloat *v2, ALfloat *v3)
+ */
+#define N f
+#define T ALfloat
+#include "alBuffer_template.c"
 
 /* -------------------------------------------------------------------------- */
 
