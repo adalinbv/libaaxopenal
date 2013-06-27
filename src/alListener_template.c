@@ -100,9 +100,16 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
                 vec3f[2] = (T)values[2];
                 aaxSensorSetVelocity(config, vec3f);
                 break;
+            /* AL_AAX_frequency_filter */
+            case AL_FREQUENCY_FILTER_PARAMS_AAX:
+                aaxScenerySetFrequencyFilter(config, (float)values[0],
+                                            (float)values[1], (float)values[2]);
+                break;
+
             /* AL_AAX_environment */
             case AL_SCENE_DIMENSIONS_AAX:
             case AL_SCENE_CENTER_AAX:
+            case AL_WIND_DIRECTION_AAX:
             default:
                 ALLISTENER(N)(attrib, *values);
             }
@@ -124,8 +131,18 @@ ALLISTENER(N)(ALenum attrib, T value)
     if (lst != NULL)
     {
         aaxConfig config = config;
+        float fval = (float)value;
+
         switch(attrib)
         {
+        case AL_GAIN:
+        if (value >= 0) {
+             aaxMixerSetGain(config, value);
+        }
+        else {
+            _oalStateSetError(AL_INVALID_VALUE);
+        }
+        break;
         /* AL_AAX_frequency_filter */
         case AL_FREQUENCY_FILTER_ENABLE_AAX:
         {
@@ -135,17 +152,19 @@ ALLISTENER(N)(ALenum attrib, T value)
             aaxFilterDestroy(f);
             break;
         }
+        case AL_FREQUENCY_FILTER_GAINLF_AAX:
+            aaxScenerySetFrequencyFilter(config, AAX_FPNONE, fval, AAX_FPNONE);
+            break;
+        case AL_FREQUENCY_FILTER_GAINHF_AAX:
+            aaxScenerySetFrequencyFilter(config, AAX_FPNONE, AAX_FPNONE, fval);
+            break;
         case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
-        {
-            float fval = (float)value;
             aaxScenerySetFrequencyFilter(config, fval, AAX_FPNONE, AAX_FPNONE);
             break;
-        };
         /* AL_AAX_environment */
         case AL_SCENE_LENGTH_AAX:
         case AL_SCENE_WIDTH_AAX:
         case AL_SCENE_HEIGHT_AAX:
-        case AL_WIND_SPEED_AAX:
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }
@@ -210,6 +229,9 @@ ALGETLISTENERV(N)(ALenum attrib, T *values)
             values[2] = (T)vec3f[2];
             break;
         }
+        case AL_SCENE_DIMENSIONS_AAX:
+        case AL_SCENE_CENTER_AAX:
+        case AL_WIND_DIRECTION_AAX:
         default:
             ALGETLISTENER(N)(attrib, values);
         }
@@ -242,6 +264,9 @@ ALGETLISTENER(N)(ALenum attrib, T *value)
         case AL_GAIN:
             *value = (T)aaxMixerGetGain(config);
             break;
+        case AL_SCENE_LENGTH_AAX:
+        case AL_SCENE_WIDTH_AAX:
+        case AL_SCENE_HEIGHT_AAX:
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }

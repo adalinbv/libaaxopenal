@@ -53,7 +53,7 @@ ALCEXT_API void ALCEXT_APIENTRY alcGetCaptureivAAX(ALCdevice * device, ALCenum a
 # define ALC_EXT_EFX 1
 # define ALC_EFX_MAJOR_VERSION			0x20001
 # define ALC_EFX_MINOR_VERSION 			0x20002
-# define ALC_MAX_AUXILIARY_SENDS			0x20003
+# define ALC_MAX_AUXILIARY_SENDS		0x20003
 #endif
 
 

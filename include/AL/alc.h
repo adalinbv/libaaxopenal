@@ -94,13 +94,6 @@ typedef void ALCvoid;
 #define ALC_ALL_DEVICES_SPECIFIER		0x1013
 #endif
 
-#ifndef ALC_EXT_EFX
-#define ALC_EXT_EFX 1
-#define ALC_EFX_MAJOR_VERSION			0x20001
-#define ALC_EFX_MINOR_VERSION			0x20002
-
-#endif
-
 ALC_API ALCdevice* ALC_APIENTRY alcOpenDevice (const ALCchar *name);
 ALC_API ALCboolean ALC_APIENTRY alcCloseDevice (ALCdevice *device);
 ALC_API ALCcontext* ALC_APIENTRY alcCreateContext (const ALCdevice * device, const ALCint * attrList);
@@ -116,7 +109,6 @@ ALC_API ALCenum ALC_APIENTRY alcGetEnumValue(const ALCdevice *device, const ALCc
 ALC_API ALCenum ALC_APIENTRY alcGetError(ALCdevice * device);
 ALC_API const ALCchar* ALC_APIENTRY alcGetString(ALCdevice * device, ALCenum token);
 ALC_API void ALC_APIENTRY alcGetIntegerv(ALCdevice * device, ALCenum token, ALCsizei size, ALCint *dest);
-
 
 ALC_API void ALC_APIENTRY alcCaptureStart(ALCdevice *device);
 ALC_API void ALC_APIENTRY alcCaptureStop(ALCdevice *device);
