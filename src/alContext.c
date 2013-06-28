@@ -436,7 +436,7 @@ alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
     }
 
     i = 0;
-    while (((e = &_oalContextEnums[i++]) != NULL) && e->name)
+    while (((e = &_oalContextExtensions[i++]) != NULL) && e->name)
     {
         r = (!strcasecmp((const char *)name, e->name));
         if (r) break;

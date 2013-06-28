@@ -335,7 +335,7 @@ _oalAAXGetExtensionSupport(const char *name)
 const char*
 _oalAAXGetExtensions(const char **ext)
 {
-    static char retstr[2048] = "\0";
+    static char retstr[2048] = "\0\0";
     char* ptr = (char *)retstr;
 
     if (*ptr == '\0')
@@ -397,7 +397,7 @@ _oalAAXGetCtxExtensionSupport(const char *name)
 const char*
 _oalAAXGetCtxExtensions(const char** exts)
 {
-    static char retstr[2048] = "\0";
+    static char retstr[2048] = "\0\0";
     char* ptr = (char *)retstr;
 
     if (*ptr == '\0')
