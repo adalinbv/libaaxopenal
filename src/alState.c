@@ -45,8 +45,8 @@
 
 /* forward declarations */
 const char *_oalStateErrorStrings[];
-static const _intBuffers _oalExtensions;
-static const _intBuffers _oalEnumValues;
+static const char* _oalExtensions[];
+static const _oalEnumValue_s _oalEnumValues[];
 
 static ALfloat _oalGetDopplerFactor();
 static void _oalSetDopplerFactor(ALfloat f);
@@ -164,7 +164,7 @@ alGetString(ALenum attrib)
             retstr = (ALchar *)_oalStateErrorStrings[attrib - AL_INVALID_NAME];
             break;
         case AL_EXTENSIONS:
-            retstr = (ALchar *)_oalAAXGetExtensions(&_oalExtensions);
+            retstr = (ALchar *)_oalAAXGetExtensions(_oalExtensions);
             break;
         case AL_VERSION:
             retstr = (ALchar *)_oalAAXGetVersionString(dev->lst.handle);
@@ -231,22 +231,17 @@ alDopplerVelocity(ALfloat velocity)
 ALboolean
 alIsExtensionPresent(const ALchar *name)
 {
-    const _intBuffers *exts;
     ALCboolean r = ALC_FALSE;
-    unsigned int i, n;
+    unsigned int i;
+    const char *e;
 
-    exts = &_oalExtensions;
-    n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-    for (i=0; i<n; i++)
+    i = 0;
+    while((e = _oalExtensions[++i]) != NULL)
     {
-        _intBufferData *dptr;
-        const char *str;
-
-        dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-        str = _intBufGetDataPtr(dptr);
-
-        r = (!strcasecmp((const char *)name, str));
+        r = (!strcasecmp((const char *)name, e));
         if (r) break;
+
+        e = _oalExtensions[++i];
     }
 
     if (!r) {
@@ -265,10 +260,9 @@ alGetProcAddress(const ALchar *name)
 ALenum
 alGetEnumValue(const ALchar* name)
 {
-    const _intBuffers *exts = &_oalEnumValues;
     const _oalEnumValue_s *e;
     ALenum rv = AL_FALSE;
-    unsigned int i, num;
+    unsigned int i;
 
     if (!name)
     {
@@ -276,15 +270,11 @@ alGetEnumValue(const ALchar* name)
         return ALC_FALSE;
     }
 
-    num = _intBufGetNumNoLock(&_oalEnumValues, _OAL_ENUM);
-    for (i=0; i<num; i++)
+    i = 0;
+    while (((e = &_oalEnumValues[++i]) != NULL) && e->name)
     {
-        _intBufferData *dptr;
- 
-        dptr = _intBufGetNoLock(exts, _OAL_ENUM, i);
-        e = _intBufGetDataPtr(dptr);
-
-        if (!strcasecmp((const char *)name, e->name)) {
+        if (!strcasecmp((const char *)name, e->name))
+        {
             rv = e->enumVal;
             break;
         }
@@ -341,56 +331,27 @@ alHint(ALenum target, ALenum mode)
 /**
  * extensions
  */
-#define MAX_EXTENSIONS     11
-static const _intBufferData _oalExtensionsDeclaration[MAX_EXTENSIONS] =
+static const char* _oalExtensions[] =
 {
-    {0, 1, "AL_EXT_exponent_distance"},
-    {0, 1, "AL_EXT_linear_distance"},
-    {0, 1, "AL_EXT_float32"},
-    {0, 1, "AL_EXT_double"},
-    {0, 1, "AL_EXT_mulaw"},
-    {0, 1, "AL_EXT_alaw"},
-    {0, 1, "AL_EXT_ima4"},
-    {0, 1, "AL_EXT_offset"},
-    {0, 1, "AL_EXT_mcformats"},
-    {0, 1, "AL_EXT_loop_points"},
-    {0, 1, "AL_EXT_source_distance_model"}
-};
+  "AL_EXT_exponent_distance",
+  "AL_EXT_linear_distance",
+  "AL_EXT_float32",
+  "AL_EXT_double",
+  "AL_EXT_mulaw",
+  "AL_EXT_alaw",
+  "AL_EXT_ima4",
+  "AL_EXT_offset",
+  "AL_EXT_mcformats",
+  "AL_EXT_loop_points",
+  "AL_EXT_source_distance_model",
 
-static const void *_oalExtensionsPtr[MAX_EXTENSIONS] =
-{
-    (void *)&_oalExtensionsDeclaration[0],
-    (void *)&_oalExtensionsDeclaration[1],
-    (void *)&_oalExtensionsDeclaration[2],
-    (void *)&_oalExtensionsDeclaration[3],
-    (void *)&_oalExtensionsDeclaration[4],
-    (void *)&_oalExtensionsDeclaration[5],
-    (void *)&_oalExtensionsDeclaration[6],
-    (void *)&_oalExtensionsDeclaration[7],
-    (void *)&_oalExtensionsDeclaration[8],
-    (void *)&_oalExtensionsDeclaration[9],
-    (void *)&_oalExtensionsDeclaration[10]
-};
-
-static const _intBuffers _oalExtensions =
-{
-    0,
-    _OAL_EXTENSION,
-    MAX_EXTENSIONS,
-    MAX_EXTENSIONS,
-    MAX_EXTENSIONS,
-    (_intBufferData **)&_oalExtensionsPtr
+  NULL					/* always last */
 };
 
 /**
  * Enum
  */
-#ifdef AL_VERSION_1_0
-# define MAX_ENUM	155
-#else
-# define MAX_ENUM	154
-#endif
-static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
+static const _oalEnumValue_s _oalEnumValues[] =
 {
   {"AL_FALSE",				AL_FALSE},
   {"AL_TRUE",				AL_TRUE},
@@ -401,7 +362,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_INVALID_OPERATION",		AL_INVALID_OPERATION},
   {"AL_OUT_OF_MEMORY",			AL_OUT_OF_MEMORY},
   {"AL_VENDOR",				AL_VENDOR},
-  {"AL_VERSION",			AL_VERSION},			// 10
+  {"AL_VERSION",			AL_VERSION},
   {"AL_RENDERER",			AL_RENDERER},
   {"AL_EXTENSIONS",			AL_EXTENSIONS},
   {"AL_FORMAT_MONO8",			AL_FORMAT_MONO8},
@@ -413,7 +374,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_DOPPLER_VELOCITY",		AL_DOPPLER_VELOCITY},
 #endif
   {"AL_SPEED_OF_SOUND",			AL_SPEED_OF_SOUND},
-  {"AL_DISTANCE_MODEL",			AL_DISTANCE_MODEL},		// 20
+  {"AL_DISTANCE_MODEL",			AL_DISTANCE_MODEL},
   {"AL_INVERSE_DISTANCE",		AL_INVERSE_DISTANCE},
   {"AL_INVERSE_DISTANCE_CLAMPED",	AL_INVERSE_DISTANCE_CLAMPED},
   {"AL_LINEAR_DISTANCE",		AL_LINEAR_DISTANCE},
@@ -424,7 +385,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_SOURCE_RELATIVE",		AL_SOURCE_RELATIVE},
   {"AL_CONE_INNER_ANGLE",		AL_CONE_INNER_ANGLE},
   {"AL_CONE_OUTER_ANGLE",		AL_CONE_OUTER_ANGLE},
-  {"AL_PITCH",				AL_PITCH},			// 30
+  {"AL_PITCH",				AL_PITCH},
   {"AL_POSITION",			AL_POSITION},
   {"AL_DIRECTION",			AL_DIRECTION},
   {"AL_VELOCITY",			AL_VELOCITY},
@@ -434,7 +395,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_MIN_GAIN",			AL_MIN_GAIN},
   {"AL_MAX_GAIN",			AL_MAX_GAIN},
   {"AL_ORIENTATION",			AL_ORIENTATION},
-  {"AL_SOURCE_STATE",			AL_SOURCE_STATE},		// 40
+  {"AL_SOURCE_STATE",			AL_SOURCE_STATE},
   {"AL_INITIAL",			AL_INITIAL},
   {"AL_PLAYING",			AL_PLAYING},
   {"AL_PAUSED",				AL_PAUSED},
@@ -444,7 +405,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_REFERENCE_DISTANCE",		AL_REFERENCE_DISTANCE},
   {"AL_ROLLOFF_FACTOR",			AL_ROLLOFF_FACTOR},
   {"AL_CONE_OUTER_GAIN",		AL_CONE_OUTER_GAIN},
-  {"AL_MAX_DISTANCE",			AL_MAX_DISTANCE},		// 50
+  {"AL_MAX_DISTANCE",			AL_MAX_DISTANCE},
   {"AL_SEC_OFFSET",			AL_SEC_OFFSET},
   {"AL_SAMPLE_OFFSET",			AL_SAMPLE_OFFSET},
   {"AL_BYTE_OFFSET",			AL_BYTE_OFFSET},
@@ -454,7 +415,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_UNDETERMINED",			AL_UNDETERMINED},
   {"AL_CHANNEL_MASK",			AL_CHANNEL_MASK},
   {"AL_FREQUENCY",			AL_FREQUENCY},
-  {"AL_BITS",				AL_BITS},			// 60
+  {"AL_BITS",				AL_BITS},
   {"AL_CHANNELS",			AL_CHANNELS},
   {"AL_SIZE",				AL_SIZE},
   {"AL_UNUSED",				AL_UNUSED},
@@ -467,7 +428,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
 /* Extensions */
   {"AL_SOURCE_DISTANCE_MODEL",		AL_SOURCE_DISTANCE_MODEL},
   {"AL_FORMAT_QUAD8",			AL_FORMAT_QUAD8},
-  {"AL_FORMAT_QUAD16",			AL_FORMAT_QUAD16},		// 70
+  {"AL_FORMAT_QUAD16",			AL_FORMAT_QUAD16},
   {"AL_FORMAT_QUAD32",			AL_FORMAT_QUAD32},
   {"AL_FORMAT_REAR8",			AL_FORMAT_REAR8},
   {"AL_FORMAT_REAR16",			AL_FORMAT_REAR16},
@@ -477,7 +438,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_FORMAT_51CHN32",			AL_FORMAT_51CHN32},
   {"AL_FORMAT_61CHN8",			AL_FORMAT_61CHN8},
   {"AL_FORMAT_61CHN16",			AL_FORMAT_61CHN16},
-  {"AL_FORMAT_61CHN32",			AL_FORMAT_61CHN32},		// 80
+  {"AL_FORMAT_61CHN32",			AL_FORMAT_61CHN32},
   {"AL_FORMAT_71CHN8",			AL_FORMAT_71CHN8},
   {"AL_FORMAT_71CHN16",			AL_FORMAT_71CHN16},
   {"AL_FORMAT_71CHN32",			AL_FORMAT_71CHN32},
@@ -488,7 +449,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_FORMAT_MONO_IMA4",		AL_FORMAT_MONO_IMA4},
   {"AL_FORMAT_STEREO_IMA4",		AL_FORMAT_STEREO_IMA4},
   {"AL_FORMAT_IMA_ADPCM_MONO16_EXT",	AL_FORMAT_IMA_ADPCM_MONO16_EXT},
-  {"AL_FORMAT_IMA_ADPCM_STEREO16_EXT",	AL_FORMAT_IMA_ADPCM_STEREO16_EXT}, // 90
+  {"AL_FORMAT_IMA_ADPCM_STEREO16_EXT",	AL_FORMAT_IMA_ADPCM_STEREO16_EXT},
   {"AL_FORMAT_MONO_FLOAT32",		AL_FORMAT_MONO_FLOAT32},
   {"AL_FORMAT_STEREO_FLOAT32",		AL_FORMAT_STEREO_FLOAT32},
   {"AL_FORMAT_MONO_DOUBLE_EXT",		AL_FORMAT_MONO_DOUBLE_EXT},
@@ -511,7 +472,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_REVERB_DECAY_TIME_AAX",		AL_REVERB_DECAY_TIME_AAX},
   {"AL_REVERB_DECAY_TIME_HF_AAX",	AL_REVERB_DECAY_TIME_HF_AAX},
   /* Source EFX */
-  {"AL_DIRECT_FILTER",			AL_DIRECT_FILTER},		// 110
+  {"AL_DIRECT_FILTER",			AL_DIRECT_FILTER},
   {"AL_AUXILIARY_SEND_FILTER",		AL_AUXILIARY_SEND_FILTER},
   {"AL_AIR_ABSORPTION_FACTOR",		AL_AIR_ABSORPTION_FACTOR},
   {"AL_ROOM_ROLLOFF_FACTOR",		AL_ROOM_ROLLOFF_FACTOR},
@@ -521,7 +482,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO",AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO},
   {"AL_EFFECT_TYPE",			AL_EFFECT_TYPE},
   {"AL_EFFECT_NULL",			AL_EFFECT_NULL},
-  {"AL_EFFECT_REVERB",			AL_EFFECT_REVERB},		// 120
+  {"AL_EFFECT_REVERB",			AL_EFFECT_REVERB},
   {"AL_EFFECT_CHORUS",			AL_EFFECT_CHORUS},
   {"AL_EFFECT_DISTORTION",		AL_EFFECT_DISTORTION},
   {"AL_EFFECT_ECHO",			AL_EFFECT_ECHO},
@@ -531,7 +492,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_EFFECT_PITCH_SHIFTER",		AL_EFFECT_PITCH_SHIFTER},
   {"AL_EFFECT_RING_MODULATOR",		AL_EFFECT_RING_MODULATOR},
   {"AL_EFFECT_AUTOWAH",			AL_EFFECT_AUTOWAH},
-  {"AL_EFFECT_COMPRESSOR",		AL_EFFECT_COMPRESSOR},		// 130
+  {"AL_EFFECT_COMPRESSOR",		AL_EFFECT_COMPRESSOR},
   {"AL_EFFECT_EQUALIZER",		AL_EFFECT_EQUALIZER},
   {"AL_REVERB_DENSITY",			AL_REVERB_DENSITY},
   {"AL_REVERB_DIFFUSION",		AL_REVERB_DIFFUSION},
@@ -541,7 +502,7 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_REVERB_DECAY_HFRATIO",		AL_REVERB_DECAY_HFRATIO},
   {"AL_REVERB_REFLECTIONS_GAIN",	AL_REVERB_REFLECTIONS_GAIN},
   {"AL_REVERB_REFLECTIONS_DELAY",	AL_REVERB_REFLECTIONS_DELAY},
-  {"AL_REVERB_LATE_REVERB_GAIN",	AL_REVERB_LATE_REVERB_GAIN},	// 140
+  {"AL_REVERB_LATE_REVERB_GAIN",	AL_REVERB_LATE_REVERB_GAIN},
   {"AL_REVERB_LATE_REVERB_DELAY",	AL_REVERB_LATE_REVERB_DELAY},
   {"AL_REVERB_AIR_ABSORPTION_GAINHF",	AL_REVERB_AIR_ABSORPTION_GAINHF},
   {"AL_REVERB_ROOM_ROLLOFF_FACTOR",	AL_REVERB_ROOM_ROLLOFF_FACTOR},
@@ -551,346 +512,15 @@ static const _oalEnumValue_s _oalEnumValueDeclaration[MAX_ENUM] =
   {"AL_FILTER_LOWPASS",			AL_FILTER_LOWPASS},
   {"AL_FILTER_HIGHPASS",		AL_FILTER_HIGHPASS},
   {"AL_FILTER_BANDPASS",		AL_FILTER_BANDPASS},
-  {"AL_LOWPASS_GAIN",			AL_LOWPASS_GAIN},		// 150
+  {"AL_LOWPASS_GAIN",			AL_LOWPASS_GAIN},
   {"AL_LOWPASS_GAINHF",			AL_LOWPASS_GAINHF},
   {"AL_EFFECTSLOT_EFFECT",		AL_EFFECTSLOT_EFFECT},
   {"AL_EFFECTSLOT_GAIN",		AL_EFFECTSLOT_GAIN},
   {"AL_EFFECTSLOT_AUXILIARY_SEND_AUTO",	AL_EFFECTSLOT_AUXILIARY_SEND_AUTO},
-  {"AL_EFFECTSLOT_NULL",		AL_EFFECTSLOT_NULL}
-};
+  {"AL_EFFECTSLOT_NULL",		AL_EFFECTSLOT_NULL},
 
-static const _intBufferData _oalEnumValue[MAX_ENUM] =
-{
-    {0, 1, (void *)&_oalEnumValueDeclaration[0]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[1]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[2]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[3]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[4]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[5]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[6]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[7]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[8]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[9]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[10]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[11]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[12]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[13]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[14]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[15]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[16]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[17]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[18]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[19]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[20]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[21]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[22]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[23]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[24]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[25]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[26]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[27]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[28]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[29]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[30]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[31]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[32]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[33]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[34]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[35]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[36]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[37]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[38]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[39]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[40]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[41]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[42]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[43]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[44]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[45]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[46]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[47]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[48]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[49]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[50]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[51]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[52]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[53]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[54]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[55]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[56]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[57]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[58]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[59]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[60]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[61]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[62]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[63]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[64]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[65]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[66]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[67]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[68]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[69]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[70]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[71]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[72]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[73]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[74]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[75]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[76]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[77]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[78]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[79]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[80]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[81]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[82]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[83]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[84]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[85]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[86]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[87]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[88]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[89]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[90]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[91]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[92]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[93]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[94]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[95]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[96]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[97]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[98]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[99]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[100]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[101]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[102]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[103]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[104]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[105]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[106]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[107]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[108]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[109]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[110]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[111]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[112]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[113]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[114]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[115]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[116]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[117]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[118]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[119]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[120]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[121]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[122]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[123]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[124]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[125]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[126]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[127]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[128]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[129]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[130]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[131]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[132]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[133]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[134]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[135]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[136]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[137]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[138]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[139]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[140]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[141]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[142]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[143]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[144]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[145]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[146]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[147]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[148]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[149]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[150]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[151]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[152]},
-    {0, 1, (void *)&_oalEnumValueDeclaration[153]}
-#ifdef AL_VERSION_1_0
-    , {0, 1, (void *)&_oalEnumValueDeclaration[154]}
-#endif
+  {NULL, 0}				/* always last */
 };
-
-static const void *_oalEnumValuePtr[MAX_ENUM] =
-{
-    (void *)&_oalEnumValue[0],
-    (void *)&_oalEnumValue[1],
-    (void *)&_oalEnumValue[2],
-    (void *)&_oalEnumValue[3],
-    (void *)&_oalEnumValue[4],
-    (void *)&_oalEnumValue[5],
-    (void *)&_oalEnumValue[6],
-    (void *)&_oalEnumValue[7],
-    (void *)&_oalEnumValue[8],
-    (void *)&_oalEnumValue[9],
-    (void *)&_oalEnumValue[10],
-    (void *)&_oalEnumValue[11],
-    (void *)&_oalEnumValue[12],
-    (void *)&_oalEnumValue[13],
-    (void *)&_oalEnumValue[14],
-    (void *)&_oalEnumValue[15],
-    (void *)&_oalEnumValue[16],
-    (void *)&_oalEnumValue[17],
-    (void *)&_oalEnumValue[18],
-    (void *)&_oalEnumValue[19],
-    (void *)&_oalEnumValue[20],
-    (void *)&_oalEnumValue[21],
-    (void *)&_oalEnumValue[22],
-    (void *)&_oalEnumValue[23],
-    (void *)&_oalEnumValue[24],
-    (void *)&_oalEnumValue[25],
-    (void *)&_oalEnumValue[26],
-    (void *)&_oalEnumValue[27],
-    (void *)&_oalEnumValue[28],
-    (void *)&_oalEnumValue[29],
-    (void *)&_oalEnumValue[30],
-    (void *)&_oalEnumValue[31],
-    (void *)&_oalEnumValue[32],
-    (void *)&_oalEnumValue[33],
-    (void *)&_oalEnumValue[34],
-    (void *)&_oalEnumValue[35],
-    (void *)&_oalEnumValue[36],
-    (void *)&_oalEnumValue[37],
-    (void *)&_oalEnumValue[38],
-    (void *)&_oalEnumValue[39],
-    (void *)&_oalEnumValue[40],
-    (void *)&_oalEnumValue[41],
-    (void *)&_oalEnumValue[42],
-    (void *)&_oalEnumValue[43],
-    (void *)&_oalEnumValue[44],
-    (void *)&_oalEnumValue[45],
-    (void *)&_oalEnumValue[46],
-    (void *)&_oalEnumValue[47],
-    (void *)&_oalEnumValue[48],
-    (void *)&_oalEnumValue[49],
-    (void *)&_oalEnumValue[50],
-    (void *)&_oalEnumValue[51],
-    (void *)&_oalEnumValue[52],
-    (void *)&_oalEnumValue[53],
-    (void *)&_oalEnumValue[54],
-    (void *)&_oalEnumValue[55],
-    (void *)&_oalEnumValue[56],
-    (void *)&_oalEnumValue[57],
-    (void *)&_oalEnumValue[58],
-    (void *)&_oalEnumValue[59],
-    (void *)&_oalEnumValue[60],
-    (void *)&_oalEnumValue[61],
-    (void *)&_oalEnumValue[62],
-    (void *)&_oalEnumValue[63],
-    (void *)&_oalEnumValue[64],
-    (void *)&_oalEnumValue[65],
-    (void *)&_oalEnumValue[66],
-    (void *)&_oalEnumValue[67],
-    (void *)&_oalEnumValue[68],
-    (void *)&_oalEnumValue[69],
-    (void *)&_oalEnumValue[70],
-    (void *)&_oalEnumValue[71],
-    (void *)&_oalEnumValue[72],
-    (void *)&_oalEnumValue[73],
-    (void *)&_oalEnumValue[74],
-    (void *)&_oalEnumValue[75],
-    (void *)&_oalEnumValue[76],
-    (void *)&_oalEnumValue[77],
-    (void *)&_oalEnumValue[78],
-    (void *)&_oalEnumValue[79],
-    (void *)&_oalEnumValue[80],
-    (void *)&_oalEnumValue[81],
-    (void *)&_oalEnumValue[82],
-    (void *)&_oalEnumValue[83],
-    (void *)&_oalEnumValue[84],
-    (void *)&_oalEnumValue[85],
-    (void *)&_oalEnumValue[86],
-    (void *)&_oalEnumValue[87],
-    (void *)&_oalEnumValue[88],
-    (void *)&_oalEnumValue[89],
-    (void *)&_oalEnumValue[90],
-    (void *)&_oalEnumValue[91],
-    (void *)&_oalEnumValue[92],
-    (void *)&_oalEnumValue[93],
-    (void *)&_oalEnumValue[94],
-    (void *)&_oalEnumValue[95],
-    (void *)&_oalEnumValue[96],
-    (void *)&_oalEnumValue[97],
-    (void *)&_oalEnumValue[98],
-    (void *)&_oalEnumValue[99],
-    (void *)&_oalEnumValue[100],
-    (void *)&_oalEnumValue[101],
-    (void *)&_oalEnumValue[102],
-    (void *)&_oalEnumValue[103],
-    (void *)&_oalEnumValue[104],
-    (void *)&_oalEnumValue[105],
-    (void *)&_oalEnumValue[106],
-    (void *)&_oalEnumValue[107],
-    (void *)&_oalEnumValue[108],
-    (void *)&_oalEnumValue[109],
-    (void *)&_oalEnumValue[110],
-    (void *)&_oalEnumValue[111],
-    (void *)&_oalEnumValue[112],
-    (void *)&_oalEnumValue[113],
-    (void *)&_oalEnumValue[114],
-    (void *)&_oalEnumValue[115],
-    (void *)&_oalEnumValue[116],
-    (void *)&_oalEnumValue[117],
-    (void *)&_oalEnumValue[118],
-    (void *)&_oalEnumValue[119],
-    (void *)&_oalEnumValue[120],
-    (void *)&_oalEnumValue[121],
-    (void *)&_oalEnumValue[122],
-    (void *)&_oalEnumValue[123],
-    (void *)&_oalEnumValue[124],
-    (void *)&_oalEnumValue[125],
-    (void *)&_oalEnumValue[126],
-    (void *)&_oalEnumValue[127],
-    (void *)&_oalEnumValue[128],
-    (void *)&_oalEnumValue[129],
-    (void *)&_oalEnumValue[130],
-    (void *)&_oalEnumValue[131],
-    (void *)&_oalEnumValue[132],
-    (void *)&_oalEnumValue[133],
-    (void *)&_oalEnumValue[134],
-    (void *)&_oalEnumValue[135],
-    (void *)&_oalEnumValue[136],
-    (void *)&_oalEnumValue[137],
-    (void *)&_oalEnumValue[138],
-    (void *)&_oalEnumValue[139],
-    (void *)&_oalEnumValue[140],
-    (void *)&_oalEnumValue[141],
-    (void *)&_oalEnumValue[142],
-    (void *)&_oalEnumValue[143],
-    (void *)&_oalEnumValue[144],
-    (void *)&_oalEnumValue[145],
-    (void *)&_oalEnumValue[146],
-    (void *)&_oalEnumValue[147],
-    (void *)&_oalEnumValue[148],
-    (void *)&_oalEnumValue[149],
-    (void *)&_oalEnumValue[150],
-    (void *)&_oalEnumValue[151],
-    (void *)&_oalEnumValue[152],
-    (void *)&_oalEnumValue[153]
-#ifdef AL_VERSION_1_0
-    , (void *)&_oalEnumValue[154]
-#endif
-};
-
-static const _intBuffers _oalEnumValues =
-{
-    0,
-    _OAL_ENUM,
-    MAX_ENUM,
-    MAX_ENUM,
-    MAX_ENUM,
-    (void *)&_oalEnumValuePtr
-};
-#undef MAX_ENUM
 
 const char *_oalStateErrorStrings[] =
 {

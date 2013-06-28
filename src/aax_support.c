@@ -43,9 +43,9 @@
 #include "api.h"
 #include "aax_support.h"
 
-static const _intBuffers aaxExtensionsString;
-static const _intBuffers aaxCtxExtensionsString;
-static const _intBuffers aaxEnumValues;
+static const char* aaxExtensions[];
+static const char* aaxCtxExtensions[];
+static const _oalEnumValue_s aaxEnums[];
 void cpuID(unsigned, unsigned[4]);
 
 ALsizei
@@ -302,20 +302,13 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
 const _oalEnumValue_s *
 _oalAAXGetEnum(const char *name)
 {
-    const _oalEnumValue_s *e = NULL;
-    const _intBuffers *enums;
-    unsigned int i, n;
+    const _oalEnumValue_s *e;
+    unsigned int i;
 
-    enums = &aaxEnumValues;
-    n = _intBufGetNumNoLock(enums, _OAL_ENUM);
-    for (i=0; i<n; i++)
+    i = 0;
+    while (((e = &aaxEnums[i++]) != NULL) && e->name)
     {
-        _intBufferData *dptr;
-
-        dptr = _intBufGetNoLock(enums, _OAL_ENUM, i);
-        e = _intBufGetDataPtr(dptr);
-
-        if (!strcasecmp((const char *)name, e->name))
+        if (!strcasecmp(name, e->name))
             break;
     }
 
@@ -325,21 +318,14 @@ _oalAAXGetEnum(const char *name)
 ALCboolean
 _oalAAXGetExtensionSupport(const char *name)
 {
-    const _intBuffers *exts;
     ALCboolean r = ALC_FALSE;
-    unsigned int i, n;
+    unsigned int i;
+    const char* s;
 
-    exts = &aaxExtensionsString;
-    n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-    for (i=0; i<n; i++)
+    i = 0;
+    while ((s = aaxExtensions[i++]) != NULL)
     {
-        _intBufferData *dptr;
-        const char *str;
-
-        dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-        str = _intBufGetDataPtr(dptr);
-
-        r = (!strcasecmp((const char *)name, str));
+        r = (!strcasecmp(name, s));
         if (r) break;
     }
 
@@ -347,7 +333,7 @@ _oalAAXGetExtensionSupport(const char *name)
 }
 
 const char*
-_oalAAXGetExtensions(const _intBuffers *exts)
+_oalAAXGetExtensions(const char **ext)
 {
     static char retstr[2048] = "\0";
     char* ptr = (char *)retstr;
@@ -355,40 +341,13 @@ _oalAAXGetExtensions(const _intBuffers *exts)
     if (*ptr == '\0')
     {
         unsigned max_strlen = 2048;
-        unsigned int i, n;
+        unsigned int i;
+        const char *s;
 
-        if (exts)
+        i = 0;
+        while ((s = ext[i++]) != NULL)
         {
-            n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-            for (i=0; i<n; i++)
-            {
-                _intBufferData *dptr;
-                const char *s;
-                unsigned slen;
-
-                dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-                s = _intBufGetDataPtr(dptr);
-                slen = strlen(s) + 1;
-                if (slen < max_strlen)
-                {
-                    snprintf(ptr, max_strlen, "%s ", s);
-                    max_strlen -= slen;
-                    ptr += slen;
-                }
-            }
-        }
-
-        exts = &aaxExtensionsString;
-        n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-        for (i=0; i<n; i++)
-        {
-            _intBufferData *dptr;
-            const char *s;
-            unsigned slen;
-
-            dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-            s = _intBufGetDataPtr(dptr);
-            slen = strlen(s) + 1;
+            unsigned slen = strlen(s)+1;
             if (slen < max_strlen)
             {
                 snprintf(ptr, max_strlen, "%s ", s);
@@ -396,7 +355,23 @@ _oalAAXGetExtensions(const _intBuffers *exts)
                 ptr += slen;
             }
         }
+
+        ext = aaxExtensions;
+        i = 0;
+        while ((s = ext[i++]) != NULL)
+        {
+            unsigned slen = strlen(s)+1;
+            if (slen < max_strlen)
+            {
+                snprintf(ptr, max_strlen, "%s ", s);
+                max_strlen -= slen;
+                ptr += slen;
+            }
+        }
+
         *(ptr-1) = '\0';
+        retstr[2046] = '\0';	/* alywas end with \0\0 no matter what */
+        retstr[2047] = '\0';
     }
 
     return (const char *)retstr;
@@ -405,21 +380,14 @@ _oalAAXGetExtensions(const _intBuffers *exts)
 ALCboolean
 _oalAAXGetCtxExtensionSupport(const char *name)
 {
-    const _intBuffers *exts;
     ALCboolean r = ALC_FALSE;
-    unsigned int i, n;
+    unsigned int i;
+    const char *s;
 
-    exts = &aaxCtxExtensionsString;
-    n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-    for (i=0; i<n; i++)
+    i = 0;
+    while((s = aaxCtxExtensions[i++]) != NULL)
     {
-        _intBufferData *dptr;
-        const char *str;
-
-        dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-        str = _intBufGetDataPtr(dptr);
-
-        r = (!strcasecmp((const char *)name, str));
+        r = (!strcasecmp((const char *)name, s));
         if (r) break;
     }
 
@@ -427,7 +395,7 @@ _oalAAXGetCtxExtensionSupport(const char *name)
 }
 
 const char*
-_oalAAXGetCtxExtensions(const _intBuffers *exts)
+_oalAAXGetCtxExtensions(const char** exts)
 {
     static char retstr[2048] = "\0";
     char* ptr = (char *)retstr;
@@ -435,20 +403,16 @@ _oalAAXGetCtxExtensions(const _intBuffers *exts)
     if (*ptr == '\0')
     {
         unsigned max_strlen = 2048;
-        unsigned int i, n;
+        unsigned int i;
+        const char *s;
 
         if (exts)
         {
-            n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-            for (i=0; i<n; i++)
+            i = 0;
+            while ((s = exts[i++]) != NULL)
             {
-                _intBufferData *dptr;
-                const char *s;
-                unsigned slen;
+                unsigned slen = strlen(s)+1;
 
-                dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-                s = _intBufGetDataPtr(dptr);
-                slen = strlen(s) + 1;
                 if (slen < max_strlen)
                 {
                     snprintf(ptr, max_strlen, "%s ", s);
@@ -458,17 +422,12 @@ _oalAAXGetCtxExtensions(const _intBuffers *exts)
             }
         }
 
-        exts = &aaxCtxExtensionsString;
-        n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-        for (i=0; i<n; i++)
+        exts = aaxCtxExtensions;
+        i = 0;
+        while ((s = exts[i++]) != NULL)
         {
-            _intBufferData *dptr;
-            const char *s;
-            unsigned slen;
+            unsigned slen = strlen(s)+1;
 
-            dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-            s = _intBufGetDataPtr(dptr);
-            slen = strlen(s) + 1;
             if (slen < max_strlen)
             {
                 snprintf(ptr, max_strlen, "%s ", s);
@@ -477,6 +436,8 @@ _oalAAXGetCtxExtensions(const _intBuffers *exts)
             }
         }
         *(ptr-1) = '\0';
+        retstr[2046] = '\0';	/* alywas end with \0\0 no matter what */
+        retstr[2047] = '\0';
     }
 
     return (const char *)retstr;
@@ -761,60 +722,27 @@ _oalAAXGetNoCores(const void* config)
  * Context Extensions
  */
 
-#define _MAX_CTX_EXTENSIONS      2
-static const _intBufferData aaxCtxExtensions[_MAX_CTX_EXTENSIONS] =
+static const char* aaxCtxExtensions[] =
 {
-    {0, 1, "ALC_EXT_capture"},
+  "ALC_EXT_capture",
+  "ALC_AAX_capture_loopback",
 
-    {0, 1, "ALC_AAX_capture_loopback"}
+  NULL				/* always last */
 };
 
-static const void *aaxCtxExtensionsPtr[_MAX_CTX_EXTENSIONS] =
+static const char* aaxExtensions[] =
 {
-    (void *)&aaxCtxExtensions[0],
-    (void *)&aaxCtxExtensions[1]
-};
+//"AL_AAX_environment",
+  "AL_AAX_frequency_filter",
+//"AL_AAX_reverb",
 
-static const _intBuffers aaxCtxExtensionsString =
-{
-    0,
-    _OAL_EXTENSION,
-    _MAX_CTX_EXTENSIONS,
-    _MAX_CTX_EXTENSIONS,
-    _MAX_CTX_EXTENSIONS,
-    (void*)&aaxCtxExtensionsPtr
-};
-
-#define _MAX_EXTENSIONS		1
-static const _intBufferData aaxExtensions[_MAX_EXTENSIONS] =
-{
-// {0, 1, "AL_AAX_environment"},
-    {0, 1, "AL_AAX_frequency_filter"},
-// {0, 1, "AL_AAX_reverb"}
-};
-
-static const void *aaxExtensionsPtr[_MAX_EXTENSIONS] =
-{
-    (void *)&aaxExtensions[0]
-// (void *)&aaxExtensions[1]
-// (void *)&aaxExtensions[2]
-};
-
-static const _intBuffers aaxExtensionsString =
-{
-    0,
-    _OAL_EXTENSION,
-    _MAX_EXTENSIONS,
-    _MAX_EXTENSIONS,
-    _MAX_EXTENSIONS,
-    (void*)&aaxExtensionsPtr
+  NULL				/* always last */
 };
 
 /**
  * Enums
  */
-#define MAX_ENUM          8
-static const _oalEnumValue_s _aaxEnumValueDeclaration[MAX_ENUM] =
+static const _oalEnumValue_s aaxEnums[] =
 {
   {"ALC_FREQUENCY",                       ALC_FREQUENCY},
   {"ALC_REFRESH",                         ALC_REFRESH},
@@ -823,40 +751,8 @@ static const _oalEnumValue_s _aaxEnumValueDeclaration[MAX_ENUM] =
   {"ALC_STEREO_SOURCES",                  ALC_STEREO_SOURCES},
   {"ALC_CAPTURE_SAMPLES",                 ALC_CAPTURE_SAMPLES},
   {"ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER",ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER},
-  {"ALC_CAPTURE_DEVICE_SPECIFIER",        ALC_CAPTURE_DEVICE_SPECIFIER}
-};
+  {"ALC_CAPTURE_DEVICE_SPECIFIER",        ALC_CAPTURE_DEVICE_SPECIFIER},
 
-static const _intBufferData _aaxEnumValue[MAX_ENUM] =
-{
-    {0, 1, (void *)&_aaxEnumValueDeclaration[0]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[1]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[2]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[3]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[4]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[5]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[6]},
-    {0, 1, (void *)&_aaxEnumValueDeclaration[7]}
-};
-
-static const void *_aaxEnumValuePtr[MAX_ENUM] =
-{
-    (void *)&_aaxEnumValue[0],
-    (void *)&_aaxEnumValue[1],
-    (void *)&_aaxEnumValue[2],
-    (void *)&_aaxEnumValue[3],
-    (void *)&_aaxEnumValue[4],
-    (void *)&_aaxEnumValue[5],
-    (void *)&_aaxEnumValue[6],
-    (void *)&_aaxEnumValue[7]
-};
-
-static const _intBuffers aaxEnumValues =
-{
-    0,
-    _OAL_ENUM,
-    MAX_ENUM,
-    MAX_ENUM,
-    MAX_ENUM,
-    (void*)&_aaxEnumValuePtr
+  {NULL, 0}				  /* always last */
 };
 

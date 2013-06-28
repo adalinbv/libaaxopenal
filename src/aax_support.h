@@ -37,8 +37,8 @@ typedef struct
 const _oalEnumValue_s *_oalAAXGetEnum(const char *name);
 
 unsigned int _oalAAXGetNoCores();
-const char* _oalAAXGetExtensions(const _intBuffers *);
-const char* _oalAAXGetCtxExtensions(const _intBuffers *);
+const char* _oalAAXGetExtensions(const char**);
+const char* _oalAAXGetCtxExtensions(const char**);
 const char* _oalAAXGetDriverSpecifiers(enum aaxRenderMode);
 const char* _oalAAXGetDeviceSpecifiersAll(enum aaxRenderMode);
 ALCboolean _oalAAXGetExtensionSupport(const char *);

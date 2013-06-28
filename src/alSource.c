@@ -84,7 +84,7 @@ alGenSources(ALsizei num, ALuint *ids)
     if (cs)
     {
         ALuint pos = UINT_MAX;
-         ALsizei i = 0;
+        ALsizei i = 0;
         ALint nsrcs;
 
         nsrcs = _MIN(aaxMixerGetNoMonoSources(), 255);
@@ -364,7 +364,7 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
                      aaxEmitterSetMode(src->handle, AAX_POSITION, AAX_ABSOLUTE);
                 }
                 dev->lst.frame_no++;
-                if (dev->lst.frame_no > dev->lst.frame_max-1) {
+                if (dev->lst.frame_no >= dev->lst.frame_max) {
                    dev->lst.frame_no = 0;
                 }
                 aaxEmitterSetState(src->handle, AAX_PLAYING);

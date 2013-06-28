@@ -48,13 +48,11 @@
 /* forward declarations */
 const int _oalEFXVersion[];
 const int _oalContextVersion[];
-const _intBufferData _oalContextEnumValue[];
 const char *_oalContextErrorStrings[];
-const _intBufferData _oalContextExtensionsDeclaration[];
+static const _oalEnumValue_s _oalContextEnums[];
+static const char* _oalContextExtensions[];
 
 static unsigned int _oalCurrentContext;
-static const _intBuffers _oalContextEnumValues;
-static const _intBuffers _oalContextExtensions;
 
 static _intBufferData *_oalDeviceContextAdd(_oalDevice *);
 
@@ -427,11 +425,9 @@ alcGetError(ALCdevice *device)
 ALCboolean
 alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
 {
-    _intBuffers *exts = (_intBuffers *)&_oalContextExtensions;
     ALCboolean r = ALC_FALSE;
-    unsigned int i, n;
-
-    assert (exts->id == _OAL_EXTENSION);
+    const _oalEnumValue_s *e;
+    unsigned int i;
 
     if (!name)
     {
@@ -439,23 +435,16 @@ alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
         return ALC_FALSE;
     }
 
-    n = _intBufGetNumNoLock(exts, _OAL_EXTENSION);
-    for (i=0; i<n; i++)
+    i = 0;
+    while (((e = &_oalContextEnums[i++]) != NULL) && e->name)
     {
-        _intBufferData *dptr;
-        const char *str;
-
-        dptr = _intBufGetNoLock(exts, _OAL_EXTENSION, i);
-        str = _intBufGetDataPtr(dptr);
-
-        assert(str);
-        r = (!strcasecmp((const char *)name, str));
+        r = (!strcasecmp((const char *)name, e->name));
         if (r) break;
+    }  
+
+    if (!r) {
+        r = _oalAAXGetCtxExtensionSupport((const char*)name);
     }
-
-    if (i < n) return AL_TRUE;
-
-    r = _oalAAXGetCtxExtensionSupport((const char*)name);
 
     return (r) ? AL_TRUE : AL_FALSE;
 }
@@ -463,12 +452,9 @@ alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
 ALCenum
 alcGetEnumValue(const ALCdevice *device, const ALCchar *name)
 {
-    _intBuffers *enums = (_intBuffers *)&_oalContextEnumValues;
     const _oalEnumValue_s *e;
     ALCenum rv = ALC_FALSE;
-    unsigned int i, num;
-
-    assert (enums->id == _OAL_ENUM);
+    unsigned int i;
 
     if (!name)
     {
@@ -476,23 +462,17 @@ alcGetEnumValue(const ALCdevice *device, const ALCchar *name)
         return ALC_FALSE;
     }
 
-    num = _intBufGetNumNoLock(enums, _OAL_ENUM);
-    for (i=0; i<num; i++)
+    i = 0;
+    while (((e = &_oalContextEnums[i++]) != NULL) && e->name)
     {
-        _intBufferData *dptr;
-
-        dptr = _intBufGetNoLock(enums, _OAL_ENUM, i);
-        e = _intBufGetDataPtr(dptr);
-        if (!e) continue;
-
-        assert(e->name);
-        if (!strcasecmp((const char *)name, e->name)) {
+        if (!strcasecmp((const char *)name, e->name))
+        {
             rv = e->enumVal;
             break;
         }
-    }
+    } 
 
-    if (i == num)
+    if (!rv)
     {
         e = _oalAAXGetEnum(name);
         if (e != NULL) {
@@ -531,7 +511,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         break;
     }
     case ALC_EXTENSIONS:
-        retstr = (char *)_oalAAXGetCtxExtensions(&_oalContextExtensions);
+        retstr = (char *)_oalAAXGetCtxExtensions(_oalContextExtensions);
         break;
     case ALC_CAPTURE_DEVICE_SPECIFIER:
         if (device == 0) {
@@ -599,31 +579,15 @@ static unsigned int _oalCurrentContext = UINT_MAX;
 const int _oalContextVersion[2] = {1, 1};
 const int _oalEFXVersion[2] = {1, 0};
 
-#define MAX_EXTENSIONS	2
-const _intBufferData _oalContextExtensionsDeclaration[MAX_EXTENSIONS]=
+static const char* _oalContextExtensions[] =
 {
-    {0, 1, "ALC_enumeration_EXT"},
-    {0, 1, "ALC_enumerate_all_EXT"}
+  "ALC_enumeration_EXT",
+  "ALC_enumerate_all_EXT",
+
+  NULL				/* always last */
 };
 
-static const void *_oalContextExtensionsPtr[MAX_EXTENSIONS] =
-{
-    (void *)&_oalContextExtensionsDeclaration[0],
-    (void *)&_oalContextExtensionsDeclaration[1]
-};
-
-static const _intBuffers _oalContextExtensions =
-{
-    0,
-    _OAL_EXTENSION,
-    MAX_EXTENSIONS,
-    MAX_EXTENSIONS,
-    MAX_EXTENSIONS,
-    (_intBufferData **)&_oalContextExtensionsPtr
-};
-
-#define MAX_ENUM	31
-static const _oalEnumValue_s _oalContextEnumValueDeclaration[MAX_ENUM] =
+static const _oalEnumValue_s _oalContextEnums[] =
 {
   {"ALC_FALSE",				ALC_FALSE},
   {"ALC_TRUE",				ALC_TRUE},
@@ -665,87 +629,9 @@ static const _oalEnumValue_s _oalContextEnumValueDeclaration[MAX_ENUM] =
 
   {"ALC_EFX_MAJOR_VERSION",		ALC_EFX_MAJOR_VERSION},
   {"ALC_EFX_MINOR_VERSION",		ALC_EFX_MINOR_VERSION},
-  {"ALC_MAX_AUXILIARY_SENDS",		ALC_MAX_AUXILIARY_SENDS}
-};
+  {"ALC_MAX_AUXILIARY_SENDS",		ALC_MAX_AUXILIARY_SENDS},
 
-const _intBufferData _oalContextEnumValue[MAX_ENUM] =
-{
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[0]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[1]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[2]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[3]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[4]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[5]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[6]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[7]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[8]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[9]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[10]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[11]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[12]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[13]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[14]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[15]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[16]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[17]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[18]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[19]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[20]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[21]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[22]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[23]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[24]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[24]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[26]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[27]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[28]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[29]},
-    {0, 1, (void *)&_oalContextEnumValueDeclaration[30]}
-};
-
-static const void *_oalContextEnumValuePtr[MAX_ENUM] =
-{
-    (void *)&_oalContextEnumValue[0],
-    (void *)&_oalContextEnumValue[1],
-    (void *)&_oalContextEnumValue[2],
-    (void *)&_oalContextEnumValue[3],
-    (void *)&_oalContextEnumValue[4],
-    (void *)&_oalContextEnumValue[5],
-    (void *)&_oalContextEnumValue[6],
-    (void *)&_oalContextEnumValue[7],
-    (void *)&_oalContextEnumValue[8],
-    (void *)&_oalContextEnumValue[9],
-    (void *)&_oalContextEnumValue[10],
-    (void *)&_oalContextEnumValue[11],
-    (void *)&_oalContextEnumValue[12],
-    (void *)&_oalContextEnumValue[13],
-    (void *)&_oalContextEnumValue[14],
-    (void *)&_oalContextEnumValue[15],
-    (void *)&_oalContextEnumValue[16],
-    (void *)&_oalContextEnumValue[17],
-    (void *)&_oalContextEnumValue[18],
-    (void *)&_oalContextEnumValue[19],
-    (void *)&_oalContextEnumValue[20],
-    (void *)&_oalContextEnumValue[21],
-    (void *)&_oalContextEnumValue[22],
-    (void *)&_oalContextEnumValue[23],
-    (void *)&_oalContextEnumValue[24],
-    (void *)&_oalContextEnumValue[25],
-    (void *)&_oalContextEnumValue[26],
-    (void *)&_oalContextEnumValue[27],
-    (void *)&_oalContextEnumValue[28],
-    (void *)&_oalContextEnumValue[29],
-    (void *)&_oalContextEnumValue[30]
-};
-
-static const _intBuffers _oalContextEnumValues =
-{
-    0,
-    _OAL_ENUM,
-    MAX_ENUM,
-    MAX_ENUM,
-    MAX_ENUM,
-    (_intBufferData **)&_oalContextEnumValuePtr
+  {NULL, 0}				/* always last */
 };
 
 const char *_oalContextErrorStrings[] =
