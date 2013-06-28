@@ -9,8 +9,6 @@
 #include "config.h"
 #endif
 
-#define  DEVICE_NAME	"Software"	/* NULL, "Software", "DMedia", "ALSA" */
-
 #include <stdio.h>
 #include <math.h>
 #if HAVE_UNISTD_H
@@ -41,7 +39,7 @@
 #include "driver.h"
 #include "wavfile.h"
 
-#define FILE_PATH		SRC_PATH"/sqr-1kHz.wav"
+#define FILE_PATH		SRC_PATH"/square-1kHz.wav"
 
 #ifndef M_E
 # define M_E			2.7182818284590452354
