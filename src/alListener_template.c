@@ -165,6 +165,7 @@ ALLISTENER(N)(ALenum attrib, T value)
         case AL_SCENE_LENGTH_AAX:
         case AL_SCENE_WIDTH_AAX:
         case AL_SCENE_HEIGHT_AAX:
+        case AL_WIND_SPEED_AAX:
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }
@@ -267,6 +268,7 @@ ALGETLISTENER(N)(ALenum attrib, T *value)
         case AL_SCENE_LENGTH_AAX:
         case AL_SCENE_WIDTH_AAX:
         case AL_SCENE_HEIGHT_AAX:
+        case AL_WIND_SPEED_AAX:
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }
