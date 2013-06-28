@@ -26,7 +26,7 @@ int main()
                         ALC_STEREO_SOURCES, 8,
                         0 };
 
-   device = alcOpenDevice("Null");
+   device = alcOpenDevice(NULL);
    if (device == NULL)
    {
       printf("\nNo default audio device available.\n");
