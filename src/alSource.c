@@ -484,33 +484,124 @@ alSourceRewindv(ALsizei num, const ALuint *ids)
 /*
  * void alSourcef(ALuint id, ALenum attr, ALfloat value)
  * void alSourcefv(ALuint id, ALenum attr, const ALfloat *values)
- * void alSourcef3((ALuint id, ALenum attr, ALfloat v1, ALfloat v2, ALfloat v3)
+ * void alSourcef3(ALuint id, ALenum attr, ALfloat v1, ALfloat v2, ALfloat v3)
  *
  * void alGetSourcef(ALuint id, ALenum attr, ALfloat *value)
  * void alGetSourcefv(ALuint id, ALenum attrib, ALfloat *values)
  * void alGetSource3f(ALuint id, ALenum attr,
-                                 ALfloat *v1, ALfloat *v2, ALfloat *v3)
+ *                               ALfloat *v1, ALfloat *v2, ALfloat *v3)
  */
 #define N f
 #define T ALfloat
 #include "alSource_template.c"
 
+/*
+ * void alSourced(ALuint id, ALenum attr, ALdouble value)
+ * void alSourcedv(ALuint id, ALenum attr, const ALdouble *values)
+ * void alSourced3(ALuint id, ALenum attr,
+ *                            ALdouble v1, ALdouble v2, ALdouble v3)
+ *
+ * void alGetSourced(ALuint id, ALenum attr, ALdouble *value)
+ * void alGetSourcedv(ALuint id, ALenum attrib, ALdouble *values)
+ * void alGetSource3d(ALuint id, ALenum attr,
+ *                               ALdouble *v1, ALdouble *v2, ALdouble *v3)
+ */
+#define N d
+#define T ALdouble
+#include "alSource_template.c"
 
 /*
  * void alSourcei(ALuint id, ALenum attr, ALint value)
  * void alSourceiv(ALuint id, ALenum attr, const ALint *values)
- * void alSourcei3((ALuint id, ALenum attr, ALint v1, ALint v2, ALint v3)
+ * void alSourcei3(ALuint id, ALenum attr, ALint v1, ALint v2, ALint v3)
  *
  * void alGetSourcei(ALuint id, ALenum attr, ALint *value)
  * void alGetSourceiv(ALuint id, ALenum attrib, ALint *values)
  * void alGetSource3i(ALuint id, ALenum attr,
-                                 ALint *v1, ALint *v2, ALint *v3)
+ *                               ALint *v1, ALint *v2, ALint *v3)
  */
 #define N i
 #define T ALint
 #include "alSource_template.c"
 
+/*
+ * void alSourcei64(ALuint id, ALenum attr, ALint64 value)
+ * void alSourcei64v(ALuint id, ALenum attr, const ALint64 *values)
+ * void alSourcei643(ALuint id, ALenum attr, ALint64 v1, ALint64 v2, ALint64 v3)
+ *
+ * void alGetSourcei64(ALuint id, ALenum attr, ALint64 *value)
+ * void alGetSourcei64v(ALuint id, ALenum attrib, ALint64 *values)
+ * void alGetSource3i64(ALuint id, ALenum attr,
+ *                               ALint64 *v1, ALint64 *v2, ALint64 *v3)
+ */
+#define N i64
+#define T ALint64
+#define BITSHIFT 32
+#include "alSource_template.c"
+
 /* -------------------------------------------------------------------------- */
+
+/* AL_SOFT_source_latency */
+ALEXT_API void ALEXT_APIENTRY
+alSourcedSOFT(ALuint source, ALenum param, ALdouble value) {
+    alSourced(source, param, value);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alSource3dSOFT(ALuint source, ALenum param, ALdouble value1, ALdouble value2, ALdouble value3) {
+    alSource3d(source, param, value1, value2, value3);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alSourcedvSOFT(ALuint source, ALenum param, const ALdouble *values) {
+    alSourcedv(source, param, values);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alGetSourcedSOFT(ALuint source, ALenum param, ALdouble *value) {
+    alGetSourced(source, param, value);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alGetSource3dSOFT(ALuint source, ALenum param, ALdouble *value1, ALdouble *value2, ALdouble *value3) {
+    alGetSource3d(source, param, value1, value2, value3);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alGetSourcedvSOFT(ALuint source, ALenum param, ALdouble *values) {
+    alGetSourcedv(source, param, values);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT value) {
+    alSourcei64(source,  param, value);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT value1, ALint64SOFT value2, ALint64SOFT value3) {
+    alSource3i64(source, param, value1, value2, value3);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alSourcei64vSOFT(ALuint source, ALenum param, const ALint64SOFT *values) {
+    alSourcei64v(source, param, values);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alGetSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT *value) {
+    alGetSourcei64(source, param, value);
+}
+
+ALEXT_API void ALEXT_APIENTRY
+alGetSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT *value1, ALint64SOFT *value2, ALint64SOFT *value3) {
+    alGetSource3i64(source, param, value1, value2, value3);
+} 
+
+ALEXT_API void ALEXT_APIENTRY
+alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64SOFT *values) {
+    alGetSourcei64v(source, param, values);
+}
+/* AL_SOFT_source_latency */
 
 static _intBuffers *
 _oalGetSources(void *context)

@@ -1,5 +1,6 @@
 * Tue Jun 25 2013 - tech@adalin.org
 - Add support for AL_DISTANCE_DELAY_AAX (requires AeonWave 2.3.0 or later).
+- Add support for AL_SOFT_source_latency (requires AeonWave 2.2.0 or later).
 - Switch to a function template model to minimize code maintenance.
 
 * Tue Jul 31 2012 - tech@adalin.org

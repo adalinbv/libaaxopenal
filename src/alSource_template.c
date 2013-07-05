@@ -35,6 +35,10 @@
 # define ALGETSOURCE3(NAME)	__ALGETSOURCE3(NAME)
 # define ALGETSOURCE(NAME)	__ALGETSOURCE(NAME)
 
+# ifndef BITSHIFT
+#  define BITSHIFT 0
+# endif
+
 void
 ALSOURCE3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
 {
@@ -492,6 +496,40 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             aaxEmitterGetAudioCone(emitter, NULL, &fval, NULL);
             *value = (T)(GMATH_RAD_TO_DEG*fval);
             break;
+        /* AL_EXT_source_latency */
+        case AL_SAMPLE_OFFSET_LATENCY:
+        {
+            unsigned int offs = aaxEmitterGetOffset(emitter, AAX_SAMPLES);
+            unsigned tracks = aaxEmitterGetNoTracks(emitter);
+            ALCcontext *ctx = alcGetCurrentContext();
+            ALCdevice *device = alcGetContextsDevice(ctx);
+            uint32_t id = _oalDeviceToId(device);
+            _oalDevice *dev = (_oalDevice *)_oalFindDeviceById(id);
+            T freq_hz, latency_us, fact = (T)((ALint64)1 << BITSHIFT);
+
+            freq_hz = fact*aaxMixerGetSetup(dev->lst.handle, AAX_FREQUENCY);
+            latency_us = fact*aaxMixerGetSetup(dev->lst.handle,AAX_LATENCY);
+
+            *value = (T)_oalAAXOffsetToOffsetInSamples(offs, tracks);
+#if BITSHIFT
+            *value <<= BITSHIFT;
+#endif
+            *value += (T)(freq_hz * latency_us*1e-6);
+            break;
+        }
+        case AL_SEC_OFFSET_LATENCY:
+        {
+            ALCcontext *ctx = alcGetCurrentContext();
+            ALCdevice *device = alcGetContextsDevice(ctx);
+            uint32_t id = _oalDeviceToId(device);
+            _oalDevice *dev = (_oalDevice *)_oalFindDeviceById(id);
+            T latency;
+
+            latency = (T)1e-3*aaxMixerGetSetup(dev->lst.handle,AAX_LATENCY);
+            *value = (T)(aaxEmitterGetOffsetSec(emitter) + latency);
+            break;
+        }
+
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }
@@ -503,6 +541,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
     }
 }
 
+# undef BITSHIFT
 # undef __ALGETSOURCEV
 # undef __ALGETSOURCE3
 # undef __ALGETSOURCE
