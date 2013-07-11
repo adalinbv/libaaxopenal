@@ -50,7 +50,7 @@ SET(CPACK_PACKAGE_VERSION_PATCH ${CMAKE_MATCH_3})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenAL layer for the AeonWave 4D audio library")
 
 # We have some custom .cmake scripts not in the official distribution.
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
+SET(CMAKE_MODULE_PATH "${aaxopenal_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
 INCLUDE(CPack_Modules)
 INCLUDE(CPack_Defaults)
@@ -92,11 +92,11 @@ INCLUDE (CPack)
 FIND_PACKAGE(AAX COMPONENTS aax REQUIRED)
 
 # Add definitions, compiler switches, etc.
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}"
+INCLUDE_DIRECTORIES("${aaxopenal_SOURCE_DIR}"
     include
     base
     ${AAX_INCLUDE_DIR}
-    "${CMAKE_BINARY_DIR}/include"
+    "${aaxopenal_BINARY_DIR}/include"
 )
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H=1)
@@ -162,8 +162,8 @@ IF(HAVE_DLFCN_H)
 ENDIF(HAVE_DLFCN_H)
 
 CONFIGURE_FILE(
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/config.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/include/config.h")
+    "${aaxopenal_SOURCE_DIR}/include/config.h.in"
+    "${aaxopenal_BINARY_DIR}/include/config.h")
 
 
 SET(BASE_OBJS
@@ -226,7 +226,7 @@ INSTALL(FILES
 IF (UNIX AND NOT WIN32)
     macro(install_symlink _dest _source)
       install(CODE "
-             include(\"${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Symlink.cmake\")
+             include(\"${aaxopenal_SOURCE_DIR}/CMakeModules/Symlink.cmake\")
              InstallSymlink(\"${_dest}\" \"\$ENV{DESTDIR}${_source}\")")
     endmacro(install_symlink)
 
@@ -242,8 +242,8 @@ ENDIF(UTILS)
 ### uninstall target
 #-----------------------------------------------------------------------------
 CONFIGURE_FILE(
-  "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  "${aaxopenal_SOURCE_DIR}/CMakeModules/cmake_uninstall.cmake.in"
+  "${aaxopenal_BINARY_DIR}/cmake_uninstall.cmake"
   IMMEDIATE @ONLY)
-ADD_CUSTOM_TARGET(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+#ADD_CUSTOM_TARGET(uninstall
+#  "${CMAKE_COMMAND}" -P "${aaxopenal_BINARY_DIR}/cmake_uninstall.cmake")
