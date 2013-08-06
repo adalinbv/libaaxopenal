@@ -65,12 +65,12 @@ ELSE(WIN32)
 
 # DEBIAN
   SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
-  SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}:${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+  SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGlibopenal-devOR}:${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
   SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-bin (>= 2.2.2)")
   SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
-# SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1")
-  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal, libaaxopenal, aaxopenal")
-# SET(CPACK_DEBIAN_PACKAGE_BREAKS "libopenal1")
+  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal-data, libopenal, libaaxopenal, aaxopenal")
+# SET(CPACK_DEBIAN_PACKAGE_BREAKS "libopenal1, libopenal-dev, libopenal-data")
+# SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1, libopenal-dev, libopenal-data")
 
 # RPM
   SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
