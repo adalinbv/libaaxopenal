@@ -97,6 +97,7 @@ ALenum __oalStateSetErrorNormal(ALenum);
 
 /* --- Listener --- */
 #define _MAX_THREADS		4
+#define _SRC_PER_THREAD		16
 
 typedef struct
 {
