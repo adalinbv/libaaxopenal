@@ -462,8 +462,7 @@ alcGetEnumValue(const ALCdevice *device, const ALCchar *name)
         return ALC_FALSE;
     }
 
-    i = 0;
-    while (((e = &_oalContextEnums[i++]) != NULL) && e->name)
+    for (i=0; ((e = &_oalContextEnums[i++]) != NULL) && e->name; i++)
     {
         if (!strcasecmp((const char *)name, e->name))
         {
@@ -638,8 +637,8 @@ const char *_oalContextErrorStrings[] =
 {
     "Invalid device specifier.",
     "Invalid context specifier.",
-    "Invalid parameter",
     "Invalid enum parameter value.",
+    "Invalid parameter",
     "Unable to allocate memory.",
     0
 };
