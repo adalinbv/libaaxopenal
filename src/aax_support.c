@@ -305,8 +305,7 @@ _oalAAXGetEnum(const char *name)
     const _oalEnumValue_s *e;
     unsigned int i;
 
-    i = 0;
-    while (((e = &aaxEnums[i++]) != NULL) && e->name)
+    for (i=0; ((e = &aaxEnums[i]) != NULL) && e->name; i++)
     {
         if (!strcasecmp(name, e->name))
             break;
@@ -322,8 +321,7 @@ _oalAAXGetExtensionSupport(const char *name)
     unsigned int i;
     const char* s;
 
-    i = 0;
-    while ((s = aaxExtensions[i++]) != NULL)
+    for (i=0; (s = aaxExtensions[i]) != NULL; i++)
     {
         r = (!strcasecmp(name, s));
         if (r) break;
@@ -344,8 +342,7 @@ _oalAAXGetExtensions(const char **ext)
         unsigned int i;
         const char *s;
 
-        i = 0;
-        while ((s = ext[i++]) != NULL)
+        for (i=0; (s = ext[i]) != NULL; i++)
         {
             unsigned slen = strlen(s)+1;
             if (slen < max_strlen)
@@ -357,8 +354,7 @@ _oalAAXGetExtensions(const char **ext)
         }
 
         ext = aaxExtensions;
-        i = 0;
-        while ((s = ext[i++]) != NULL)
+        for (i=0; (s = ext[i]) != NULL; i++)
         {
             unsigned slen = strlen(s)+1;
             if (slen < max_strlen)
@@ -384,8 +380,7 @@ _oalAAXGetCtxExtensionSupport(const char *name)
     unsigned int i;
     const char *s;
 
-    i = 0;
-    while((s = aaxCtxExtensions[i++]) != NULL)
+    for (i=0; (s = aaxCtxExtensions[i]) != NULL; i++)
     {
         r = (!strcasecmp((const char *)name, s));
         if (r) break;
@@ -408,8 +403,7 @@ _oalAAXGetCtxExtensions(const char** exts)
 
         if (exts)
         {
-            i = 0;
-            while ((s = exts[i++]) != NULL)
+            for (i=0; (s = exts[i]) != NULL; i++)
             {
                 unsigned slen = strlen(s)+1;
 
@@ -423,8 +417,7 @@ _oalAAXGetCtxExtensions(const char** exts)
         }
 
         exts = aaxCtxExtensions;
-        i = 0;
-        while ((s = exts[i++]) != NULL)
+        for (i=0; (s = exts[i]) != NULL; i++)
         {
             unsigned slen = strlen(s)+1;
 

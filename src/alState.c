@@ -235,13 +235,10 @@ alIsExtensionPresent(const ALchar *name)
     unsigned int i;
     const char *e;
 
-    i = 0;
-    while((e = _oalExtensions[++i]) != NULL)
+    for (i=0; (e = _oalExtensions[i]) != NULL; i++)
     {
         r = (!strcasecmp((const char *)name, e));
         if (r) break;
-
-        e = _oalExtensions[++i];
     }
 
     if (!r) {
@@ -270,8 +267,7 @@ alGetEnumValue(const ALchar* name)
         return ALC_FALSE;
     }
 
-    i = 0;
-    while (((e = &_oalEnumValues[++i]) != NULL) && e->name)
+    for (i=0; ((e = &_oalEnumValues[i]) != NULL) && e->name; i++)
     {
         if (!strcasecmp((const char *)name, e->name))
         {
