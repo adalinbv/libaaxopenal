@@ -34,7 +34,7 @@
 # endif
 #endif
 
-#include "base/types.h"
+#include <base/types.h>
 #include "driver.h"
 #include "wavfile.h"
 
@@ -77,9 +77,9 @@ int main(int argc, char **argv)
 
       do
       {
+         ALenum format, capture_fmt;
          ALuint buffer, source[1];
          ALint q, status;
-         ALenum format;
 
          if (!data) break;
 
@@ -104,7 +104,8 @@ int main(int argc, char **argv)
          testForALError();
 
          printf("Start capturing using the looback mechanism\n");
-         alcCaptureiAAX(device, ALC_FORMAT_AAX, format);
+         capture_fmt = (tracks == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+         alcCaptureiAAX(device, ALC_FORMAT_AAX, capture_fmt);
          testForALCError(device);
 
          alcCaptureStart(device);

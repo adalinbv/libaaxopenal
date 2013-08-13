@@ -34,20 +34,18 @@
 # endif
 #endif
 
-#include "base/types.h"
+#include <base/types.h>
 #include "driver.h"
 #include "wavfile.h"
 
 #define FILE_PATH               SRC_PATH"/wasp.wav"
 
-const ALfloat NullVec[3] = { 0.0, 0.0, 0.0 };
+ALfloat SourcePos[] = { -100.0, 100.0, 0.0 };
+ALfloat SourceVel[] = { 10.0, 0.0, 0.0 };
 
-ALfloat SourcePos[] = { 100.0, 100.0, 0.0 };
-ALfloat SourceVel[] = { -10.0, 0.0, 10.0 };
-
-ALfloat ListenerPos[] = { 100.0, 90.0, 5.0 };
+ALfloat ListenerPos[] = { 0.0, 0.0, 0.0 };
 ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
-ALfloat ListenerOri[] = { 0.707f, 0.0f, -0.707f,  0.0f, 1.0f, 0.0f };
+ALfloat ListenerOri[] = { 0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f };
 
 
 int main(int argc, char **argv)
@@ -69,9 +67,9 @@ int main(int argc, char **argv)
    testForALCError(device);
 
    /* set listener values */
-   alListenerfv(AL_POSITION, NullVec);
-   alListenerfv(AL_VELOCITY, NullVec);
+   alListenerfv(AL_POSITION, ListenerPos);
    alListenerfv(AL_ORIENTATION, ListenerOri);
+   alListenerfv(AL_VELOCITY, ListenerVel);
 
    do {
       unsigned int no_samples, fmt;
@@ -115,7 +113,7 @@ int main(int argc, char **argv)
 
             msecSleep(50);
 
-            SourcePos[0] = 100 + dist;
+            SourcePos[0] = dist;
             dist -= 0.33f;
 #if 0
             printf("dist: %5.4f\tpos (% f, % f, % f)\n", dist,
@@ -125,7 +123,6 @@ int main(int argc, char **argv)
             pos[0] = SourcePos[0] - ListenerPos[0];
             pos[1] = SourcePos[1] - ListenerPos[1];
             pos[2] = SourcePos[2] - ListenerPos[2];
-printf("pos: %f %f %f\n", pos[0], pos[1], pos[2]);
 
             alSourcefv(source[1], AL_POSITION, pos);
 
