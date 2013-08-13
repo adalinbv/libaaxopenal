@@ -1,0 +1,34 @@
+
+1. Intrudoction
+
+AeonWave-OpenAL is a thin OpenAL emulation layer on top of the AeonWave Audio
+eXtension library. This means that in order for it to operate one of the
+libaax2 binary packages should be installed:
+
+libaax2-<version>.el6.i386-bin.deb
+libaax2-<version>.el6.i386-bin.rpm
+libaax2-<version>.el6.x86_64-bin.deb
+libaax2-<version>.el6.x86_64-bin.rpm
+
+To be able to compile AeonWave-OpenAL yourself the libaax2 development package
+should also be installed:
+
+libaax2-<version>.el6.i386-dev.deb
+libaax2-<version>.el6.i386-dev.rpm
+libaax2-<version>.el6.x86_64-dev.deb
+libaax2-<version>.el6.x86_64-dev.rpm
+
+
+2. Compiling and Installing
+
+The best procedure to compile and install AeonWave-OpenAL is to create a new
+build directory in the root of the unzipped source file package and run cmake
+from there:
+
+unzip aaxopenal-<version>.zip
+cd aaxopenal-<version>
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
