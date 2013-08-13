@@ -102,6 +102,7 @@ alGenSources(ALsizei num, ALuint *ids)
                     break;
                 }
                 src->mode = AAX_ABSOLUTE;
+                src->at[0] = 0.0f; src->at[1] = 0.0f; src->at[2] = 1.0f;
                 aaxEmitterSetMode(src->handle, AAX_POSITION, src->mode);
                 aaxEmitterSetGainMinMax(src->handle, 0.0f, 1.0f);
                 if ((pos = _intBufAddData(cs, _OAL_SOURCE, src)) == UINT_MAX) {
