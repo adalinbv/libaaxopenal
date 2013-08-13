@@ -426,8 +426,8 @@ ALCboolean
 alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
 {
     ALCboolean r = ALC_FALSE;
-    const _oalEnumValue_s *e;
     unsigned int i;
+    const char *e;
 
     if (!name)
     {
@@ -435,10 +435,9 @@ alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
         return ALC_FALSE;
     }
 
-    i = 0;
-    while (((e = &_oalContextExtensions[i++]) != NULL) && e->name)
+    for (i=0; (e = _oalContextExtensions[i]) != NULL; i++)
     {
-        r = (!strcasecmp((const char *)name, e->name));
+        r = (!strcasecmp((const char *)name, e));
         if (r) break;
     }  
 
@@ -462,7 +461,7 @@ alcGetEnumValue(const ALCdevice *device, const ALCchar *name)
         return ALC_FALSE;
     }
 
-    for (i=0; ((e = &_oalContextEnums[i++]) != NULL) && e->name; i++)
+    for (i=0; ((e = &_oalContextEnums[i]) != NULL) && e->name; i++)
     {
         if (!strcasecmp((const char *)name, e->name))
         {
