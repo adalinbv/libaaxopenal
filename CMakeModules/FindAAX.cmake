@@ -39,8 +39,15 @@ FIND_LIBRARY(AAX_LIBRARY
   /opt
 )
 
-SET(AAX_FOUND "NO")
 IF(AAX_LIBRARY AND AAX_INCLUDE_DIR)
   SET(AAX_FOUND "YES")
+ELSE(AAX_LIBRARY AND AAX_INCLUDE_DIR)
+  SET(AAX_FOUND "NO")
+  IF(NOT AAX_INCLUDE_DIR)
+    MESSAGE(FATAL_ERROR "Unable to find the AeonWave Audio eXtensions library development files.")
+  ENDIF(NOT AAX_INCLUDE_DIR)
+  IF(NOT AAX_LIBRARY)
+    MESSAGE(FATAL_ERROR "Unable to find the AeonWave Audio eXtensions library binary files.")
+  ENDIF(AAX_LIBRARY)
 ENDIF(AAX_LIBRARY AND AAX_INCLUDE_DIR)
 
