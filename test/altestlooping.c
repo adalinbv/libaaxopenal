@@ -62,7 +62,8 @@ int main(int argc, char **argv)
    alcMakeContextCurrent(context);
    testForALCError(device);
 
-   do {
+   if (context)
+   {
       unsigned int no_samples, fmt;
       char bps, channels;
       void *data;
