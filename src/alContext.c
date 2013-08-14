@@ -167,10 +167,12 @@ ALCcontext *
 alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 {
     _intBufferData *dptr_ctx = 0;
+    enum aaxFormat format;
     aaxConfig handle;
     uint32_t id = 0;
     _oalContext *ctx;
     _oalDevice *d;
+    int tracks;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -220,6 +222,11 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 
     aaxMixerInit(handle);
     aaxMixerSetState(handle, AAX_PLAYING);
+
+    format = aaxMixerGetSetup(handle, AAX_FORMAT);
+    tracks = aaxMixerGetSetup(handle, AAX_TRACKS);
+    d->format = _oalAAXFormatToFormat(format, tracks);
+    d->frequency = aaxMixerGetSetup(handle, AAX_FREQUENCY);
 
     _oalStateCreate(ctx);
     _oalSourcesCreate(ctx);
