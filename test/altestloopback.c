@@ -66,22 +66,22 @@ int main(int argc, char **argv)
    alcMakeContextCurrent(context);
    testForALCError(device);
 
-   do {
+   if (context)
+   {
       unsigned int no_samples, fmt;
       char no_bits, tracks;
       void *data;
       int freq;
 
+      /* read the audio file data */
       data = fileLoad(infile, &no_samples, &freq, &no_bits, &tracks, &fmt);
       testForError(data, "Input file not found.\n");
 
-      do
+      if(data)
       {
          ALenum format, capture_fmt;
          ALuint buffer, source[1];
          ALint q, status;
-
-         if (!data) break;
 
          if      ((no_bits == 4) && (tracks == 1)) format = AL_FORMAT_MONO_IMA4;
          else if ((no_bits == 4) && (tracks == 2)) format = AL_FORMAT_STEREO_IMA4;
@@ -89,25 +89,33 @@ int main(int argc, char **argv)
          else if ((no_bits == 8) && (tracks == 2)) format = AL_FORMAT_STEREO8;
          else if ((no_bits == 16) && (tracks == 1)) format = AL_FORMAT_MONO16;
          else if ((no_bits == 16) && (tracks == 2)) format = AL_FORMAT_STEREO16;
-         else break;
+         else exit(-1);
 
+         /* generate a new buffer */
          alGetError();
          alGenBuffers(1, &buffer);
+
+         /* fill the buffer with the previously read audio data */
          alBufferData(buffer, format, data, no_samples*tracks*no_bits/8, freq);
-//       free(data);
          testForALError();
          alGenSources(1, source);
          testForALError();
 
+         /* assing the buffer to the source */
          alSourcei(source[0], AL_BUFFER, buffer);
          alSourcePlay(source[0]);
          testForALError();
 
          printf("Start capturing using the looback mechanism\n");
+         /*
+          * set the requested format for the data returned by the
+          * capture functions
+          */
          capture_fmt = (tracks == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
          alcCaptureiAAX(device, ALC_FORMAT_AAX, capture_fmt);
          testForALCError(device);
 
+         /* start capturing on the playback device */
          alcCaptureStart(device);
          testForALCError(device);
 
@@ -137,6 +145,7 @@ int main(int argc, char **argv)
          while (status == AL_PLAYING);
 
          printf("Capturing and playback stopped\n");
+         /* retrieve some or all of the available captured samples */
          alcCaptureSamples(device, data, no_samples);
          alcCaptureStop(device);
          testForALCError(device);
@@ -150,6 +159,9 @@ int main(int argc, char **argv)
 
          alcGetCaptureivAAX(device, ALC_FREQUENCY_AAX, &alci);
          freq = alci;
+
+         alcGetCaptureivAAX(device, ALC_FORMAT_AAX, &alci);
+         format = alci;
 
          alBufferData(buffer, format, data, no_samples*tracks*no_bits/8, freq);
 
@@ -165,11 +177,8 @@ int main(int argc, char **argv)
 
          alDeleteSources(1, source);
          alDeleteBuffers(1, &buffer);
-
       }
-      while(0);
-
-   } while(0);
+   }
 
    context = alcGetCurrentContext();
    device = alcGetContextsDevice(context);
