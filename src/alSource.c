@@ -364,9 +364,9 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
                     aaxFrame frame;
 
                     frame = dev->lst.frame[pos];
-                    if (aaxAudioFrameGetState(frame) != AAX_PLAYING) {
-                        aaxAudioFrameSetState(frame, AAX_PLAYING);
-                    }
+//                  if (aaxAudioFrameGetState(frame) != AAX_PLAYING) {
+//                      aaxAudioFrameSetState(frame, AAX_PLAYING);
+//                  }
                 }
                 dev->lst.frame_no++;
                 if (dev->lst.frame_no >= (_SRC_PER_THREAD*dev->lst.frame_max)) {
