@@ -40,8 +40,8 @@
 
 #define FILE_PATH               SRC_PATH"/wasp.wav"
 
-ALfloat SourcePos[] = { -100.0, 100.0, 0.0 };
-ALfloat SourceVel[] = { 10.0, 0.0, 0.0 };
+ALfloat SourcePos[] = { 100.0, 100.0, 0.0 };
+ALfloat SourceVel[] = { -10.0, 0.0, 0.0 };
 
 ALfloat ListenerPos[] = { 0.0, 0.0, 0.0 };
 ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
