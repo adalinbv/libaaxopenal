@@ -136,13 +136,16 @@ alIsEnabled (ALenum attrib)
 const ALchar *
 alGetString(ALenum attrib)
 {
+    static ALchar *_default = (ALchar*)"Invalid parameter in alGetString.";
+    const _oalEnumValue_s *e;
     _intBufferData *dptr;
     _oalDevice *dev;
     ALchar *retstr;
+    unsigned int i;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
-    retstr = (ALchar *)"Invalid parameter in alGetString.";
+    retstr = _default;
 
     dptr = _oalGetCurrentDevice();
     if (dptr)
@@ -176,7 +179,17 @@ alGetString(ALenum attrib)
             retstr = (ALchar *)aaxDriverGetVendor(dev->lst.handle);
             break;
         default:
-            _oalStateSetError(AL_INVALID_ENUM);
+            for (i=0; ((e = &_oalEnumValues[i]) != NULL) && e->name; i++)
+            {
+                if (attrib == e->enumVal)
+                {
+                    retstr = (ALchar *)e->name;
+                    break;
+                }
+            }
+            if (retstr ==_default) {
+                _oalStateSetError(AL_INVALID_ENUM);
+            }
         }
     }
 
