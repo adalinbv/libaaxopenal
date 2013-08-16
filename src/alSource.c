@@ -351,26 +351,28 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
             dptr = _oalFindSourceById(ids[--i], cs, &pos);
             if (dptr)
             {
-                _oalDevice *dev = (_oalDevice *)ctx->parent_device;
-                unsigned int frame_no = dev->lst.frame_no/_SRC_PER_THREAD;
                 src = _intBufGetDataPtr(dptr);
 
-                if (frame_no == 0) {
-                    aaxMixerRegisterEmitter(dev->lst.handle, src->handle);
-                }
-                else
+                if (!src->parent)
                 {
-                    int pos = frame_no-1;
-                    aaxFrame frame;
+                    _oalDevice *dev = (_oalDevice *)ctx->parent_device;
+                    unsigned int frame_no = dev->lst.frame_no/_SRC_PER_THREAD;
 
-                    frame = dev->lst.frame[pos];
-//                  if (aaxAudioFrameGetState(frame) != AAX_PLAYING) {
-//                      aaxAudioFrameSetState(frame, AAX_PLAYING);
-//                  }
-                }
-                dev->lst.frame_no++;
-                if (dev->lst.frame_no >= (_SRC_PER_THREAD*dev->lst.frame_max)) {
-                   dev->lst.frame_no = 0;
+                    if (frame_no == 0)
+                    {
+                        aaxMixerRegisterEmitter(dev->lst.handle, src->handle);
+                        src->parent = dev->lst.handle;
+                    }
+                    else
+                    {
+                        src->parent = dev->lst.frame[frame_no-1];
+                        aaxAudioFrameRegisterEmitter(src->parent, src->handle);
+                    }
+
+                    dev->lst.frame_no++;
+                    if (dev->lst.frame_no >= dev->lst.framecnt_max) {
+                        dev->lst.frame_no = 0;
+                    }
                 }
                 aaxEmitterSetState(src->handle, AAX_PLAYING);
             }
@@ -445,11 +447,16 @@ alSourceStopv(ALsizei num, const ALuint *ids)
             if (dptr)
             {
                 const _oalDevice *dev = ctx->parent_device;
-                aaxConfig handle = dev->lst.handle;
 
                 src = _intBufGetDataPtr(dptr);
                 aaxEmitterSetState(src->handle, AAX_STOPPED);
-                aaxMixerDeregisterEmitter(handle, src->handle);
+
+                if (src->parent == dev->lst.handle) {
+                    aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
+                } else {
+                    aaxAudioFrameDeregisterEmitter(src->parent, src->handle);
+                }
+                src->parent = NULL;
             }
         }
     }

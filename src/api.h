@@ -103,7 +103,7 @@ typedef struct
 {
     aaxConfig handle;
     aaxFrame frame[_MAX_THREADS-1];
-    unsigned int frame_no, frame_max;
+    unsigned int frame_no, framecnt_max;
     aaxVec3f pos, at, up;
     void *buf;
 
@@ -113,6 +113,7 @@ typedef struct
 
 typedef struct
 {
+    void *parent;
     aaxEmitter handle;
     aaxVec3f pos, at, up;
     int mode;

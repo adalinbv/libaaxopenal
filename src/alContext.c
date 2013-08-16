@@ -102,8 +102,8 @@ alcOpenDevice(const ALCchar *name)
                 device = INT_TO_PTR(devid);
 
                 d->lst.frame_no = 0;
-                d->lst.frame_max = _oalAAXGetNoCores();
-                for(i=0; i<d->lst.frame_max-1; i++)
+                d->lst.framecnt_max = _oalAAXGetNoCores();
+                for(i=0; i<d->lst.framecnt_max-1; i++)
                 {
                     aaxFrame frame = aaxAudioFrameCreate(handle);
                     aaxMtx4f mtx;
@@ -116,6 +116,7 @@ alcOpenDevice(const ALCchar *name)
 
                     d->lst.frame[i] = frame;
                 }
+                d->lst.framecnt_max *= _SRC_PER_THREAD;
             }
         }
     }
