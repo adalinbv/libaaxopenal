@@ -263,6 +263,7 @@ alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
                 void **ptr;
 
                 aaxBufferSetSetup(buf, AAX_FORMAT, format);
+                aaxBufferSetSetup(buf, AAX_TRACKS, tracks);
                 aaxBufferSetSetup(buf, AAX_FREQUENCY, d->frequency);
 
                 ptr = aaxBufferGetData(buf);
