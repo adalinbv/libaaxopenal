@@ -97,6 +97,8 @@ int main(int argc, char **argv)
 
          /* fill the buffer with the previously read audio data */
          alBufferData(buffer, format, data, no_samples*tracks*no_bits/8, freq);
+         free(data);
+
          testForALError();
          alGenSources(1, source);
          testForALError();
@@ -145,35 +147,60 @@ int main(int argc, char **argv)
          while (status == AL_PLAYING);
 
          printf("Capturing and playback stopped\n");
-         /* retrieve some or all of the available captured samples */
-         alcCaptureSamples(device, data, no_samples);
          alcCaptureStop(device);
          testForALCError(device);
 
          printf("Play back captured samples\n");
-         alcGetCaptureivAAX(device, ALC_BITS_AAX, &alci);
-         no_bits = alci;
-
-         alcGetCaptureivAAX(device, ALC_CHANNELS_AAX, &alci);
-         tracks = alci;
-
          alcGetCaptureivAAX(device, ALC_FREQUENCY_AAX, &alci);
          freq = alci;
 
          alcGetCaptureivAAX(device, ALC_FORMAT_AAX, &alci);
          format = alci;
-
-         alBufferData(buffer, format, data, no_samples*tracks*no_bits/8, freq);
-
-         alSourcei(source[0], AL_BUFFER, buffer);
-         alSourcePlay(source[0]);
-
-         do
+         switch(format)
          {
-            msecSleep(10);
-            alGetSourcei(source[0], AL_SOURCE_STATE, &status);
+         case AL_FORMAT_MONO8:
+             no_bits = 8;
+             tracks = 1;
+             break;
+         case AL_FORMAT_STEREO8:
+             no_bits = 8;
+             tracks = 2;
+             break;
+         case AL_FORMAT_MONO16:
+             no_bits = 16;
+             tracks = 1;
+             break;
+         case AL_FORMAT_STEREO16:
+             no_bits = 16;
+             tracks = 2;
+             break;
+         default:
+             printf("Unknow capture format: %s\n", alGetString(format));
+             exit(-1);
          }
-         while (status == AL_PLAYING);
+
+         data = malloc(no_samples*tracks*no_bits/8);
+         if (data)
+         {
+             /* retrieve some or all of the available captured samples */
+             alcCaptureSamples(device, data, no_samples);
+
+             alBufferData(buffer,format,data,no_samples*tracks*no_bits/8,freq);
+             free(data);
+
+             alSourcei(source[0], AL_BUFFER, buffer);
+             alSourcePlay(source[0]);
+
+             do
+             {
+                msecSleep(10);
+                alGetSourcei(source[0], AL_SOURCE_STATE, &status);
+             }
+             while (status == AL_PLAYING);
+         }
+         else {
+             printf("Insufficient memroy\n");
+         }
 
          alDeleteSources(1, source);
          alDeleteBuffers(1, &buffer);
