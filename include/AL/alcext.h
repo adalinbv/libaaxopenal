@@ -1,8 +1,8 @@
 /*
  * alcext.h : OpenAL extensions header definitions.
  *
- * (C) Copyright 2012 by Erik Hofman
- * (C) Copyright 2012 by Adalin B.V.
+ * (C) Copyright 2012-2013 by Erik Hofman
+ * (C) Copyright 2012-2013 by Adalin B.V.
  *
  */
 
