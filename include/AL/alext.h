@@ -35,8 +35,8 @@ extern "C" {
 # pragma export on
 #endif
 
-#ifndef EXT_SOURCE_DISTANCE_MODEL
-#define EXT_SOURCE_DISTANCE_MODEL 1
+#ifndef AL_EXT_source_distance_model
+#define AL_EXT_source_distance_model 1
 #define AL_SOURCE_DISTANCE_MODEL		0x200
 #endif
 
