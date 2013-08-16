@@ -607,7 +607,7 @@ _oalOffsetInBytesToAAXOffset(unsigned long offs, unsigned tracks, enum aaxFormat
         }
         break;
     default:
-        tmp = tracks * _oalGetBitsPerSampleFromFormat(format)/8;
+        tmp = tracks * aaxGetBitsPerSample(fmt)/8;
         rv = offs/tmp;
         break;
     }
@@ -640,7 +640,7 @@ _oalAAXOffsetToOffsetInBytes(unsigned int offs, unsigned tracks, enum aaxFormat 
         rv = (36*tmp + offs) * tracks;
         break;
     default:
-        tmp = tracks * _oalGetBitsPerSampleFromFormat(format)/8;
+        tmp = tracks * aaxGetBitsPerSample(fmt)/8;
         rv = offs*tmp;
         break;
     }
