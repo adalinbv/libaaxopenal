@@ -103,20 +103,22 @@ alcOpenDevice(const ALCchar *name)
 
                 d->lst.frame_no = 0;
                 d->lst.framecnt_max = _oalAAXGetNoCores();
-                for(i=0; i<d->lst.framecnt_max-1; i++)
+                if (d->lst.framecnt_max > 1)
                 {
-                    aaxFrame frame = aaxAudioFrameCreate(handle);
-                    aaxMtx4f mtx;
+                    for(i=0; i<d->lst.framecnt_max; i++)
+                    {
+                        aaxFrame frame = aaxAudioFrameCreate(handle);
+                        aaxMtx4f mtx;
 
-                    aaxMatrixSetIdentityMatrix(mtx);
-                    aaxAudioFrameSetMatrix(frame, mtx);
-                    aaxAudioFrameSetMode(frame, AAX_POSITION, AAX_RELATIVE);
-                    aaxMixerRegisterAudioFrame(handle, frame);
-                    aaxAudioFrameSetState(frame, AAX_PLAYING);
+                        aaxMatrixSetIdentityMatrix(mtx);
+                        aaxAudioFrameSetMatrix(frame, mtx);
+                        aaxAudioFrameSetMode(frame, AAX_POSITION, AAX_RELATIVE);
+                        aaxMixerRegisterAudioFrame(handle, frame);
+                        aaxAudioFrameSetState(frame, AAX_PLAYING);
 
-                    d->lst.frame[i] = frame;
+                        d->lst.frame[i] = frame;
+                    }
                 }
-                d->lst.framecnt_max *= _SRC_PER_THREAD;
             }
         }
     }
@@ -139,12 +141,15 @@ alcCloseDevice(ALCdevice *device)
         d = _intBufRemove(_oalDevices, _OAL_DEVICE, pos, AL_FALSE);
         if (d)
         {
-            unsigned int i;
-            for(i=0; i<_oalAAXGetNoCores()-1; i++) 
+            if (d->lst.framecnt_max > 1)
             {
-                aaxFrame frame = d->lst.frame[i];
-                aaxMixerDeregisterAudioFrame(d->lst.handle, frame);
-                aaxAudioFrameDestroy(frame);
+                unsigned int i;
+                for(i=0; i<d->lst.framecnt_max; i++) 
+                {
+                    aaxFrame frame = d->lst.frame[i];
+                    aaxMixerDeregisterAudioFrame(d->lst.handle, frame);
+                    aaxAudioFrameDestroy(frame);
+                }
             }
 
             aaxDriverClose(d->lst.handle);
