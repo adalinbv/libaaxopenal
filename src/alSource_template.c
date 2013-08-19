@@ -496,6 +496,10 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             aaxEmitterGetAudioCone(emitter, NULL, &fval, NULL);
             *value = (T)(GMATH_RAD_TO_DEG*fval);
             break;
+        case AL_CONE_OUTER_GAIN:
+             aaxEmitterGetAudioCone(emitter, NULL, NULL, &fval);
+            *value = (T)fval;
+            break;
         /* AL_EXT_source_latency */
         case AL_SAMPLE_OFFSET_LATENCY:
         {
