@@ -85,11 +85,13 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
             src->at[0] = (float)values[0];
             src->at[1] = (float)values[1];
             src->at[2] = (float)values[2];
+            if (!values[0] && !values[1] && !values[2])
+            {
+                aaxEmitterSetAudioCone(emitter, 360.0f, AAX_FPNONE, AAX_FPNONE);
+                src->at[0] = 0.0f; src->at[1] = 0.0f; src->at[2] = 1.0f;
+            }
             aaxMatrixSetDirection(mtx, src->pos, src->at);
             aaxEmitterSetMatrix(emitter, mtx);
-            if (!values[0] && !values[1] && !values[2]) {
-                aaxEmitterSetAudioCone(emitter, 360.0f, AAX_FPNONE, AAX_FPNONE);
-            }
             break;
         case AL_VELOCITY:
             vec3f[0] = (float)values[0];
