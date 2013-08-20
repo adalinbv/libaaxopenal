@@ -234,7 +234,7 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
     d->format = _oalAAXFormatToFormat(format, tracks);
     d->frequency = aaxMixerGetSetup(handle, AAX_FREQUENCY);
 
-    _oalStateCreate(ctx);
+    _oalStateCreate(handle, ctx);
     _oalSourcesCreate(ctx);
 
     return INT_TO_PTR(id);

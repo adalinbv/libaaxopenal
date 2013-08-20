@@ -543,7 +543,7 @@ const char *_oalStateErrorStrings[] =
 };
 
 void
-_oalStateCreate(void *context)
+_oalStateCreate(aaxConfig handle, void *context)
 {
     _oalContext *ctx = (_oalContext *)context;
 
@@ -565,6 +565,9 @@ _oalStateCreate(void *context)
             cs->distanceModel = AL_INVERSE_DISTANCE_CLAMPED;
             cs->src_dist_model = AL_FALSE;
             ctx->state = cs;
+
+            aaxScenerySetSoundVelocity(handle, cs->soundVelocity);
+            aaxScenerySetDistanceModel(handle, cs->distanceModel);
         }
         else
         {

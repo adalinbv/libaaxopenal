@@ -76,7 +76,7 @@ typedef struct
 
 } _oalState;
 
-void _oalStateCreate(void *);
+void _oalStateCreate(aaxConfig, void *);
 
 /**
  * State Error reporting
