@@ -132,6 +132,11 @@ ALEXT_API void ALEXT_APIENTRY alReverbvfAAX(ALenum attrib, ALfloat *values);
 ALEXT_API void ALEXT_APIENTRY alReverbiAAX(ALenum attrib, ALint value);
 #endif
 
+#ifndef AL_AAX_source_distance_delay
+#define AL_AAX_source_distance_delay 1
+#define AL_DISTANCE_DELAY_AAX                   0x27001A
+#endif
+
 #ifndef AL_AAX_environment
 #define AL_AAX_environment 1
 #define AL_SCENE_ENABLE_AAX			0x270010
@@ -144,7 +149,6 @@ ALEXT_API void ALEXT_APIENTRY alReverbiAAX(ALenum attrib, ALint value);
 #define AL_SCENE_DIFFUSE_AAX			0x270017
 #define AL_WIND_SPEED_AAX			0x270018
 #define AL_WIND_DIRECTION_AAX			0x270019
-#define AL_DISTANCE_DELAY_AAX			0x27001A
 
 /* #define ALC_FORMAT				0x270020 */
 
