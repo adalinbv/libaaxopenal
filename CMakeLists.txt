@@ -62,15 +62,17 @@ IF(WIN32)
   SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
 
 ELSE(WIN32)
+  SET(CMAKE_INSTALL_LIBDIR "/opt/${PACKAGE}/lib")
 
 # DEBIAN
   SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
-  SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGlibopenal-devOR}:${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+  SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}:${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
   SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-bin (>= 2.2.2)")
   SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
   SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal-data, libopenal, libaaxopenal, aaxopenal")
 # SET(CPACK_DEBIAN_PACKAGE_BREAKS "libopenal1, libopenal-dev, libopenal-data")
 # SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1, libopenal-dev, libopenal-data")
+  SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${aaxopenal_SOURCE_DIR}/admin/debian/postinst;${aaxopenal_SOURCE_DIR}/admin/debian/postrm;")
 
 # RPM
   SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
@@ -165,6 +167,10 @@ CONFIGURE_FILE(
     "${aaxopenal_SOURCE_DIR}/include/config.h.in"
     "${aaxopenal_BINARY_DIR}/include/config.h")
 
+CONFIGURE_FILE(
+    "${aaxopenal_SOURCE_DIR}/admin/debian/aax.conf.in"
+    "${aaxopenal_BINARY_DIR}/admin/debian/aax.conf")
+
 
 SET(BASE_OBJS
      base/buffers.c
@@ -224,6 +230,12 @@ INSTALL(FILES
 )
 
 IF (UNIX AND NOT WIN32)
+    INSTALL(FILES 
+            ${aaxopenal_BINARY_DIR}/admin/debian/aax.conf
+            DESTINATION /etc/ld.so.conf.d/
+            COMPONENT Libraries
+    )
+
     macro(install_symlink _dest _source)
       install(CODE "
              include(\"${aaxopenal_SOURCE_DIR}/CMakeModules/Symlink.cmake\")
