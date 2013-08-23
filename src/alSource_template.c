@@ -140,6 +140,11 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             if (ival == AL_PLAYING) alSourcePlayv(1, &id);
             else if (ival == AL_STOPPED) alSourceStopv(1, &id);
             else if (ival == AL_PAUSED) alSourcePausev(1, &id);
+            else if (ival == AL_DISTANCE_DELAY_AAX) {
+                 /* calling AAX_PLAYING on an already playig emitter */
+                 /* causes the distance delay to reinitialize.       */
+                 aaxEmitterSetState(src->handle, AAX_PLAYING);
+            }
             else _oalStateSetError(AL_INVALID_VALUE);
             break;
         case AL_SOURCE_RELATIVE:
