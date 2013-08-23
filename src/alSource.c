@@ -374,6 +374,10 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
                         dev->lst.frame_no = 0;
                     }
                 }
+
+                if (aaxEmitterGetState(src->handle) == AAX_PLAYING) {
+                    aaxEmitterSetState(src->handle, AAX_INITIALIZED);
+                }
                 aaxEmitterSetState(src->handle, AAX_PLAYING);
             }
         }
