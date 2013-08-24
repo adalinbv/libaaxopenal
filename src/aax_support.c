@@ -726,8 +726,8 @@ static const char* aaxCtxExtensions[] =
 static const char* aaxExtensions[] =
 {
 //"AL_AAX_environment",
-  "AL_AAX_frequency_filter",
   "AL_AAX_source_distance_delay",
+  "AL_AAX_frequency_filter",
 //"AL_AAX_reverb",
 
   NULL				/* always last */
