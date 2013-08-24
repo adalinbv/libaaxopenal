@@ -13,8 +13,6 @@
 extern "C" {
 #endif
 
-#include <AL/alcext.h>
-
 #if defined _WIN32 || defined __CYGWIN__
 # define ALC_APIENTRY __cdecl
 # ifdef ALC_BUILD_LIBRARY
@@ -60,6 +58,8 @@ typedef void ALCvoid;
 
 #define ALC_FALSE				0
 #define ALC_TRUE				1
+
+#include <AL/alcext.h>
 
 #define ALC_FREQUENCY				0x1007
 #define ALC_REFRESH				0x1008

@@ -10,6 +10,7 @@
 #define __alext_h 1
 
 #include <AL/al.h>
+#include <AL/alcext.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -60,16 +61,20 @@ extern "C" {
 #define AL_FORMAT_71CHN32			0x1212
 #endif
 
+#ifndef AL_EXT_MULAW_MCFORMATS
+#define AL_EXT_MULAW_MCFORMATS 1
+#define AL_FORMAT_MONO_MULAW			0x10014
+#define AL_FORMAT_STEREO_MULAW			0x10015
+#define AL_FORMAT_QUAD_MULAW			0x10021
+#define AL_FORMAT_REAR_MULAW			0x10022
+#define AL_FORMAT_51CHN_MULAW			0x10023
+#define AL_FORMAT_61CHN_MULAW			0x10024
+#define AL_FORMAT_71CHN_MULAW			0x10025
+#endif
+
 #ifndef AL_EXT_loop_points
 #define AL_EXT_loop_points 1
 #define AL_LOOP_POINTS				0x2015
-#endif
-
-/** four speaker setup */
-#ifndef AL_LOKI_quadriphonic
-#define AL_LOKI_quadriphonic 1
-#define AL_FORMAT_QUAD8_LOKI			0x10004
-#define AL_FORMAT_QUAD16_LOKI			0x10005
 #endif
 
 /* buffer formats */
@@ -81,8 +86,25 @@ extern "C" {
 
 #ifndef AL_LOKI_IMA_ADPCM_format
 #define AL_LOKI_IMA_ADPCM_format 1
-#define AL_FORMAT_IMA_ADPCM_MONO16_EXT          0x10000
-#define AL_FORMAT_IMA_ADPCM_STEREO16_EXT        0x10001
+#define AL_FORMAT_IMA_ADPCM_MONO16_EXT		0x10000
+#define AL_FORMAT_IMA_ADPCM_STEREO16_EXT	0x10001
+#endif
+
+#ifndef AL_LOKI_WAVE_format
+#define AL_LOKI_WAVE_format 1
+#define AL_FORMAT_WAVE_EXT			0x10002
+#endif
+
+#ifndef AL_EXT_vorbis
+#define AL_EXT_vorbis 1
+#define AL_FORMAT_VORBIS_EXT			0x10003
+#endif
+
+/** four speaker setup */
+#ifndef AL_LOKI_quadriphonic
+#define AL_LOKI_quadriphonic 1
+#define AL_FORMAT_QUAD8_LOKI			0x10004
+#define AL_FORMAT_QUAD16_LOKI			0x10005
 #endif
 
 #ifndef AL_EXT_float32
@@ -97,16 +119,130 @@ extern "C" {
 #define AL_FORMAT_STEREO_DOUBLE_EXT		0x10013
 #endif
 
-#ifndef AL_EXT_mulaw
-#define AL_EXT_mulaw 1
+#ifndef AL_EXT_MULAW
+#define AL_EXT_MULAW 1
 #define AL_FORMAT_MONO_MULAW_EXT		0x10014
 #define AL_FORMAT_STEREO_MULAW_EXT		0x10015
 #endif
 
-#ifndef AL_EXT_alaw
-#define AL_EXT_alaw 1
+#ifndef AL_EXT_ALAW
+#define AL_EXT_ALAW 1
 #define AL_FORMAT_MONO_ALAW_EXT			0x10016
 #define AL_FORMAT_STEREO_ALAW_EXT		0x10017
+#endif
+
+#ifndef AL_EXT_STATIC_BUFFER
+#define AL_EXT_STATIC_BUFFER 1
+typedef ALvoid (ALEXT_APIENTRY*PFNALBUFFERDATASTATICPROC)(const ALint,ALenum,ALvoid*,ALsizei,ALsizei);
+# ifdef AL_ALEXT_PROTOTYPES
+ALEXT_API ALvoid ALEXT_APIENTRY alBufferDataStatic(const ALint buffer, ALenum format, ALvoid *data, ALsizei len, ALsizei freq);
+# endif
+#endif
+
+#ifndef AL_SOFT_buffer_sub_data
+#define AL_SOFT_buffer_sub_data 1
+#define AL_BYTE_RW_OFFSETS_SOFT			0x1031
+#define AL_SAMPLE_RW_OFFSETS_SOFT		0x1032
+typedef ALvoid (ALEXT_APIENTRY*PFNALBUFFERSUBDATASOFTPROC)(ALuint,ALenum,const ALvoid*,ALsizei,ALsizei);
+# ifdef AL_ALEXT_PROTOTYPES
+ALEXT_API ALvoid ALEXT_APIENTRY alBufferSubDataSOFT(ALuint buffer,ALenum format,const ALvoid *data,ALsizei offset,ALsizei length);
+# endif
+#endif
+
+#ifndef AL_EXT_FOLDBACK
+#define AL_EXT_FOLDBACK 1
+#define AL_EXT_FOLDBACK_NAME			"AL_EXT_FOLDBACK"
+#define AL_FOLDBACK_EVENT_BLOCK			0x4112
+#define AL_FOLDBACK_EVENT_START			0x4111
+#define AL_FOLDBACK_EVENT_STOP			0x4113
+#define AL_FOLDBACK_MODE_MONO			0x4101
+#define AL_FOLDBACK_MODE_STEREO			0x4102
+typedef void (ALEXT_APIENTRY*LPALFOLDBACKCALLBACK)(ALenum,ALsizei);
+typedef void (ALEXT_APIENTRY*LPALREQUESTFOLDBACKSTART)(ALenum,ALsizei,ALsizei,ALfloat*,LPALFOLDBACKCALLBACK);
+typedef void (ALEXT_APIENTRY*LPALREQUESTFOLDBACKSTOP)(void);
+#ifdef AL_ALEXT_PROTOTYPES
+ALEXT_API void ALEXT_APIENTRY alRequestFoldbackStart(ALenum mode,ALsizei count,ALsizei length,ALfloat *mem,LPALFOLDBACKCALLBACK callback);
+ALEXT_API void ALEXT_APIENTRY alRequestFoldbackStop(void);
+#endif
+#endif
+
+#ifndef AL_SOFT_buffer_samples
+#define AL_SOFT_buffer_samples 1
+/* Channel configurations */
+#define AL_MONO_SOFT				0x1500
+#define AL_STEREO_SOFT				0x1501
+#define AL_REAR_SOFT				0x1502
+#define AL_QUAD_SOFT				0x1503
+#define AL_5POINT1_SOFT				0x1504
+#define AL_6POINT1_SOFT				0x1505
+#define AL_7POINT1_SOFT				0x1506
+
+/* Sample types */
+#define AL_BYTE_SOFT				0x1400
+#define AL_UNSIGNED_BYTE_SOFT			0x1401
+#define AL_SHORT_SOFT				0x1402
+#define AL_UNSIGNED_SHORT_SOFT			0x1403
+#define AL_INT_SOFT				0x1404
+#define AL_UNSIGNED_INT_SOFT			0x1405
+#define AL_FLOAT_SOFT				0x1406
+#define AL_DOUBLE_SOFT				0x1407
+#define AL_BYTE3_SOFT				0x1408
+#define AL_UNSIGNED_BYTE3_SOFT			0x1409
+
+/* Storage formats */
+#define AL_MONO8_SOFT				0x1100
+#define AL_MONO16_SOFT				0x1101
+#define AL_MONO32F_SOFT				0x10010
+#define AL_STEREO8_SOFT				0x1102
+#define AL_STEREO16_SOFT			0x1103
+#define AL_STEREO32F_SOFT			0x10011
+#define AL_QUAD8_SOFT				0x1204
+#define AL_QUAD16_SOFT				0x1205
+#define AL_QUAD32F_SOFT				0x1206
+#define AL_REAR8_SOFT				0x1207
+#define AL_REAR16_SOFT				0x1208
+#define AL_REAR32F_SOFT				0x1209
+#define AL_5POINT1_8_SOFT			0x120A
+#define AL_5POINT1_16_SOFT			0x120B
+#define AL_5POINT1_32F_SOFT			0x120C
+#define AL_6POINT1_8_SOFT			0x120D
+#define AL_6POINT1_16_SOFT			0x120E
+#define AL_6POINT1_32F_SOFT			0x120F
+#define AL_7POINT1_8_SOFT			0x1210
+#define AL_7POINT1_16_SOFT			0x1211
+#define AL_7POINT1_32F_SOFT			0x1212
+
+/* Buffer attributes */
+#define AL_INTERNAL_FORMAT_SOFT			0x2008
+#define AL_BYTE_LENGTH_SOFT			0x2009
+#define AL_SAMPLE_LENGTH_SOFT			0x200A
+#define AL_SEC_LENGTH_SOFT			0x200B
+
+typedef void (ALEXT_APIENTRY*LPALBUFFERSAMPLESSOFT)(ALuint,ALuint,ALenum,ALsizei,ALenum,ALenum,const ALvoid*);
+typedef void (ALEXT_APIENTRY*LPALBUFFERSUBSAMPLESSOFT)(ALuint,ALsizei,ALsizei,ALenum,ALenum,const ALvoid*);
+typedef void (ALEXT_APIENTRY*LPALGETBUFFERSAMPLESSOFT)(ALuint,ALsizei,ALsizei,ALenum,ALenum,ALvoid*);
+typedef ALboolean (ALEXT_APIENTRY*LPALISBUFFERFORMATSUPPORTEDSOFT)(ALenum);
+# ifdef AL_ALEXT_PROTOTYPES
+ALEXT_API void ALEXT_APIENTRY alBufferSamplesSOFT(ALuint buffer, ALuint samplerate, ALenum internalformat, ALsizei samples, ALenum channels, ALenum type, const ALvoid *data);
+ALEXT_API void ALEXT_APIENTRY alBufferSubSamplesSOFT(ALuint buffer, ALsizei offset, ALsizei samples, ALenum channels, ALenum type, const ALvoid *data);
+ALEXT_API void ALEXT_APIENTRY alGetBufferSamplesSOFT(ALuint buffer, ALsizei offset, ALsizei samples, ALenum channels, ALenum type, ALvoid *data);
+ALEXT_API ALboolean ALEXT_APIENTRY alIsBufferFormatSupportedSOFT(ALenum format);
+# endif
+#endif
+
+#ifndef AL_SOFT_direct_channels
+#define AL_SOFT_direct_channels 1
+#define AL_DIRECT_CHANNELS_SOFT			0x1033
+#endif
+
+#ifndef AL_EXT_STEREO_ANGLES
+#define AL_EXT_STEREO_ANGLES 1
+#define AL_STEREO_ANGLES			0x1030
+#endif
+
+#ifndef AL_EXT_SOURCE_RADIUS
+#define AL_EXT_SOURCE_RADIUS 1
+#define AL_SOURCE_RADIUS			0x1031
 #endif
 
 #ifndef AL_AAX_frequency_filter
@@ -134,7 +270,7 @@ ALEXT_API void ALEXT_APIENTRY alReverbiAAX(ALenum attrib, ALint value);
 
 #ifndef AL_AAX_source_distance_delay
 #define AL_AAX_source_distance_delay 1
-#define AL_DISTANCE_DELAY_AAX                   0x27001A
+#define AL_DISTANCE_DELAY_AAX			0x27001A
 #endif
 
 #ifndef AL_AAX_environment
@@ -157,91 +293,18 @@ ALEXT_API void ALEXT_APIENTRY alWind3fAAX(ALenum attirb, ALfloat v1, ALfloat v2,
 ALEXT_API void ALEXT_APIENTRY alWindvfAAX(ALenum attirb, ALfloat *values);
 #endif
 
-#ifndef AL_EXT_EFX
-#define AL_EXT_EFX 1
-#define AL_METERS_PER_UNIT			0x20004
-#define AL_DIRECT_FILTER			0x20005
-#define AL_AUXILIARY_SEND_FILTER		0x20006
-#define AL_AIR_ABSORPTION_FACTOR		0x20007
-#define AL_ROOM_ROLLOFF_FACTOR			0x20008
-#define AL_CONE_OUTER_GAINHF			0x20009
-#define AL_DIRECT_FILTER_GAINHF_AUTO		0x2000A
-#define AL_AUXILIARY_SEND_FILTER_GAIN_AUTO	0x2000B
-#define AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO	0x2000C
-
-#define AL_EFFECT_TYPE				0x8001
-#define AL_EFFECT_NULL				0x0000
-#define AL_EFFECT_REVERB			0x0001
-#define AL_EFFECT_CHORUS			0x0002
-#define AL_EFFECT_DISTORTION			0x0003
-#define AL_EFFECT_ECHO				0x0004
-#define AL_EFFECT_FLANGER			0x0005
-#define AL_EFFECT_FREQUENCY_SHIFTER		0x0006
-#define AL_EFFECT_VOCAL_MORPHER			0x0007
-#define AL_EFFECT_PITCH_SHIFTER			0x0008
-#define AL_EFFECT_RING_MODULATOR		0x0009
-#define AL_EFFECT_AUTOWAH			0x000A
-#define AL_EFFECT_COMPRESSOR			0x000B
-#define AL_EFFECT_EQUALIZER			0x000C
-
-#define AL_REVERB_DENSITY			0x0001
-#define AL_REVERB_DIFFUSION			0x0002
-#define AL_REVERB_GAIN				0x0003
-#define AL_REVERB_GAINHF			0x0004
-#define AL_REVERB_DECAY_TIME			0x0005
-#define AL_REVERB_DECAY_HFRATIO			0x0006
-#define AL_REVERB_REFLECTIONS_GAIN		0x0007
-#define AL_REVERB_REFLECTIONS_DELAY		0x0008
-#define AL_REVERB_LATE_REVERB_GAIN		0x0009
-#define AL_REVERB_LATE_REVERB_DELAY		0x000A
-#define AL_REVERB_AIR_ABSORPTION_GAINHF		0x000B
-#define AL_REVERB_ROOM_ROLLOFF_FACTOR		0x000C
-#define AL_REVERB_DECAY_HFLIMIT			0x000D
-
-#define AL_FILTER_TYPE				0x8001
-#define AL_FILTER_NULL				0x0000
-#define AL_FILTER_LOWPASS			0x0001
-#define AL_FILTER_HIGHPASS			0x0002
-#define AL_FILTER_BANDPASS			0x0003
-#define AL_LOWPASS_GAIN				0x0001
-#define AL_LOWPASS_GAINHF			0x0002
-
-#define AL_EFFECTSLOT_EFFECT			0x0001
-#define AL_EFFECTSLOT_GAIN			0x0002
-#define AL_EFFECTSLOT_AUXILIARY_SEND_AUTO	0x0003
-#define AL_EFFECTSLOT_NULL			0x0000
-
-extern void alGenFilters(ALsizei num, ALuint *ids);
-extern void alDeleteFilters(ALsizei num, ALuint *ids);
-extern ALboolean alIsFilter(ALuint id);
-
-extern void alFilteri(ALuint id, ALenum attrib, ALint value);
-extern void alFilteriv(ALuint id, ALenum attrib, ALint *values);
-extern void alFilterf(ALuint id, ALenum attrib, ALfloat value);
-extern void alFilterfv(ALuint id, ALenum attrib, ALfloat *values);
-
-extern void alGetFilteri(ALuint id, ALenum attrib, ALint *values);
-extern void alGetFilteriv(ALuint id, ALenum attrib, ALint *values);
-extern void alGetFilterf(ALuint id, ALenum attrib, ALfloat *values);
-extern void alGetFilterfv(ALuint id, ALenum attrib, ALfloat *values);
-#endif
-
 #ifndef AL_EXT_source_latency
 #define AL_EXT_source_latency 1
-
 # define AL_SAMPLE_OFFSET_LATENCY		0x1200
 # define AL_SEC_OFFSET_LATENCY			0x1201
-
 typedef long long ALint64;
 typedef unsigned long long ALuint64;
-
 ALEXT_API void ALEXT_APIENTRY alSourced(ALuint source, ALenum param, ALdouble value);
 ALEXT_API void ALEXT_APIENTRY alSource3d(ALuint source, ALenum param, ALdouble value1, ALdouble value2, ALdouble value3);
 ALEXT_API void ALEXT_APIENTRY alSourcedv(ALuint source, ALenum param, const ALdouble *values);
 ALEXT_API void ALEXT_APIENTRY alGetSourced(ALuint source, ALenum param, ALdouble *value);
 ALEXT_API void ALEXT_APIENTRY alGetSource3d(ALuint source, ALenum param, ALdouble *value1, ALdouble *value2, ALdouble *value3);
 ALEXT_API void ALEXT_APIENTRY alGetSourcedv(ALuint source, ALenum param, ALdouble *values);
-
 ALEXT_API void ALEXT_APIENTRY alSourcei64(ALuint source, ALenum param, ALint64 value);
 ALEXT_API void ALEXT_APIENTRY alSource3i64(ALuint source, ALenum param, ALint64 value1, ALint64 value2, ALint64 value3);
 ALEXT_API void ALEXT_APIENTRY alSourcei64v(ALuint source, ALenum param, const ALint64 *values);
@@ -252,28 +315,36 @@ ALEXT_API void ALEXT_APIENTRY alGetSourcei64v(ALuint source, ALenum param, ALint
 
 #ifndef AL_SOFT_source_latency
 #define AL_SOFT_source_latency 1
-
 # define AL_SAMPLE_OFFSET_LATENCY_SOFT		0x1200
 # define AL_SEC_OFFSET_LATENCY_SOFT		0x1201
-
-
 typedef ALint64 ALint64SOFT;
 typedef ALuint64 ALuint64SOFT;
-
 ALEXT_API void ALEXT_APIENTRY alSourcedSOFT(ALuint source, ALenum param, ALdouble value);
 ALEXT_API void ALEXT_APIENTRY alSource3dSOFT(ALuint source, ALenum param, ALdouble value1, ALdouble value2, ALdouble value3);
 ALEXT_API void ALEXT_APIENTRY alSourcedvSOFT(ALuint source, ALenum param, const ALdouble *values);
 ALEXT_API void ALEXT_APIENTRY alGetSourcedSOFT(ALuint source, ALenum param, ALdouble *value);
 ALEXT_API void ALEXT_APIENTRY alGetSource3dSOFT(ALuint source, ALenum param, ALdouble *value1, ALdouble *value2, ALdouble *value3);
 ALEXT_API void ALEXT_APIENTRY alGetSourcedvSOFT(ALuint source, ALenum param, ALdouble *values);
-
 ALEXT_API void ALEXT_APIENTRY alSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT value);
 ALEXT_API void ALEXT_APIENTRY alSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT value1, ALint64SOFT value2, ALint64SOFT value3);
 ALEXT_API void ALEXT_APIENTRY alSourcei64vSOFT(ALuint source, ALenum param, const ALint64SOFT *values);
 ALEXT_API void ALEXT_APIENTRY alGetSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT *value);
 ALEXT_API void ALEXT_APIENTRY alGetSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT *value1, ALint64SOFT *value2, ALint64SOFT *value3);
 ALEXT_API void ALEXT_APIENTRY alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64SOFT *values);
-
+# ifdef AL_ALEXT_PROTOTYPES
+ALEXT_API void ALEXT_APIENTRY alSourcedSOFT(ALuint source, ALenum param, ALdouble value);
+ALEXT_API void ALEXT_APIENTRY alSource3dSOFT(ALuint source, ALenum param, ALdouble value1, ALdouble value2, ALdouble value3);
+ALEXT_API void ALEXT_APIENTRY alSourcedvSOFT(ALuint source, ALenum param, const ALdouble *values);
+ALEXT_API void ALEXT_APIENTRY alGetSourcedSOFT(ALuint source, ALenum param, ALdouble *value);
+ALEXT_API void ALEXT_APIENTRY alGetSource3dSOFT(ALuint source, ALenum param, ALdouble *value1, ALdouble *value2, ALdouble *value3);
+ALEXT_API void ALEXT_APIENTRY alGetSourcedvSOFT(ALuint source, ALenum param, ALdouble *values);
+ALEXT_API void ALEXT_APIENTRY alSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT value);
+ALEXT_API void ALEXT_APIENTRY alSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT value1, ALint64SOFT value2, ALint64SOFT value3);
+ALEXT_API void ALEXT_APIENTRY alSourcei64vSOFT(ALuint source, ALenum param, const ALint64SOFT *values);
+ALEXT_API void ALEXT_APIENTRY alGetSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT *value);
+ALEXT_API void ALEXT_APIENTRY alGetSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT *value1, ALint64SOFT *value2, ALint64SOFT *value3);
+ALEXT_API void ALEXT_APIENTRY alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64SOFT *values);
+# endif
 #endif
 
 

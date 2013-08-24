@@ -199,6 +199,7 @@ ADD_LIBRARY(${LIBOPENAL} ${LIBTYPE} ${OPENAL_OBJS})
 TARGET_LINK_LIBRARIES(${LIBOPENAL} ${LIBBASE})
 SET_TARGET_PROPERTIES(${LIBOPENAL}
      PROPERTIES DEFINE_SYMBOL ALC_BUILD_LIBRARY
+                DEFINE_SYMBOL AL_ALEXT_PROTOTYPES
      VERSION ${LIB_VERSION}
      SOVERSION ${CPACK_PACKAGE_VERSION_MAJOR}
 )
@@ -225,6 +226,9 @@ INSTALL(FILES
         include/AL/alc.h
         include/AL/alext.h
         include/AL/alcext.h
+        include/AL/efx.h
+        include/AL/efx-creative.h
+        include/AL/efx-presets.h
         DESTINATION include/AL
         COMPONENT Headers
 )
