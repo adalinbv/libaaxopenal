@@ -1,0 +1,17 @@
+libaaxopenal
+
+Copyright (C) 2005-2013 Erik Hofman <erik@ehofman.com>
+Copyright (C) 2007-2013 Adalin B.V. <info@adalin.com>
+
+2013-08-27
+
+The homepage of libaaxopenal is at:
+http://www.adalin.com
+
+The entire code base may be distributed under the terms of the GNU Lesser
+General Public License (LGPL), which appears immediately below.
+
+This package is not part of the Debian distribution.
+
+See /usr/share/common-licenses/LGPL-3
+

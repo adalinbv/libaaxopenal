@@ -19,6 +19,7 @@ SET(PACKAGE_NAME "AeonWave-OpenAL")
 SET(PACKAGE "libaaxopenal")
 
 OPTION(DLOPEN "Check for the dlopen API for loading optional libs" ON)
+OPTION(USRLIBDIR "Install the libraries in a non default libdir" OFF)
 OPTION(UTILS  "Build and install utility programs" ON)
 OPTION(WERROR "Treat compile warnings as errors"   OFF)
 
@@ -58,31 +59,43 @@ INCLUDE(CPack_Defaults)
 # Used to create Start Menu shortcuts <EXEC> <LABEL>
 #set(CPACK_PACKAGE_EXECUTABLES "alcinfo" "OpenAL information")
 
-IF(WIN32)
-  SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+MACRO(GENERATE_PACKAGING_TARGET package)
+  IF(WIN32)
+    SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
 
-ELSE(WIN32)
-  SET(CMAKE_INSTALL_LIBDIR "/opt/${PACKAGE}/lib")
+  ELSE(WIN32)
+    IF (USRLIBDIR)
+      SET(CMAKE_INSTALL_LIBDIR "/usr/lib/${PACKAGE}")
+    ENDIF (USRLIBDIR)
 
-# DEBIAN
-  SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
-  SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}:${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-bin (>= 2.2.2)")
-  SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
-  SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal-data, libopenal, libaaxopenal, aaxopenal")
-# SET(CPACK_DEBIAN_PACKAGE_BREAKS "libopenal1, libopenal-dev, libopenal-data")
-# SET(CPACK_DEBIAN_PACKAGE_CONFLICTS "libopenal1, libopenal-dev, libopenal-data")
-  SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${aaxopenal_SOURCE_DIR}/admin/debian/postinst;${aaxopenal_SOURCE_DIR}/admin/debian/postrm;")
+#   DEBIAN
+    SET(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+    SET(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}:${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+    SET(CPACK_DEBIAN_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
+    SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal-data, libopenal, libaaxopenal, aaxopenal")
+    IF (${package} MATCHES Libraries)
+      SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${aaxopenal_SOURCE_DIR}/admin/debian/postinst;${aaxopenal_SOURCE_DIR}/admin/debian/postrm;" COMPONENT Libraries)
+      SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax2-bin (>= 2.3.0)")
+      SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
+    ELSE(${package} MATCHES Libraries)
+      SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS FALSE)
+    ENDIF(${package} MATCHES Libraries)
 
-# RPM
-  SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
-  SET(CPACK_RPM_PACKAGE_GROUP "System/Libraries")
-  SET(CPACK_RPM_PACKAGE_REQUIRES "libaax2-bin >= 2.2.2")
-#  SET(CPACK_RPM_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
-#  SET(CPACK_RPM_PACKAGE_CONFLICTS "libopenal1, libopenal-dev")
-  SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data, aaxopenal")
+#   RPM
+    SET(CPACK_RPM_PACKAGE_LICENSE "LGPL v3")
+    SET(CPACK_RPM_PACKAGE_GROUP "System/Libraries")
+    SET(CPACK_RPM_PACKAGE_REQUIRES "libaax2-bin >= 2.3.0")
+#    SET(CPACK_RPM_PACKAGE_PROVIDES "libopenal1, libopenal-dev")
+#    SET(CPACK_RPM_PACKAGE_CONFLICTS "libopenal1, libopenal-dev")
+    SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data, aaxopenal")
 
-ENDIF(WIN32)
+   ENDIF(WIN32)
+ENDMACRO(GENERATE_PACKAGING_TARGET)
+
+FOREACH(package ${CPACK_COMPONENTS_ALL})
+  SET(AAXOPENAL_CPACK_COMPONENT ${package})
+  GENERATE_PACKAGING_TARGET(${package})
+ENDFOREACH()
 
 # ZIP
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${AL_VERSION}" CACHE INTERNAL "tarball basename")
@@ -125,6 +138,14 @@ IF(MSVC)
         ENDFOREACH(flag_var)
     ENDIF()
 ELSE(MSVC)
+    IF(LTO)
+       SET(C_FLAGS "${C_FLAGS} -flto")
+    ENDIF(LTO)
+
+    IF(NOT MINGW)
+       SET(C_FLAGS "${C_FLAGS} -fPIC")
+    ENDIF(NOT MINGW)
+
     IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
        SET(C_FLAGS "${C_FLAGS} -march=i386")
     ENDIF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -168,8 +189,8 @@ CONFIGURE_FILE(
     "${aaxopenal_BINARY_DIR}/include/config.h")
 
 CONFIGURE_FILE(
-    "${aaxopenal_SOURCE_DIR}/admin/debian/aax.conf.in"
-    "${aaxopenal_BINARY_DIR}/admin/debian/aax.conf")
+     "${aaxopenal_SOURCE_DIR}/admin/debian/aax.conf.in"
+     "${aaxopenal_BINARY_DIR}/admin/debian/aax.conf")
 
 
 SET(BASE_OBJS
@@ -234,20 +255,24 @@ INSTALL(FILES
 )
 
 IF (UNIX AND NOT WIN32)
+  IF (USRLIBDIR)
     INSTALL(FILES 
             ${aaxopenal_BINARY_DIR}/admin/debian/aax.conf
             DESTINATION /etc/ld.so.conf.d/
             COMPONENT Libraries
     )
+  ENDIF(USRLIBDIR)
+ENDIF()
 
-    macro(install_symlink _dest _source)
+IF (UNIX AND NOT WIN32)
+  macro(install_symlink _dest _source)
       install(CODE "
              include(\"${aaxopenal_SOURCE_DIR}/CMakeModules/Symlink.cmake\")
              InstallSymlink(\"${_dest}\" \"\$ENV{DESTDIR}${_source}\")")
-    endmacro(install_symlink)
+  endmacro(install_symlink)
 
-    install_symlink(${CMAKE_LIBRARY_ARCHITECTURE}/lib${LIBOPENAL}.so.${CPACK_PACKAGE_VERSION_MAJOR} ${CMAKE_INSTALL_PREFIX}/lib/lib${LIBOPENAL}.so.${CPACK_PACKAGE_VERSION_MAJOR})
-    install_symlink(${CMAKE_LIBRARY_ARCHITECTURE}/lib${LIBOPENAL}.so ${CMAKE_INSTALL_PREFIX}/lib/lib${LIBOPENAL}.so)
+  install_symlink(${CMAKE_LIBRARY_ARCHITECTURE}/lib${LIBOPENAL}.so.${CPACK_PACKAGE_VERSION_MAJOR} ${CMAKE_INSTALL_PREFIX}/lib/lib${LIBOPENAL}.so.${CPACK_PACKAGE_VERSION_MAJOR})
+  install_symlink(${CMAKE_LIBRARY_ARCHITECTURE}/lib${LIBOPENAL}.so ${CMAKE_INSTALL_PREFIX}/lib/lib${LIBOPENAL}.so)
 ENDIF(UNIX AND NOT WIN32)
 
 IF(UTILS)
