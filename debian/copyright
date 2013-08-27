@@ -8,10 +8,10 @@ Copyright (C) 2007-2013 Adalin B.V. <info@adalin.com>
 The homepage of libaaxopenal is at:
 http://www.adalin.com
 
+This package is not part of the Debian distribution.
+
 The entire code base may be distributed under the terms of the GNU Lesser
 General Public License (LGPL), which appears immediately below.
-
-This package is not part of the Debian distribution.
 
 See /usr/share/common-licenses/LGPL-3
 
