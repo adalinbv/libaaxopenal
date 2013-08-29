@@ -35,7 +35,7 @@
 # define ALGETLISTENER3(NAME)	__ALGETLISTENER3(NAME)
 # define ALGETLISTENER(NAME)	__ALGETLISTENER(NAME)
 
-void
+AL_API void AL_APIENTRY
 ALLISTENER3(N)(ALenum attrib, T v1, T v2, T v3)
 {
     T Tv[3];
@@ -46,7 +46,7 @@ ALLISTENER3(N)(ALenum attrib, T v1, T v2, T v3)
     ALLISTENERV(N)(attrib, (T *)&Tv);
 }
 
-void
+AL_API void AL_APIENTRY
 ALLISTENERV(N)(ALenum attrib, const T *values)
 {
     _intBufferData *dptr_ctx;
@@ -120,7 +120,7 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALLISTENER(N)(ALenum attrib, T value)
 {
     _oalListener *lst;
@@ -177,7 +177,7 @@ ALLISTENER(N)(ALenum attrib, T value)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETLISTENER3(N)(ALenum attrib, T *v1, T *v2, T *v3)
 {
     T Tv[3];
@@ -188,7 +188,7 @@ ALGETLISTENER3(N)(ALenum attrib, T *v1, T *v2, T *v3)
     *v3 = Tv[2];
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETLISTENERV(N)(ALenum attrib, T *values)
 {
     _oalListener *lst;
@@ -242,7 +242,7 @@ ALGETLISTENERV(N)(ALenum attrib, T *values)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETLISTENER(N)(ALenum attrib, T *value)
 {
     _oalListener *lst;

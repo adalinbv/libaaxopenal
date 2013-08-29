@@ -21,10 +21,10 @@
 
 #if defined(N) && defined(T)
 
-# define __ALGETCONTEXTV(NAME)	alcGet##NAME##v
+# define __ALGETCONTEXTV(NAME)	_imp__alcGet##NAME##v
 # define ALGETCONTEXTV(NAME)	__ALGETCONTEXTV(NAME)
 
-void
+ALC_API void ALC_APIENTRY
 ALGETCONTEXTV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
 {
     char done = 1;

@@ -65,7 +65,7 @@ static void _oalSourcesCreate(void *);
  */
 static _intBufFreeCallback _oalDestroyContextByPos;
 
-ALCdevice *
+ALC_API ALCdevice * ALC_APIENTRY
 alcOpenDevice(const ALCchar *name)
 {
     ALCdevice *device = 0;
@@ -126,7 +126,7 @@ alcOpenDevice(const ALCchar *name)
     return device;
 }
 
-ALCboolean
+ALC_API ALCboolean ALC_APIENTRY
 alcCloseDevice(ALCdevice *device)
 {
     uint32_t id, pos;
@@ -169,7 +169,7 @@ alcCloseDevice(ALCdevice *device)
     return ALC_FALSE;
 }
 
-ALCcontext *
+ALC_API ALCcontext * ALC_APIENTRY
 alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 {
     _intBufferData *dptr_ctx = 0;
@@ -240,7 +240,7 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
     return INT_TO_PTR(id);
 }
 
-ALCboolean
+ALC_API ALCboolean ALC_APIENTRY
 alcMakeContextCurrent(ALCcontext *context)
 {
     unsigned int pos = UINT_MAX;
@@ -298,7 +298,7 @@ alcMakeContextCurrent(ALCcontext *context)
     return (pos == UINT_MAX) ? AL_FALSE : AL_TRUE;
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcProcessContext(ALCcontext *context)
 {
 #if 0
@@ -316,7 +316,7 @@ alcProcessContext(ALCcontext *context)
 #endif
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcSuspendContext(ALCcontext *context)
 {
 #if 0
@@ -332,7 +332,7 @@ alcSuspendContext(ALCcontext *context)
 #endif
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcDestroyContext(ALCcontext *context)
 {
     _oalDevice *dev;
@@ -357,13 +357,13 @@ alcDestroyContext(ALCcontext *context)
     _oalContextSetError(ALC_INVALID_CONTEXT);
 }
 
-ALCcontext *
+ALC_API ALCcontext * ALC_APIENTRY
 alcGetCurrentContext(void)
 {
     return INT_TO_PTR(_oalCurrentContext);
 }
 
-ALCdevice *
+ALC_API ALCdevice * ALC_APIENTRY
 alcGetContextsDevice(ALCcontext *context)
 {
     unsigned int ctx_id, dev_id = 0;
@@ -378,7 +378,7 @@ alcGetContextsDevice(ALCcontext *context)
     return INT_TO_PTR(dev_id);
 }
 
-void *
+ALC_API void * ALC_APIENTRY
 alcGetProcAddress(const ALCdevice *device, const ALCchar *name)
 {
     void *p = 0;
@@ -396,7 +396,7 @@ alcGetProcAddress(const ALCdevice *device, const ALCchar *name)
     return p;
 }
 
-ALCenum
+ALC_API ALCenum ALC_APIENTRY
 alcGetError(ALCdevice *device)
 {
     ALCenum ret = ALC_NO_ERROR;
@@ -435,7 +435,7 @@ alcGetError(ALCdevice *device)
     return ret;
 }
 
-ALCboolean
+ALC_API ALCboolean ALC_APIENTRY
 alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
 {
     ALCboolean r = ALC_FALSE;
@@ -461,7 +461,7 @@ alcIsExtensionPresent(const ALCdevice *device,  const ALCchar *name)
     return (r) ? AL_TRUE : AL_FALSE;
 }
 
-ALCenum
+ALC_API ALCenum ALC_APIENTRY
 alcGetEnumValue(const ALCdevice *device, const ALCchar *name)
 {
     const _oalEnumValue_s *e;
@@ -496,7 +496,7 @@ alcGetEnumValue(const ALCdevice *device, const ALCchar *name)
     return rv;
 }
 
-const ALCchar *
+ALC_API const ALCchar * ALC_APIENTRY
 alcGetString(ALCdevice *device, ALCenum attrib)
 {
     _oalDevice *dev;

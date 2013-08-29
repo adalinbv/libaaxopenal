@@ -41,7 +41,7 @@
 static _intBuffers *_oalGetSources(void *);
 static const _intBufferData *_oalFindSourceById(ALuint, _intBuffers*, ALuint *);
 
-ALboolean
+AL_API ALboolean AL_APIENTRY
 alIsSource (ALuint id)
 {
     const _intBufferData *dptr;
@@ -59,7 +59,7 @@ alIsSource (ALuint id)
     return ret;
 }
 
-void
+AL_API void AL_APIENTRY
 alGenSources(ALsizei num, ALuint *ids)
 {
     _intBufferData *dptr = 0;
@@ -131,7 +131,7 @@ alGenSources(ALsizei num, ALuint *ids)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alDeleteSources(ALsizei num, const ALuint *ids)
 {
     const _intBufferData *dptr_ctx;
@@ -197,7 +197,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
     else _oalStateSetError(AL_OUT_OF_MEMORY);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
 {
     const _intBufferData *dptr_ctx;
@@ -250,7 +250,7 @@ alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
 {
     const _intBufferData *dptr_ctx;
@@ -315,13 +315,13 @@ alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alSourcePlay(ALuint id)
 {
     alSourcePlayv(1, &id);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourcePlayv(ALsizei num, const ALuint *ids)
 {
     ALsizei i = num;
@@ -385,13 +385,13 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
     while (i);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourcePause(ALuint id)
 {
     alSourcePausev(1, &id);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourcePausev(ALsizei num, const ALuint *ids)
 {
     ALsizei i;
@@ -415,13 +415,13 @@ alSourcePausev(ALsizei num, const ALuint *ids)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alSourceStop(ALuint id)
 {
     alSourceStopv(1, &id);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourceStopv(ALsizei num, const ALuint *ids)
 {
     ALsizei i = num;
@@ -467,13 +467,13 @@ alSourceStopv(ALsizei num, const ALuint *ids)
     while (i);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourceRewind(ALuint id)
 {
     alSourceRewindv(1, &id);
 }
 
-void
+AL_API void AL_APIENTRY
 alSourceRewindv(ALsizei num, const ALuint *ids)
 {
     ALsizei i;

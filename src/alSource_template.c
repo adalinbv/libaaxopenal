@@ -39,7 +39,7 @@
 #  define BITSHIFT 0
 # endif
 
-void
+AL_API void AL_APIENTRY
 ALSOURCE3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
 {
     T Tv[3];
@@ -50,7 +50,7 @@ ALSOURCE3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
     ALSOURCEV(N)(id, attrib, (T*)&Tv);
 }
 
-void
+AL_API void AL_APIENTRY
 ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
 {
     const _intBufferData *dptr;
@@ -113,7 +113,7 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALSOURCE(N)(ALuint id, ALenum attrib, T value)
 {
     const _intBufferData *dptr;
@@ -309,7 +309,7 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
 }
 
 
-void
+AL_API void AL_APIENTRY
 ALGETSOURCE3(N)(ALuint id, ALenum attrib, T *v1, T *v2, T *v3)
 {
     T Tv[3];
@@ -320,7 +320,7 @@ ALGETSOURCE3(N)(ALuint id, ALenum attrib, T *v1, T *v2, T *v3)
     *v3 = Tv[2];
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
 {
     const _intBufferData *dptr;
@@ -376,7 +376,7 @@ ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
 {
     const _intBufferData *dptr;

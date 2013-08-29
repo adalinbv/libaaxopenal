@@ -32,7 +32,7 @@
 #include "aax_support.h"
 #include "api.h"
 
-ALCdevice *
+ALC_API ALCdevice * ALC_APIENTRY
 alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bufsize)
 {
     ALCdevice *device = 0;
@@ -97,13 +97,13 @@ alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bu
     return device;
 }
 
-ALCboolean
+ALC_API ALCboolean ALC_APIENTRY
 alcCaptureCloseDevice(ALCdevice *device)
 {
     return alcCloseDevice(device);
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcCaptureStart(ALCdevice *device)
 {
     _oalDevice *d;
@@ -122,7 +122,7 @@ alcCaptureStart(ALCdevice *device)
     aaxSensorSetState(d->lst.handle, AAX_CAPTURING);
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcCaptureStop(ALCdevice *device)
 {
     _oalDevice *d;
@@ -141,7 +141,7 @@ alcCaptureStop(ALCdevice *device)
     aaxSensorSetState(d->lst.handle, AAX_STOPPED);
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcCaptureiAAX(ALCdevice *device, ALCenum attrib, ALCint value)
 {
     _oalDevice *d;
@@ -196,7 +196,7 @@ alcCaptureiAAX(ALCdevice *device, ALCenum attrib, ALCint value)
     }
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcGetCaptureivAAX(ALCdevice *device, ALCenum attrib, ALCint *value)
 {
     _oalDevice *d;
@@ -232,7 +232,7 @@ alcGetCaptureivAAX(ALCdevice *device, ALCenum attrib, ALCint *value)
     }
 }
 
-void
+ALC_API void ALC_APIENTRY
 alcCaptureSamples(ALCdevice *device, ALCvoid *sdata, ALCsizei samps)
 {
     char *data = (char*)sdata;

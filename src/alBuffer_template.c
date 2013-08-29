@@ -35,7 +35,7 @@
 # define ALGETBUFFER3(NAME)	__ALGETBUFFER3(NAME)
 # define ALGETBUFFER(NAME)	__ALGETBUFFER(NAME)
 
-void
+AL_API void AL_APIENTRY
 ALBUFFER3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
 {
     T Tv[3];
@@ -46,7 +46,7 @@ ALBUFFER3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
     ALBUFFERV(N)(id, attrib, (T *)&Tv);
 }
 
-void
+AL_API void AL_APIENTRY
 ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
 {
     const _intBufferData *dptr;
@@ -79,7 +79,7 @@ ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALBUFFER(N)(ALuint id, ALenum attrib, T value)
 {
     const _intBufferData *dptr;
@@ -112,7 +112,7 @@ ALBUFFER(N)(ALuint id, ALenum attrib, T value)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETBUFFER3(N)(ALuint id, ALenum attrib, T *v1, T *v2, T *v3)
 {
     T Tv[3];
@@ -123,7 +123,7 @@ ALGETBUFFER3(N)(ALuint id, ALenum attrib, T *v1, T *v2, T *v3)
     *v3 = Tv[2];
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETBUFFERV(N)(ALuint id, ALenum attrib, T *values)
 {
     const _intBufferData *dptr;
@@ -153,7 +153,7 @@ ALGETBUFFERV(N)(ALuint id, ALenum attrib, T *values)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 ALGETBUFFER(N)(ALuint id, ALenum attrib, T *value)
 {
     const _intBufferData *dptr;

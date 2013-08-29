@@ -27,7 +27,7 @@
 # define ALGETV(NAME)		__ALGETV(NAME)
 # define ALGET(NAME)		__ALGET(NAME)
 
-void
+AL_API void AL_APIENTRY
 ALGETV(N)(ALenum attrib, T *value)
 {
     if (!value)
@@ -57,7 +57,7 @@ ALGETV(N)(ALenum attrib, T *value)
     }
 }
 
-T
+AL_API T AL_APIENTRY
 ALGET(N)(ALenum attrib)
 {
     T ret = 0;

@@ -32,14 +32,14 @@
 
 static void* null_buf = "\0";
 
-ALboolean
+AL_API ALboolean AL_APIENTRY
 alIsBuffer(ALuint id)
 {
     ALuint pos;
     return _oalFindBufferById(id, &pos) ? AL_TRUE : AL_FALSE;
 }
 
-void
+AL_API void AL_APIENTRY
 alGenBuffers(ALsizei num, ALuint *ids)
 {
     _intBuffers *db;
@@ -83,7 +83,7 @@ alGenBuffers(ALsizei num, ALuint *ids)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alDeleteBuffers(ALsizei num, const ALuint *ids)
 {
     ALuint *pos;
@@ -136,7 +136,7 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alBufferData(ALuint id, ALenum format,
                  const ALvoid *data, ALsizei size, ALsizei frequency)
 {

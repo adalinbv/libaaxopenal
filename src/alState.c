@@ -57,12 +57,14 @@ static void _oalSetSoundVelocity(ALfloat f);
 static ALenum _oalGetDistanceModel(ALboolean b);
 static void _oalSetDistanceModel(ALenum e);
 
-ALenum alGetError(void)
+AL_API ALenum AL_APIENTRY
+alGetError(void)
 {
     return _oalStateSetError(AL_NO_ERROR);
 }
 
-void alEnable(ALenum attrib)
+AL_API void AL_APIENTRY
+alEnable(ALenum attrib)
 {
     _intBufferData *dptr = _oalGetCurrentContext(0);
     if (dptr)
@@ -84,7 +86,8 @@ void alEnable(ALenum attrib)
     }
 }
 
-void alDisable(ALenum attrib)
+AL_API void AL_APIENTRY
+alDisable(ALenum attrib)
 {
     _intBufferData *dptr = _oalGetCurrentContext(0);
     if (dptr)
@@ -106,7 +109,7 @@ void alDisable(ALenum attrib)
     }
 }
 
-ALboolean
+AL_API ALboolean AL_APIENTRY
 alIsEnabled (ALenum attrib)
 {
     ALboolean rv = AL_FALSE;
@@ -133,7 +136,7 @@ alIsEnabled (ALenum attrib)
     return rv;
 }
 
-const ALchar *
+AL_API const ALchar * AL_APIENTRY
 alGetString(ALenum attrib)
 {
     static ALchar *_default = (ALchar*)"Invalid parameter in alGetString.";
@@ -196,7 +199,7 @@ alGetString(ALenum attrib)
     return retstr;
 }
 
-void
+AL_API void AL_APIENTRY
 alDistanceModel(ALenum attrib)
 {
     if (attrib == AL_NONE ||
@@ -208,7 +211,7 @@ alDistanceModel(ALenum attrib)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alDopplerFactor(ALfloat factor)
 {
     if (factor >= 0.0f) {
@@ -218,7 +221,7 @@ alDopplerFactor(ALfloat factor)
     }
 }
 
-void
+AL_API void AL_APIENTRY
 alSpeedOfSound(ALfloat speed)
 {
     if (speed >= 0.0f) {
@@ -231,7 +234,7 @@ alSpeedOfSound(ALfloat speed)
 /*
  * Need to keep this function for version 1.0 backwards compatibility
  */
-void
+AL_API void AL_APIENTRY
 alDopplerVelocity(ALfloat velocity)
 {
     if (velocity >= 0.0f) {
@@ -241,7 +244,7 @@ alDopplerVelocity(ALfloat velocity)
     }
 }
 
-ALboolean
+AL_API ALboolean AL_APIENTRY
 alIsExtensionPresent(const ALchar *name)
 {
     ALCboolean r = ALC_FALSE;
@@ -261,13 +264,13 @@ alIsExtensionPresent(const ALchar *name)
     return r;
 }
 
-void *
+AL_API void * AL_APIENTRY
 alGetProcAddress(const ALchar *name)
 {
     return _oalGetGlobalProcAddress((const char *)name);
 }
 
-ALenum
+AL_API ALenum AL_APIENTRY
 alGetEnumValue(const ALchar* name)
 {
     const _oalEnumValue_s *e;
@@ -292,7 +295,7 @@ alGetEnumValue(const ALchar* name)
     return rv;
 }
 
-void
+AL_API void AL_APIENTRY
 alHint(ALenum target, ALenum mode)
 {
     switch(target)
