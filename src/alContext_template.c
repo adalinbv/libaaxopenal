@@ -21,11 +21,11 @@
 
 #if defined(N) && defined(T)
 
-# define __ALGETCONTEXTV(NAME)	_imp__alcGet##NAME##v
-# define ALGETCONTEXTV(NAME)	__ALGETCONTEXTV(NAME)
+# define __ALCGETINTEGERV(NAME)	alcGet##NAME##v
+# define ALCGETINTEGERV(NAME)	__ALCGETINTEGERV(NAME)
 
 ALC_API void ALC_APIENTRY
-ALGETCONTEXTV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
+ALCGETINTEGERV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
 {
     char done = 1;
 
@@ -92,8 +92,8 @@ ALGETCONTEXTV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
     }
 }
 
-# undef __ALGETCONTEXTV
-# undef ALGETCONTEXTV
+# undef __ALCGETINTEGERV
+# undef ALCGETINTEGERV
 # undef N
 # undef T
 #endif
