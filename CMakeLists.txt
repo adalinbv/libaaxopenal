@@ -144,7 +144,7 @@ ELSE(MSVC)
     ENDIF(LTO)
 
     IF(NOT MINGW)
-       SET(C_FLAGS "${C_FLAGS} -fPIC, -Wl,--hash-style=both")
+       SET(C_FLAGS "${C_FLAGS} -fPIC  -Wl,--hash-style=both")
     ENDIF(NOT MINGW)
 
     IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
