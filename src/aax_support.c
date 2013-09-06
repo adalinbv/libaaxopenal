@@ -299,6 +299,17 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
     return ret;
 }
 
+enum aaxDistanceModel
+_oalDistanceModeltoAAXDistanceModel(ALenum dist_model, char dist_delay)
+{
+   dist_model -= AL_INVERSE_DISTANCE;
+   dist_model += AAX_AL_INVERSE_DISTANCE;
+   if (dist_delay) dist_model |= AAX_DISTANCE_DELAY;
+   else dist_model &= ~AAX_DISTANCE_DELAY;
+   return dist_model;
+}
+
+
 const _oalEnumValue_s *
 _oalAAXGetEnum(const char *name)
 {

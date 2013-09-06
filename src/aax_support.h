@@ -49,6 +49,7 @@ const char * _oalAAXGetRendererString(const void*);
 ALenum _oalAAXFormatToFormat(enum aaxFormat, unsigned char);
 ALuchar _oalGetBitsPerSampleFromFormat(ALenum);
 enum aaxFormat _oalFormatToAAXFormat(ALenum);
+enum aaxDistanceModel _oalDistanceModeltoAAXDistanceModel(ALenum, char);
 ALsizei _oalGetChannelsFromFormat(ALenum);
 
 unsigned int _oalOffsetInBytesToAAXOffset(unsigned long, unsigned, enum aaxFormat);

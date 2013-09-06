@@ -184,12 +184,8 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             {
                 if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
                 {
-                    ival -= AL_INVERSE_DISTANCE;
-                    ival += AAX_AL_INVERSE_DISTANCE;
-
-                    if (alIsEnabled(AL_DISTANCE_DELAY_AAX)) {
-                       ival |= AAX_DISTANCE_DELAY;
-                    }
+                    char ddelay = alIsEnabled(AL_DISTANCE_DELAY_AAX);
+                    ival = _oalDistanceModeltoAAXDistanceModel(ival, ddelay);
                     aaxEmitterSetDistanceModel(emitter, ival);
                 }
             } else {

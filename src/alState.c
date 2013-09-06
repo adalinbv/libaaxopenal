@@ -560,6 +560,8 @@ _oalStateCreate(aaxConfig handle, void *context)
         _oalState *cs = (_oalState *)malloc(sizeof(_oalState));
         if (cs)
         {
+            unsigned int dist_model;
+
             cs->error = AL_NONE;
             cs->maxDistance = 1.0f;
             cs->dopplerFactor = 1.0f;
@@ -573,7 +575,10 @@ _oalStateCreate(aaxConfig handle, void *context)
             ctx->state = cs;
 
             aaxScenerySetSoundVelocity(handle, cs->soundVelocity);
-            aaxScenerySetDistanceModel(handle, cs->distanceModel);
+
+            dist_model = _oalDistanceModeltoAAXDistanceModel(cs->distanceModel,
+                                                             AAX_FALSE);
+            aaxScenerySetDistanceModel(handle, dist_model);
         }
         else
         {
@@ -819,6 +824,7 @@ _oalSetDistanceModel(ALenum e)
         _oalContext *ctx;
         _oalDevice *dev;
         _oalState *cs;
+        char ddelay;
 
         ctx = _intBufGetDataPtr(dptr);
         dev = (_oalDevice *)ctx->parent_device;
@@ -827,11 +833,8 @@ _oalSetDistanceModel(ALenum e)
         cs = ctx->state;
         cs->distanceModel = e;
 
-        e -= AL_INVERSE_DISTANCE;
-        e += AAX_AL_INVERSE_DISTANCE;
-        if (alIsEnabled(AL_DISTANCE_DELAY_AAX)) {
-            e |= AAX_DISTANCE_DELAY;
-        }
+        ddelay = alIsEnabled(AL_DISTANCE_DELAY_AAX);
+        e = _oalDistanceModeltoAAXDistanceModel(e, ddelay);
         aaxScenerySetDistanceModel(handle, e);
     }
 }
