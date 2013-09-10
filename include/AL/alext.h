@@ -268,9 +268,15 @@ ALEXT_API void ALEXT_APIENTRY alReverbvfAAX(ALenum attrib, ALfloat *values);
 ALEXT_API void ALEXT_APIENTRY alReverbiAAX(ALenum attrib, ALint value);
 #endif
 
-#ifndef AL_AAX_source_distance_delay
-#define AL_AAX_source_distance_delay 1
-#define AL_DISTANCE_DELAY_AAX			0x27001A
+#ifndef AL_AAX_distance_delay_model
+#define AL_AAX_distance_delay_model 1
+#define AL_DISTANCE_DELAY_MODEL_AAX		0x27D000
+#define AL_INVERSE_DISTANCE_DELAY_AAX		0x27D001
+#define AL_INVERSE_DISTANCE_DELAY_CLAMPED_AAX	0x27D002
+#define AL_LINEAR_DISTANCE_DELAY_AAX		0x27D003
+#define AL_LINEAR_DISTANCE_DELAY_CLAMPED_AAX	0x27D004
+#define AL_EXPONENT_DISTANCE_DELAY_AAX		0x27D005
+#define AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX	0x27D006
 #endif
 
 #ifndef AL_AAX_environment

@@ -140,12 +140,6 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             if (ival == AL_PLAYING) alSourcePlayv(1, &id);
             else if (ival == AL_STOPPED) alSourceStopv(1, &id);
             else if (ival == AL_PAUSED) alSourcePausev(1, &id);
-
-            /* AL_AAX_source_distance_delay */
-            else if (ival == AL_DISTANCE_DELAY_AAX) {
-                 /* parsing AAX_UPDATE reinitializes the distance delay */
-                 aaxEmitterSetState(src->handle, AAX_UPDATE);
-            }
             else _oalStateSetError(AL_INVALID_VALUE);
             break;
         case AL_SOURCE_RELATIVE:
@@ -176,20 +170,31 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             break;
         }
         case AL_DISTANCE_MODEL:
-            if ((ival == AL_NONE) ||
-                ((ival >= AL_INVERSE_DISTANCE) &&
-                 (ival <= AL_EXPONENT_DISTANCE_CLAMPED)
-                )
-               )
+            switch (ival)
             {
+            case AL_NONE:
+            case AL_INVERSE_DISTANCE:
+            case AL_INVERSE_DISTANCE_CLAMPED:
+            case AL_LINEAR_DISTANCE:
+            case AL_LINEAR_DISTANCE_CLAMPED:
+            case AL_EXPONENT_DISTANCE:
+            case AL_EXPONENT_DISTANCE_CLAMPED:
+            case AL_INVERSE_DISTANCE_DELAY_AAX:
+            case AL_INVERSE_DISTANCE_DELAY_CLAMPED_AAX:
+            case AL_LINEAR_DISTANCE_DELAY_AAX:
+            case AL_LINEAR_DISTANCE_DELAY_CLAMPED_AAX:
+            case AL_EXPONENT_DISTANCE_DELAY_AAX:
+            case AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX:
                 if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
                 {
-                    char ddelay = alIsEnabled(AL_DISTANCE_DELAY_AAX);
+                    char ddelay = alIsEnabled(AL_DISTANCE_DELAY_MODEL_AAX);
                     ival = _oalDistanceModeltoAAXDistanceModel(ival, ddelay);
                     aaxEmitterSetDistanceModel(emitter, ival);
                 }
-            } else {
+                break;
+            default:
                 _oalStateSetError(AL_INVALID_ENUM);
+                break;
             }
             break;
         case AL_LOOPING:
@@ -274,6 +279,12 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             break;
         case AL_SEC_OFFSET:
             aaxEmitterSetOffsetSec(emitter, fval);
+            break;
+        /* AL_AAX_distance_delay_model */
+        case AL_DISTANCE_DELAY_MODEL_AAX:
+            if (ival == AL_INITIAL) {
+                 aaxEmitterSetState(src->handle, AAX_UPDATE);
+            }
             break;
         /* AL_AAX_frequency_filter */
         case AL_FREQUENCY_FILTER_ENABLE_AAX:

@@ -51,8 +51,8 @@ typedef void ALvoid;
 
 
 /* Extensions */
-#define AL_VERSION_1_0			1
-#define AL_VERSION_1_1			1
+#define AL_VERSION_1_0				1
+#define AL_VERSION_1_1				1
 
 
 

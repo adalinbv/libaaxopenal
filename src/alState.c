@@ -54,7 +54,7 @@ static ALfloat _oalGetDopplerVelocity();
 static void _oalSetDopplerVelocity(ALfloat f);
 static ALfloat _oalGetSoundVelocity();
 static void _oalSetSoundVelocity(ALfloat f);
-static ALenum _oalGetDistanceModel(ALboolean b);
+static ALenum _oalGetDistanceModel();
 static void _oalSetDistanceModel(ALenum e);
 
 AL_API ALenum AL_APIENTRY
@@ -76,7 +76,7 @@ alEnable(ALenum attrib)
         case AL_SOURCE_DISTANCE_MODEL:
             cs->src_dist_model = AL_TRUE;
             break;
-        case AL_DISTANCE_DELAY_AAX:
+        case AL_DISTANCE_DELAY_MODEL_AAX:
             cs->distance_delay = AL_TRUE;
             break;
         default:
@@ -99,7 +99,7 @@ alDisable(ALenum attrib)
         case AL_SOURCE_DISTANCE_MODEL:
             cs->src_dist_model = AL_FALSE;
             break;
-        case AL_DISTANCE_DELAY_AAX:
+        case AL_DISTANCE_DELAY_MODEL_AAX:
             cs->distance_delay = AL_FALSE;
             break;
         default:
@@ -125,7 +125,7 @@ alIsEnabled (ALenum attrib)
         case AL_SOURCE_DISTANCE_MODEL:
             rv = cs->src_dist_model;
             break;
-        case AL_DISTANCE_DELAY_AAX:
+        case AL_DISTANCE_DELAY_MODEL_AAX:
             rv = cs->distance_delay;
             break;
         default:
@@ -202,12 +202,26 @@ alGetString(ALenum attrib)
 AL_API void AL_APIENTRY
 alDistanceModel(ALenum attrib)
 {
-    if (attrib == AL_NONE ||
-        (attrib >= AL_INVERSE_DISTANCE && attrib <= AL_EXPONENT_DISTANCE_CLAMPED))
+    switch (attrib)
     {
+    case AL_NONE:
+    case AL_INVERSE_DISTANCE:
+    case AL_INVERSE_DISTANCE_CLAMPED:
+    case AL_LINEAR_DISTANCE:
+    case AL_LINEAR_DISTANCE_CLAMPED:
+    case AL_EXPONENT_DISTANCE:
+    case AL_EXPONENT_DISTANCE_CLAMPED:
+    case AL_INVERSE_DISTANCE_DELAY_AAX:
+    case AL_INVERSE_DISTANCE_DELAY_CLAMPED_AAX:
+    case AL_LINEAR_DISTANCE_DELAY_AAX:
+    case AL_LINEAR_DISTANCE_DELAY_CLAMPED_AAX:
+    case AL_EXPONENT_DISTANCE_DELAY_AAX:
+    case AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX:
         _oalSetDistanceModel(attrib);
-    } else {
+        break;
+    default:
         _oalStateSetError(AL_INVALID_ENUM);
+        break;
     }
 }
 
@@ -790,7 +804,7 @@ _oalSetMaxDistance(ALfloat f)
 #endif
 
 ALenum
-_oalGetDistanceModel(ALboolean b)
+_oalGetDistanceModel()
 {
     _intBufferData *dptr;
     ALenum ret = AL_NONE;
@@ -804,9 +818,7 @@ _oalGetDistanceModel(ALboolean b)
         ctx = _intBufGetDataPtr(dptr);
 
         cs = ctx->state;
-        if (b) ret = cs->distanceModel & AAX_DISTANCE_DELAY;
-        else ret = cs->distanceModel & ~AAX_DISTANCE_DELAY;
-        
+        ret = cs->distanceModel & ~AAX_DISTANCE_DELAY;
     }
 
     return ret;
@@ -833,7 +845,7 @@ _oalSetDistanceModel(ALenum e)
         cs = ctx->state;
         cs->distanceModel = e;
 
-        ddelay = alIsEnabled(AL_DISTANCE_DELAY_AAX);
+        ddelay = alIsEnabled(AL_DISTANCE_DELAY_MODEL_AAX);
         e = _oalDistanceModeltoAAXDistanceModel(e, ddelay);
         aaxScenerySetDistanceModel(handle, e);
     }

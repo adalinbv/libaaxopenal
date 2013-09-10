@@ -357,7 +357,7 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
                     _oalDevice *dev = (_oalDevice *)ctx->parent_device;
                     unsigned int frame_no = dev->lst.frame_no/_SRC_PER_THREAD;
 
-                    if (dev->lst.framecnt_max == 1)	// single core
+                    if (1) // dev->lst.framecnt_max == 1)	// single core
                     {
                         aaxMixerRegisterEmitter(dev->lst.handle, src->handle);
                         src->parent = dev->lst.handle;

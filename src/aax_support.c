@@ -302,10 +302,19 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
 enum aaxDistanceModel
 _oalDistanceModeltoAAXDistanceModel(ALenum dist_model, char dist_delay)
 {
+   if ((dist_model > AL_DISTANCE_DELAY_MODEL_AAX) &&
+       (dist_model <= AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX))
+   {
+      dist_delay = AL_TRUE;
+      dist_model -= 0x270000;
+   }
+
    dist_model -= AL_INVERSE_DISTANCE;
    dist_model += AAX_AL_INVERSE_DISTANCE;
+
    if (dist_delay) dist_model |= AAX_DISTANCE_DELAY;
    else dist_model &= ~AAX_DISTANCE_DELAY;
+
    return dist_model;
 }
 
@@ -737,7 +746,7 @@ static const char* aaxCtxExtensions[] =
 static const char* aaxExtensions[] =
 {
 //"AL_AAX_environment",
-  "AL_AAX_source_distance_delay",
+  "AL_AAX_distance_delay_model",
   "AL_AAX_frequency_filter",
 //"AL_AAX_reverb",
 
@@ -749,14 +758,12 @@ static const char* aaxExtensions[] =
  */
 static const _oalEnumValue_s aaxEnums[] =
 {
-  {"ALC_FREQUENCY",                       ALC_FREQUENCY},
-  {"ALC_REFRESH",                         ALC_REFRESH},
-  {"ALC_SYNC",                            ALC_SYNC},
-  {"ALC_MONO_SOURCES",                    ALC_MONO_SOURCES},
-  {"ALC_STEREO_SOURCES",                  ALC_STEREO_SOURCES},
-  {"ALC_CAPTURE_SAMPLES",                 ALC_CAPTURE_SAMPLES},
-  {"ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER",ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER},
-  {"ALC_CAPTURE_DEVICE_SPECIFIER",        ALC_CAPTURE_DEVICE_SPECIFIER},
+  {"AL_INVERSE_DISTANCE_DELAY_AAX",       AL_INVERSE_DISTANCE_DELAY_AAX},
+  {"AL_INVERSE_DISTANCE_DELAY_CLAMPED_AAX",AL_INVERSE_DISTANCE_DELAY_CLAMPED_AAX},
+  {"AL_LINEAR_DISTANCE_DELAY_AAX",        AL_LINEAR_DISTANCE_DELAY_AAX},
+  {"AL_LINEAR_DISTANCE_DELAY_CLAMPED_AAX",AL_LINEAR_DISTANCE_DELAY_CLAMPED_AAX},
+  {"AL_EXPONENT_DISTANCE_DELAY_AAX",      AL_EXPONENT_DISTANCE_DELAY_AAX},
+  {"AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX",AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX},
 
   {NULL, 0}				  /* always last */
 };

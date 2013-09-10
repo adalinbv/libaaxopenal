@@ -45,7 +45,7 @@ ALGETV(N)(ALenum attrib, T *value)
         *value = (T)_oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        *value = (T)_oalGetDistanceModel(AL_FALSE);
+        *value = (T)_oalGetDistanceModel();
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
@@ -71,7 +71,7 @@ ALGET(N)(ALenum attrib)
         ret = (T)_oalGetSoundVelocity();
         break;
     case AL_DISTANCE_MODEL:
-        ret = (T)_oalGetDistanceModel(AL_FALSE);
+        ret = (T)_oalGetDistanceModel();
         break;
 #ifdef AL_VERSION_1_0
     case AL_DOPPLER_VELOCITY:
