@@ -582,9 +582,7 @@ _oalStateCreate(aaxConfig handle, void *context)
             cs->dopplerVelocity = 1.0f;
             cs->soundVelocity = 343.3f;
             cs->distanceModel = AL_INVERSE_DISTANCE_CLAMPED;
-            if (cs->distance_delay) {
-                cs->distanceModel |= AAX_DISTANCE_DELAY;
-            }
+            cs->distance_delay = AL_FALSE;
             cs->src_dist_model = AL_FALSE;
             ctx->state = cs;
 
