@@ -130,7 +130,7 @@ ALLISTENER(N)(ALenum attrib, T value)
     lst = _oalGetListeners(NULL);
     if (lst != NULL)
     {
-        aaxConfig config = config;
+        aaxConfig config = lst->handle;
         float fval = (float)value;
 
         switch(attrib)
