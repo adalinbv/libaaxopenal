@@ -228,10 +228,11 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
                 /*
                  * specifying a NULL buffer means removing all attached buffers 
                  */
-                unsigned int num;
-                num = aaxEmitterGetState(emitter);
-                if ((num == AAX_INITIALIZED) || (num == AAX_PROCESSED))
+                unsigned int state;
+                state = aaxEmitterGetState(emitter);
+                if ((state == AAX_INITIALIZED) || (state == AAX_PROCESSED))
                 {
+                    unsigned int num;
                     num = aaxEmitterGetNoBuffers(emitter, AAX_MAXIMUM);
                     if (num > 0)
                     {

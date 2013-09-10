@@ -73,11 +73,11 @@ alEnable(ALenum attrib)
         _oalState *cs = ctx->state;
         switch(attrib)
         {
-        case AL_SOURCE_DISTANCE_MODEL:
-            cs->src_dist_model = AL_TRUE;
-            break;
         case AL_DISTANCE_DELAY_MODEL_AAX:
             cs->distance_delay = AL_TRUE;
+            break;
+        case AL_SOURCE_DISTANCE_MODEL:
+            cs->src_dist_model = AL_TRUE;
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
