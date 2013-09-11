@@ -22,4 +22,4 @@ CPackSourceConfig.cmake
 CTestTestfile.cmake
 .kdev4
 *.kdev4
-
+debian/ChangeLog.gz

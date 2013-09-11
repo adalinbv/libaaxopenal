@@ -117,6 +117,31 @@ ALC_API ALCdevice* ALC_APIENTRY alcCaptureOpenDevice(const ALCchar *deviceName, 
 ALC_API ALCboolean ALC_APIENTRY alcCaptureCloseDevice(ALCdevice *device);
 
 
+/**
+ * Pointer-to-function types
+ */
+
+typedef ALCcontext *(ALC_APIENTRY *LPALCCREATECONTEXT)(ALCdevice *device, const ALCint *attrlist);
+typedef ALCboolean (ALC_APIENTRY *LPALCMAKECONTEXTCURRENT)(ALCcontext *context);
+typedef void (ALC_APIENTRY *LPALCPROCESSCONTEXT)(ALCcontext *context);
+typedef void (ALC_APIENTRY *LPALCSUSPENDCONTEXT)(ALCcontext *context);
+typedef void (ALC_APIENTRY *LPALCDESTROYCONTEXT)(ALCcontext *context);
+typedef ALCcontext *(ALC_APIENTRY *LPALCGETCURRENTCONTEXT)(void);
+typedef ALCdevice *(ALC_APIENTRY *LPALCGETCONTEXTSDEVICE)(ALCcontext *context);
+typedef ALCdevice *(ALC_APIENTRY *LPALCOPENDEVICE)(const ALCchar *devicename);
+typedef ALCboolean (ALC_APIENTRY *LPALCCLOSEDEVICE)(ALCdevice *device);
+typedef ALCenum (ALC_APIENTRY *LPALCGETERROR)(ALCdevice *device);
+typedef ALCboolean (ALC_APIENTRY *LPALCISEXTENSIONPRESENT)(ALCdevice *device, const ALCchar *extname);
+typedef void *(ALC_APIENTRY *LPALCGETPROCADDRESS)(ALCdevice *device, const ALCchar *funcname);
+typedef ALCenum (ALC_APIENTRY *LPALCGETENUMVALUE)(ALCdevice *device, const ALCchar *enumname);
+typedef const ALCchar *(ALC_APIENTRY *LPALCGETSTRING)(ALCdevice *device, ALCenum param);
+typedef void (ALC_APIENTRY *LPALCGETINTEGERV)(ALCdevice *device, ALCenum param, ALCsizei size, ALCint *values);
+typedef ALCdevice *(ALC_APIENTRY *LPALCCAPTUREOPENDEVICE)(const ALCchar *devicename, ALCuint frequency, ALCenum format, ALCsizei buffersize);
+typedef ALCboolean (ALC_APIENTRY *LPALCCAPTURECLOSEDEVICE)(ALCdevice *device);
+typedef void (ALC_APIENTRY *LPALCCAPTURESTART)(ALCdevice *device);
+typedef void (ALC_APIENTRY *LPALCCAPTURESTOP)(ALCdevice *device);
+typedef void (ALC_APIENTRY *LPALCCAPTURESAMPLES)(ALCdevice *device, ALCvoid *buffer, ALCsizei samples);
+
 #if defined(TARGET_OS_MAC) && TARGET_OS_MAC
 # pragma export off
 #endif

@@ -317,6 +317,18 @@ ALEXT_API void ALEXT_APIENTRY alSourcei64v(ALuint source, ALenum param, const AL
 ALEXT_API void ALEXT_APIENTRY alGetSourcei64(ALuint source, ALenum param, ALint64 *value);
 ALEXT_API void ALEXT_APIENTRY alGetSource3i64(ALuint source, ALenum param, ALint64 *value1, ALint64 *value2, ALint64 *value3);
 ALEXT_API void ALEXT_APIENTRY alGetSourcei64v(ALuint source, ALenum param, ALint64 *values);
+typedef void (AL_APIENTRY*LPALSOURCED)(ALuint,ALenum,ALdouble);
+typedef void (AL_APIENTRY*LPALSOURCE3D)(ALuint,ALenum,ALdouble,ALdouble,ALdouble);
+typedef void (AL_APIENTRY*LPALSOURCEDV)(ALuint,ALenum,const ALdouble*);
+typedef void (AL_APIENTRY*LPALGETSOURCED)(ALuint,ALenum,ALdouble*);
+typedef void (AL_APIENTRY*LPALGETSOURCE3D)(ALuint,ALenum,ALdouble*,ALdouble*,ALdouble*);
+typedef void (AL_APIENTRY*LPALGETSOURCEDV)(ALuint,ALenum,ALdouble*);
+typedef void (AL_APIENTRY*LPALSOURCEI64)(ALuint,ALenum,ALint64);
+typedef void (AL_APIENTRY*LPALSOURCE3I64)(ALuint,ALenum,ALint64,ALint64,ALint64);
+typedef void (AL_APIENTRY*LPALSOURCEI64V)(ALuint,ALenum,const ALint64*);
+typedef void (AL_APIENTRY*LPALGETSOURCEI64)(ALuint,ALenum,ALint64*);
+typedef void (AL_APIENTRY*LPALGETSOURCE3I64)(ALuint,ALenum,ALint64*,ALint64*,ALint64*);
+typedef void (AL_APIENTRY*LPALGETSOURCEI64V)(ALuint,ALenum,ALint64*);
 #endif
 
 #ifndef AL_SOFT_source_latency
@@ -337,20 +349,18 @@ ALEXT_API void ALEXT_APIENTRY alSourcei64vSOFT(ALuint source, ALenum param, cons
 ALEXT_API void ALEXT_APIENTRY alGetSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT *value);
 ALEXT_API void ALEXT_APIENTRY alGetSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT *value1, ALint64SOFT *value2, ALint64SOFT *value3);
 ALEXT_API void ALEXT_APIENTRY alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64SOFT *values);
-# ifdef AL_ALEXT_PROTOTYPES
-ALEXT_API void ALEXT_APIENTRY alSourcedSOFT(ALuint source, ALenum param, ALdouble value);
-ALEXT_API void ALEXT_APIENTRY alSource3dSOFT(ALuint source, ALenum param, ALdouble value1, ALdouble value2, ALdouble value3);
-ALEXT_API void ALEXT_APIENTRY alSourcedvSOFT(ALuint source, ALenum param, const ALdouble *values);
-ALEXT_API void ALEXT_APIENTRY alGetSourcedSOFT(ALuint source, ALenum param, ALdouble *value);
-ALEXT_API void ALEXT_APIENTRY alGetSource3dSOFT(ALuint source, ALenum param, ALdouble *value1, ALdouble *value2, ALdouble *value3);
-ALEXT_API void ALEXT_APIENTRY alGetSourcedvSOFT(ALuint source, ALenum param, ALdouble *values);
-ALEXT_API void ALEXT_APIENTRY alSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT value);
-ALEXT_API void ALEXT_APIENTRY alSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT value1, ALint64SOFT value2, ALint64SOFT value3);
-ALEXT_API void ALEXT_APIENTRY alSourcei64vSOFT(ALuint source, ALenum param, const ALint64SOFT *values);
-ALEXT_API void ALEXT_APIENTRY alGetSourcei64SOFT(ALuint source, ALenum param, ALint64SOFT *value);
-ALEXT_API void ALEXT_APIENTRY alGetSource3i64SOFT(ALuint source, ALenum param, ALint64SOFT *value1, ALint64SOFT *value2, ALint64SOFT *value3);
-ALEXT_API void ALEXT_APIENTRY alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64SOFT *values);
-# endif
+typedef void (AL_APIENTRY*LPALSOURCEDSOFT)(ALuint,ALenum,ALdouble);
+typedef void (AL_APIENTRY*LPALSOURCE3DSOFT)(ALuint,ALenum,ALdouble,ALdouble,ALdouble);
+typedef void (AL_APIENTRY*LPALSOURCEDVSOFT)(ALuint,ALenum,const ALdouble*);
+typedef void (AL_APIENTRY*LPALGETSOURCEDSOFT)(ALuint,ALenum,ALdouble*);
+typedef void (AL_APIENTRY*LPALGETSOURCE3DSOFT)(ALuint,ALenum,ALdouble*,ALdouble*,ALdouble*);
+typedef void (AL_APIENTRY*LPALGETSOURCEDVSOFT)(ALuint,ALenum,ALdouble*);
+typedef void (AL_APIENTRY*LPALSOURCEI64SOFT)(ALuint,ALenum,ALint64SOFT);
+typedef void (AL_APIENTRY*LPALSOURCE3I64SOFT)(ALuint,ALenum,ALint64SOFT,ALint64SOFT,ALint64SOFT);
+typedef void (AL_APIENTRY*LPALSOURCEI64VSOFT)(ALuint,ALenum,const ALint64SOFT*);
+typedef void (AL_APIENTRY*LPALGETSOURCEI64SOFT)(ALuint,ALenum,ALint64SOFT*);
+typedef void (AL_APIENTRY*LPALGETSOURCE3I64SOFT)(ALuint,ALenum,ALint64SOFT*,ALint64SOFT*,ALint64SOFT*);
+typedef void (AL_APIENTRY*LPALGETSOURCEI64VSOFT)(ALuint,ALenum,ALint64SOFT*);
 #endif
 
 
