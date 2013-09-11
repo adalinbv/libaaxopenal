@@ -7,6 +7,10 @@
 #undef HAVE_ASSERT_H
 #cmakedefine HAVE_ASSERT_H @HAVE_ASSERT_H@
 
+/* Define to 1 if you have the <pthread.h> header file. */
+#undef HAVE_PTHREAD_H
+#cmakedefine HAVE_PTHREAD_H @HAVE_PTHREAD_H@
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 #cmakedefine HAVE_DLFCN_H @HAVE_DLFCN_H@
@@ -101,9 +105,8 @@
 #undef VERSION
 #cmakedefine VERSION "@AL_VERSION@"
 
-/* OpenAL doesn't use threads */
-#define _AL_NOTHREADS 1
-#cmakedefine _AL_NOTHREADS 1
+/* OpenAL does use threads */
+#undef _AL_NOTHREADS 
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

@@ -66,7 +66,7 @@ alGetError(void)
 AL_API void AL_APIENTRY
 alEnable(ALenum attrib)
 {
-    _intBufferData *dptr = _oalGetCurrentContext(0);
+    _intBufferData *dptr = _oalGetCurrentContext();
     if (dptr)
     {
         _oalContext *ctx = _intBufGetDataPtr(dptr);
@@ -83,13 +83,14 @@ alEnable(ALenum attrib)
             _oalStateSetError(AL_INVALID_ENUM);
             break;
         }
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
 AL_API void AL_APIENTRY
 alDisable(ALenum attrib)
 {
-    _intBufferData *dptr = _oalGetCurrentContext(0);
+    _intBufferData *dptr = _oalGetCurrentContext();
     if (dptr)
     {
         _oalContext *ctx  =_intBufGetDataPtr(dptr);
@@ -106,6 +107,7 @@ alDisable(ALenum attrib)
             _oalStateSetError(AL_INVALID_ENUM);
             break;
         }
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
@@ -115,7 +117,7 @@ alIsEnabled (ALenum attrib)
     ALboolean rv = AL_FALSE;
     _intBufferData *dptr;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
         _oalContext *ctx = _intBufGetDataPtr(dptr);
@@ -132,6 +134,7 @@ alIsEnabled (ALenum attrib)
             _oalStateSetError(AL_INVALID_ENUM);
             break;
         }
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
     return rv;
 }
@@ -194,6 +197,8 @@ alGetString(ALenum attrib)
                 _oalStateSetError(AL_INVALID_ENUM);
             }
         }
+
+        _intBufReleaseData(dptr, _OAL_DEVICE);
     }
 
     return retstr;
@@ -607,17 +612,16 @@ __oalStateSetErrorNormal(ALenum error)
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         ret = cs->error;
         cs->error = error;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -639,16 +643,15 @@ _oalGetDopplerFactor()
     _intBufferData *dptr;
     ALfloat ret = 0.0f;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         ret = cs->dopplerFactor;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -659,21 +662,21 @@ _oalSetDopplerFactor(ALfloat f)
 {
     _intBufferData *dptr;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
         aaxConfig handle;
-        _oalContext *ctx;
         _oalDevice *dev;
-        _oalState *cs;
  
-        ctx = _intBufGetDataPtr(dptr);
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
 
-        cs = ctx->state;
         cs->dopplerFactor = f;
         aaxScenerySetDopplerFactor(handle, f);
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
@@ -683,16 +686,15 @@ _oalGetDopplerVelocity()
     _intBufferData *dptr;
     ALfloat ret = 0.0f;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         ret = cs->dopplerVelocity;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -703,16 +705,15 @@ _oalSetDopplerVelocity(ALfloat f)
 {
     _intBufferData *dptr;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         cs->dopplerVelocity = f;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
@@ -722,16 +723,15 @@ _oalGetSoundVelocity()
     _intBufferData *dptr;
     ALfloat ret = 0.0f;
  
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         ret = cs->soundVelocity;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -742,21 +742,21 @@ _oalSetSoundVelocity(ALfloat f)
 {
     _intBufferData *dptr;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
         aaxConfig handle;
-        _oalContext *ctx;
         _oalDevice *dev;
-        _oalState *cs;
 
-        ctx = _intBufGetDataPtr(dptr);
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
 
-        cs = ctx->state;
         cs->soundVelocity = f;
         aaxScenerySetSoundVelocity(handle, f);
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
@@ -767,16 +767,15 @@ _oalGetMaxDistance()
     _intBufferData *dptr;
     ALfloat ret = 0.0f;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         ret = cs->maxDistance;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -787,16 +786,15 @@ _oalSetMaxDistance(ALfloat f)
 {
     _intBufferData *dptr;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         cs->maxDistance = f;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 #endif
@@ -807,16 +805,15 @@ _oalGetDistanceModel()
     _intBufferData *dptr;
     ALenum ret = AL_NONE;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx;
-        _oalState *cs;
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
 
-        ctx = _intBufGetDataPtr(dptr);
-
-        cs = ctx->state;
         ret = cs->distanceModel & ~AAX_DISTANCE_DELAY;
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -825,26 +822,25 @@ _oalGetDistanceModel()
 void
 _oalSetDistanceModel(ALenum e)
 {
+    char ddelay = alIsEnabled(AL_DISTANCE_DELAY_MODEL_AAX);
     _intBufferData *dptr;
 
-    dptr = _oalGetCurrentContext(0);
+    dptr = _oalGetCurrentContext();
     if (dptr)
     {
+        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalState *cs = ctx->state;
         aaxConfig handle;
-        _oalContext *ctx;
         _oalDevice *dev;
-        _oalState *cs;
-        char ddelay;
 
-        ctx = _intBufGetDataPtr(dptr);
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
 
-        cs = ctx->state;
+        e = _oalDistanceModeltoAAXDistanceModel(e, ddelay);
         cs->distanceModel = e;
 
-        ddelay = alIsEnabled(AL_DISTANCE_DELAY_MODEL_AAX);
-        e = _oalDistanceModeltoAAXDistanceModel(e, ddelay);
         aaxScenerySetDistanceModel(handle, e);
+
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }

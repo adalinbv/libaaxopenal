@@ -453,7 +453,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             const aaxBuffer buf = aaxEmitterGetBuffer(emitter);
             if (buf)
             {
-                _intBuffers *db = _oalGetBuffers();
+                _intBuffers *db = _oalGetBuffers(NULL);
                 unsigned int pos = _intBufGetPosNoLock(db, _OAL_BUFFER, buf);
                 *value = (T)_intBufPosToId(pos);
             } else {

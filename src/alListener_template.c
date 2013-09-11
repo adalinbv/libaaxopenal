@@ -59,7 +59,7 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
         return;
     }
 
-    dptr_ctx = _oalGetCurrentContext(0);
+    dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
         _oalListener *lst;
@@ -114,6 +114,8 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
                 ALLISTENER(N)(attrib, *values);
             }
         }
+
+        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_INVALID_OPERATION);

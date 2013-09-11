@@ -178,6 +178,7 @@ CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 CHECK_INCLUDE_FILE(syslog.h HAVE_SYSLOG_H)
 CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
 CHECK_INCLUDE_FILE(assert.h HAVE_ASSERT_H)
+CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
 IF(HAVE_DLFCN_H)
   CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_LIBDL)
@@ -198,6 +199,7 @@ CONFIGURE_FILE(
 SET(BASE_OBJS
      base/buffers.c
      base/dlsym.c
+     base/threads.c
      base/logging.c
      base/types.c
    )

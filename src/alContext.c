@@ -159,9 +159,7 @@ alcCloseDevice(ALCdevice *device)
             _intBufErase(&d->buffers, _OAL_BUFFER, _oalRemoveBufferByPos, d);
             free(d);
 
-            if (_intBufGetNumNoLock(_oalDevices, _OAL_DEVICE) == 0) {
-                _intBufErase(&_oalDevices, _OAL_DEVICE, 0, 0);
-            }
+            _intBufErase(&_oalDevices, _OAL_DEVICE, 0, 0);
 
             return ALC_TRUE;
         }
@@ -184,58 +182,60 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 
     d = _oalFindDeviceById(_oalDeviceToId(device));
     dptr_ctx = _oalDeviceContextAdd(d);
-    if (!dptr_ctx)
+    if (dptr_ctx)
     {
-        _oalContextSetError(ALC_INVALID_DEVICE);
-        return 0;
-    }
+        id = _oalDeviceMask(device);
+        id |= _intBufPosToId(d->current_context);
 
-    id = _oalDeviceMask(device);
-    id |= _intBufPosToId(d->current_context);
+        ctx = _intBufGetDataPtr(dptr_ctx);
+        ctx->sync = d->sync;
 
-    ctx = _intBufGetDataPtr(dptr_ctx);
-    ctx->sync = d->sync;
-
-    handle = d->lst.handle;
-    if (attributes)
-    {
-        unsigned int n;
-
-        for (n=0; attributes[n] !=0; n++)
+        handle = d->lst.handle;
+        if (attributes)
         {
-            switch(attributes[n++])                 /* Hint: No Typo. */
+            unsigned int n;
+
+            for (n=0; attributes[n] !=0; n++)
             {
-            case ALC_SYNC:
-                ctx->sync = attributes[n];
-                break;
-            case ALC_MONO_SOURCES:
-                aaxMixerSetMonoSources(attributes[n]);
-                break;
-            case ALC_STEREO_SOURCES:
-                aaxMixerSetStereoSources(attributes[n]);
-                break;
-            case ALC_FREQUENCY:
-                aaxMixerSetFrequency(handle, (unsigned)attributes[n]);
-                break;
-            case ALC_REFRESH:
-                aaxMixerSetRefreshRate(handle, (unsigned)attributes[n]);
-                break;
-            default:
-                _oalContextSetError(ALC_INVALID_VALUE);
+                switch(attributes[n++])                 /* Hint: No Typo. */
+                {
+                case ALC_SYNC:
+                    ctx->sync = attributes[n];
+                    break;
+                case ALC_MONO_SOURCES:
+                    aaxMixerSetMonoSources(attributes[n]);
+                    break;
+                case ALC_STEREO_SOURCES:
+                    aaxMixerSetStereoSources(attributes[n]);
+                    break;
+                case ALC_FREQUENCY:
+                    aaxMixerSetFrequency(handle, (unsigned)attributes[n]);
+                    break;
+                case ALC_REFRESH:
+                    aaxMixerSetRefreshRate(handle, (unsigned)attributes[n]);
+                    break;
+                default:
+                    _oalContextSetError(ALC_INVALID_VALUE);
+                }
             }
         }
+
+        aaxMixerInit(handle);
+        aaxMixerSetState(handle, AAX_PLAYING);
+
+        format = aaxMixerGetSetup(handle, AAX_FORMAT);
+        tracks = aaxMixerGetSetup(handle, AAX_TRACKS);
+        d->format = _oalAAXFormatToFormat(format, tracks);
+        d->frequency = aaxMixerGetSetup(handle, AAX_FREQUENCY);
+
+        _oalStateCreate(handle, ctx);
+        _oalSourcesCreate(ctx);
+
+        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
-
-    aaxMixerInit(handle);
-    aaxMixerSetState(handle, AAX_PLAYING);
-
-    format = aaxMixerGetSetup(handle, AAX_FORMAT);
-    tracks = aaxMixerGetSetup(handle, AAX_TRACKS);
-    d->format = _oalAAXFormatToFormat(format, tracks);
-    d->frequency = aaxMixerGetSetup(handle, AAX_FREQUENCY);
-
-    _oalStateCreate(handle, ctx);
-    _oalSourcesCreate(ctx);
+    else {
+        _oalContextSetError(ALC_INVALID_DEVICE);
+    }
 
     return INT_TO_PTR(id);
 }
@@ -275,12 +275,12 @@ alcMakeContextCurrent(ALCcontext *context)
     {
         unsigned int num, i;
 
-        num = _intBufGetNumNoLock(_oalDevices, _OAL_DEVICE);
+        num = _intBufGetNum(_oalDevices, _OAL_DEVICE);
         for (i=0; i<num; i++)
         {
             _intBufferData *dptr;
 
-            dptr =  _intBufGetNoLock(_oalDevices, _OAL_DEVICE, i);
+            dptr =  _intBufGet(_oalDevices, _OAL_DEVICE, i);
             if (dptr)
             {
                 _oalDevice *dev;
@@ -289,8 +289,11 @@ alcMakeContextCurrent(ALCcontext *context)
 
                 dev->current_context =  UINT_MAX;
                 _oalCurrentContext = UINT_MAX;
+
+                _intBufReleaseData(dptr, _OAL_DEVICE);
             }
         }
+        _intBufReleaseNum(_oalDevices, _OAL_DEVICE);
 
         pos = 0;
     }
@@ -411,14 +414,15 @@ alcGetError(ALCdevice *device)
         dptr = _oalFindContextByDeviceId(id);
         if (dptr)
         {
-            _oalContext *ctx;
+            _oalContext *ctx = _intBufGetDataPtr(dptr);
 
-            ctx = _intBufGetDataPtr(dptr);
             ret = ctx->error;
+
+            _intBufReleaseData(dptr, _OAL_CONTEXT);
         }
         else
         {
-            _oalDevice *dev = dev = (_oalDevice *)_oalFindDeviceById(id);
+            _oalDevice *dev = (_oalDevice *)_oalFindDeviceById(id);
             if (dev)
             {
                 ret = dev->error;
@@ -685,6 +689,8 @@ __oalContextSetErrorNormal(ALCenum error)
             ret = ctx->error;
             ctx->error = error;
 
+            _intBufReleaseData(dptr, _OAL_CONTEXT);
+
         } else {
             ret = _ret;
         }
@@ -717,7 +723,7 @@ _oalGetCurrentDevice()
 
         dev_pos = _intBufIdToPos(_oalDeviceToId(_oalCurrentContext));
         if (dev_pos != UINT_MAX) {
-            dptr_dev = _intBufGetNoLock(_oalDevices, _OAL_DEVICE, dev_pos);
+            dptr_dev = _intBufGet(_oalDevices, _OAL_DEVICE, dev_pos);
         }
     }
 
@@ -742,7 +748,8 @@ _oalGetCurrentContext()
             if (dptr_dev)
             {
                 _oalDevice *dev = _intBufGetDataPtr(dptr_dev);
-                dptr_ctx = _intBufGetNoLock(dev->contexts,_OAL_CONTEXT, ctx_pos);
+                dptr_ctx =_intBufGet(dev->contexts,_OAL_CONTEXT, ctx_pos);
+                _intBufReleaseData(dptr_dev, _OAL_DEVICE);
             }
         }
     }
@@ -757,19 +764,19 @@ static _intBufferData *
 _oalDeviceContextAdd(_oalDevice *d)
 {
     _intBufferData *dptr = 0;
-    _oalContext *ctx = 0;
     unsigned int r = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
     if (!d) return 0;
 
-    if (d->contexts == 0)
+    if (d->contexts == 0) {
         r = _intBufCreate(&d->contexts, _OAL_CONTEXT);
+    }
 
     if (r != UINT_MAX)
     {
-        ctx = calloc(1, sizeof(_oalContext));
+        _oalContext *ctx = calloc(1, sizeof(_oalContext));
         if (ctx)
         {
             ctx->parent_device = d;
@@ -778,18 +785,18 @@ _oalDeviceContextAdd(_oalDevice *d)
             if (r != UINT_MAX)
             {
                 d->current_context = r;
-                dptr = _intBufGetNoLock(d->contexts, _OAL_CONTEXT, r);
+                dptr = _intBufGet(d->contexts, _OAL_CONTEXT, r);
             }
+        }
+
+        if (!dptr)
+        {
+            _oalContextSetError(ALC_OUT_OF_MEMORY);
+            if (ctx) free(ctx);
         }
     } 
     else {
         _oalContextSetError(ALC_OUT_OF_MEMORY);
-    }
-
-    if (!dptr)
-    {
-        _oalContextSetError(ALC_OUT_OF_MEMORY);
-        if (ctx) free(ctx);
     }
 
     return dptr;
@@ -806,13 +813,14 @@ _oalFindDeviceById(uint32_t id)
     i = _intBufIdToPos(id);
     if (i != UINT_MAX)
     {
-        num = _intBufGetNumNoLock(_oalDevices, _OAL_DEVICE);
+        num = _intBufGetNum(_oalDevices, _OAL_DEVICE);
         if (i < num)
         {
             _intBufferData *dptr;
             dptr = _intBufGetNoLock(_oalDevices, _OAL_DEVICE, i);
             dev = _intBufGetDataPtr(dptr);
         }
+        _intBufReleaseNum(_oalDevices, _OAL_DEVICE);
     }
 
     return dev;
@@ -834,7 +842,7 @@ _oalFindContextByDeviceId(uint32_t id)
         {
             ctx = dev->contexts;
             if (ctx) {
-                dptr =_intBufGetNoLock(ctx, _OAL_CONTEXT, dev->current_context);
+                dptr =_intBufGet(ctx, _OAL_CONTEXT, dev->current_context);
             }
         }
     }

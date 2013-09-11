@@ -74,7 +74,8 @@ ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
         default:
             ALBUFFER(N)(id, attrib, *values);
         }
-    } else {
+    }
+    else {
         _oalStateSetError(AL_INVALID_NAME);
     }
 }
@@ -107,7 +108,8 @@ ALBUFFER(N)(ALuint id, ALenum attrib, T value)
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }
-    } else {
+    }
+    else {
         _oalStateSetError(AL_INVALID_NAME);
     }
 }
@@ -148,7 +150,8 @@ ALGETBUFFERV(N)(ALuint id, ALenum attrib, T *values)
         default:
             ALGETBUFFER(N)(id, attrib, values);
         }
-    } else {
+    }
+    else {
         _oalStateSetError(AL_INVALID_NAME);
     }
 }
@@ -190,7 +193,8 @@ ALGETBUFFER(N)(ALuint id, ALenum attrib, T *value)
         default:
             _oalStateSetError(AL_INVALID_ENUM);
         }
-    } else {
+    }
+    else {
         _oalStateSetError(AL_INVALID_NAME);
     }
 }

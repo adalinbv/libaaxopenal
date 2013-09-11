@@ -181,7 +181,7 @@ ALCenum __oalContextSetErrorReport(ALCenum, char *, int);
 
 /* --- Buffers --- */
 
-_intBuffers *_oalGetBuffers();
+_intBuffers *_oalGetBuffers(_oalDevice *d);
 _intBufferData *_oalFindBufferById(ALuint, ALuint*);
 _intBufFreeCallback _oalRemoveBufferByPos;
 

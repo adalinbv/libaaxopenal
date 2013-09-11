@@ -66,15 +66,13 @@ _oalListener *
 _oalGetListeners(_oalContext *context)
 {
     _oalContext *ctx = context;
-    _intBufferData *dptr = 0;
+    _intBufferData *dptr = NULL;
     _oalListener *lst = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    if (!context)
-    {
-        dptr = _oalGetCurrentContext(0);
-        if (dptr) ctx = _intBufGetDataPtr(dptr);
+    if (!ctx && ((dptr = _oalGetCurrentContext()) != NULL)) {
+        ctx = _intBufGetDataPtr(dptr);
     }
 
     if (ctx)
@@ -84,6 +82,10 @@ _oalGetListeners(_oalContext *context)
     }
     else {
         _oalContextSetError(ALC_INVALID_CONTEXT);
+    }
+
+    if (dptr) {
+        _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return lst;

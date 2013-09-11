@@ -4,6 +4,7 @@
 - AeonWave-HD also supports distance delayed state changes: position/orientation/velocity/pitch and gain.
 - Add support for AL_SOFT_source_latency (requires AeonWave 2.2.0 or later).
 - Switch to a function template model to minimize code maintenance.
+- Make OpenAL fully thread-safe as required per specification.
 
 * Tue Jul 31 2012 - tech@adalin.org
 - Enabled multi-core support and add the posibility to disable it by specifying the environment variable OPENAL_ENABLE_MULTICORE=0

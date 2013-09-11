@@ -35,8 +35,12 @@ static void* null_buf = "\0";
 AL_API ALboolean AL_APIENTRY
 alIsBuffer(ALuint id)
 {
+    _intBufferData *dptr;
     ALuint pos;
-    return _oalFindBufferById(id, &pos) ? AL_TRUE : AL_FALSE;
+
+    dptr = _oalFindBufferById(id, &pos);
+
+    return dptr ? AL_TRUE : AL_FALSE;
 }
 
 AL_API void AL_APIENTRY
@@ -54,7 +58,7 @@ alGenBuffers(ALsizei num, ALuint *ids)
         return;
     }
 
-    db = _oalGetBuffers();
+    db = _oalGetBuffers(NULL);
     if (db)
     {
         ALuint pos = UINT_MAX;
@@ -101,14 +105,11 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
     pos = malloc(num * sizeof(unsigned int));
     if (pos)
     {
-        const _intBufferData *dptr = 0;
         int i;
-
         for (i=0; i<num; i++)
         {
-            if ((dptr = _oalFindBufferById(ids[i], &pos[i])) == 0) {
-                break;
-            }
+            const _intBufferData *dptr = _oalFindBufferById(ids[i], &pos[i]);
+            if (dptr == 0) break;
         }
 
         /*
@@ -116,7 +117,8 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
          */
         if (i == num)
         {
-            _intBuffers *db = _oalGetBuffers();
+            _intBuffers *db = _oalGetBuffers(NULL);
+
             i--;
             do
             {
@@ -175,13 +177,16 @@ alBufferData(ALuint id, ALenum format,
                 aaxBuffer new_buf;
 
                 new_buf = aaxBufferCreate(config, no_samples, channels, aaxfmt);
+                _intBufReleaseData(dptr_dev, _OAL_DEVICE);
+
                 if (new_buf)
                 {
-                    _intBuffers *db = _oalGetBuffers();
+                    _intBuffers *db = _oalGetBuffers(NULL);
                     unsigned int pos = _intBufIdToPos(id);
 
                     aaxBufferSetFrequency(new_buf, frequency);
                     aaxBufferSetData(new_buf, data);
+
                     _intBufReplace(db, _OAL_BUFFER, pos, new_buf);
                 }
                 else {
@@ -194,10 +199,12 @@ alBufferData(ALuint id, ALenum format,
              && no_samples == aaxBufferGetNoSamples(buf))
         {
             aaxBufferSetData(buf, data);
-        } else {
+        }
+        else {
             _oalStateSetError(AL_INVALID_VALUE);
         }
-    } else {
+    }
+    else {
         _oalStateSetError(AL_INVALID_VALUE);
     }
 }
@@ -232,17 +239,19 @@ alBufferData(ALuint id, ALenum format,
 /* -------------------------------------------------------------------------- */
 
 _intBuffers *
-_oalGetBuffers()
+_oalGetBuffers(_oalDevice *d)
 {
-    _intBufferData *dptr;
+    _intBufferData *dptr = NULL;
     _intBuffers *bufs = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    dptr = _oalGetCurrentDevice();
-    if (dptr)
+    if (!d && ((dptr = _oalGetCurrentDevice()) != NULL)) {
+        d = _intBufGetDataPtr(dptr);
+    }
+
+    if (d)
     {
-        _oalDevice *d = _intBufGetDataPtr(dptr);
         if (d->buffers == 0)
         {
             unsigned int r =  _intBufCreate(&d->buffers, _OAL_BUFFER);
@@ -251,8 +260,13 @@ _oalGetBuffers()
             }
         }
         bufs = d->buffers;
-    } else {
+    }
+    else {
         _oalContextSetError(ALC_INVALID_DEVICE);
+    }
+
+    if (dptr) {
+       _intBufReleaseData(dptr, _OAL_DEVICE);
     }
 
     return bufs;
@@ -261,7 +275,7 @@ _oalGetBuffers()
 _intBufferData *
 _oalFindBufferById(ALuint id, ALuint *pos)
 {
-    _intBufferData *dptr = 0;
+    _intBufferData *dptr = NULL;
     ALuint n;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
@@ -269,15 +283,16 @@ _oalFindBufferById(ALuint id, ALuint *pos)
     n = _intBufIdToPos(id);
     if (n != UINT_MAX)
     {
-        _intBuffers *db = _oalGetBuffers();
+        _intBuffers *db = _oalGetBuffers(NULL);
         if (db)
         {
-            ALuint num = _intBufGetMaxNumNoLock(db, _OAL_BUFFER);
+            ALuint num = _intBufGetMaxNum(db, _OAL_BUFFER);
             if (n < num)
             {
                 dptr = _intBufGetNoLock(db, _OAL_BUFFER, n);
                 *pos = n;
             }
+            _intBufReleaseNum(db, _OAL_BUFFER);
         }
     }
 
@@ -285,19 +300,15 @@ _oalFindBufferById(ALuint id, ALuint *pos)
 }
 
 void
-_oalRemoveBufferByPos(void *device, unsigned int pos)
+_oalRemoveBufferByPos(void *dev, unsigned int pos)
 {
-    _oalDevice *d = (_oalDevice *)device;
-    _intBufferData *dptr_dev = 0;
+    _oalDevice *d = (_oalDevice*)dev;
+    _intBufferData *dptr = NULL;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    if (!device)
-    {
-        dptr_dev = _oalGetCurrentDevice();
-        if (dptr_dev) {
-            d = _intBufGetDataPtr(dptr_dev);
-        }
+    if (!d && ((dptr = _oalGetCurrentDevice()) != NULL)) {
+        d = _intBufGetDataPtr(dptr);
     }
 
     if (d)
@@ -308,4 +319,8 @@ _oalRemoveBufferByPos(void *device, unsigned int pos)
             aaxBufferDestroy(buf);
         }
     }
+
+   if (dptr) {
+      _intBufReleaseData(dptr, _OAL_DEVICE);
+   }
 }
