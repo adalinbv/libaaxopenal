@@ -25,6 +25,7 @@ OPTION(WERROR "Treat compile warnings as errors"   OFF)
 
 IF(WIN32)
     SET(LIBOPENAL OpenAL32)
+    SET(LIBROUTERDRIVER aax_oal)
     ADD_DEFINITIONS("-D_WIN32")
 ELSE(WIN32)
     SET(LIBOPENAL openal)
@@ -52,14 +53,14 @@ SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenAL layer for the AeonWave 4D audio li
 
 # We have some custom .cmake scripts not in the official distribution.
 SET(CMAKE_MODULE_PATH "${aaxopenal_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
-
 INCLUDE(CPack_Modules)
 INCLUDE(CPack_Defaults)
+
 
 # Used to create Start Menu shortcuts <EXEC> <LABEL>
 #set(CPACK_PACKAGE_EXECUTABLES "alcinfo" "OpenAL information")
 
-MACRO(GENERATE_PACKAGING_TARGET package)
+#MACRO(GENERATE_PACKAGING_TARGET package)
   IF(WIN32)
     SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
     SET(CPACK_NSIS_MODIFY_PATH ON)
@@ -91,12 +92,12 @@ MACRO(GENERATE_PACKAGING_TARGET package)
     SET(CPACK_RPM_PACKAGE_OBSOLETES "libopenal1, libopenal-dev, libopenal-data, aaxopenal")
 
    ENDIF(WIN32)
-ENDMACRO(GENERATE_PACKAGING_TARGET)
+#ENDMACRO(GENERATE_PACKAGING_TARGET)
 
-FOREACH(package ${CPACK_COMPONENTS_ALL})
-  SET(AAXOPENAL_CPACK_COMPONENT ${package})
-  GENERATE_PACKAGING_TARGET(${package})
-ENDFOREACH()
+#FOREACH(package ${CPACK_COMPONENTS_ALL})
+#  SET(AAXOPENAL_CPACK_COMPONENT ${package})
+#  GENERATE_PACKAGING_TARGET(${package})
+#ENDFOREACH()
 
 # ZIP
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${AL_VERSION}" CACHE INTERNAL "tarball basename")
@@ -229,6 +230,16 @@ SET_TARGET_PROPERTIES(${LIBOPENAL}
 )
 
 IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
+    ADD_LIBRARY(${LIBROUTERDRIVER} ${LIBTYPE} ${OPENAL_OBJS})
+    TARGET_LINK_LIBRARIES(${LIBROUTERDRIVER} ${LIBBASE})
+    SET_TARGET_PROPERTIES(${LIBROUTERDRIVER}
+         PROPERTIES DEFINE_SYMBOL ALC_BUILD_LIBRARY
+         VERSION ${LIB_VERSION}
+         SOVERSION ${CPACK_PACKAGE_VERSION_MAJOR}
+    )
+    SET_TARGET_PROPERTIES(${LIBROUTERDRIVER} PROPERTIES PREFIX "")
+    TARGET_LINK_LIBRARIES(${LIBROUTERDRIVER} ${EXTRA_LIBS} ${AAX_LIBRARY})
+
     SET_TARGET_PROPERTIES(${LIBOPENAL} PROPERTIES PREFIX "")
 ENDIF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
 
@@ -245,6 +256,26 @@ INSTALL(TARGETS ${LIBOPENAL}
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_ONLY
         COMPONENT Headers
 )
+IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
+  INSTALL(FILES
+          ${aaxopenal_BINARY_DIR}/${LIBROUTERDRIVER}.dll
+          DESTINATION sysdir/
+          COMPONENT Router)
+
+# lots of string escaping, bleccch.
+# NSIS uses the same ${xxx} variable syntax as cmake
+# note: this is a hack since INST_DIR is a !define inside NSIS.template.in
+#       that gets set to CPACK_TEMPORARY_DIRECTORY
+    SET(tmp_nsis_inst_dir "\\\${INST_DIR}")
+    SET(tmp_nsis_localdll "\\\${localdll}")
+    SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+  !define localdll \\\"${tmp_nsis_inst_dir}\\\\sysdir\\\\${LIBROUTERDRIVER}.dll\\\"
+  !insertmacro InstallLib DLL NOTSHARED NOREBOOT_NOTPROTECTED  \\\"${tmp_nsis_localdll}\\\" \\\"$SYSDIR\\\\${LIBROUTERDRIVER}.dll\\\" \\\"$SYSDIR\\\"
+  !undef localdll"
+       )
+
+ENDIF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
+
 INSTALL(FILES
         include/AL/al.h
         include/AL/alc.h
