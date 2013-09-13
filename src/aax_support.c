@@ -302,20 +302,26 @@ _oalAAXFormatToFormat(enum aaxFormat format, unsigned char tracks)
 enum aaxDistanceModel
 _oalDistanceModeltoAAXDistanceModel(ALenum dist_model, char dist_delay)
 {
-   if ((dist_model > AL_DISTANCE_DELAY_MODEL_AAX) &&
-       (dist_model <= AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX))
-   {
-      dist_delay = AL_TRUE;
-      dist_model -= 0x270000;
-   }
+    const char *enabled = getenv("OPENAL_ENABLE_DISTANCE_DELAY");
 
-   dist_model -= AL_INVERSE_DISTANCE;
-   dist_model += AAX_AL_INVERSE_DISTANCE;
+    if (enabled && atoi(enabled)) {
+        dist_delay = AL_TRUE;
+    }
 
-   if (dist_delay) dist_model |= AAX_DISTANCE_DELAY;
-   else dist_model &= ~AAX_DISTANCE_DELAY;
+    if ((dist_model > AL_DISTANCE_DELAY_MODEL_AAX) &&
+        (dist_model <= AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX))
+    {
+        dist_delay = AL_TRUE;
+        dist_model -= 0x270000;
+    }
 
-   return dist_model;
+    dist_model -= AL_INVERSE_DISTANCE;
+    dist_model += AAX_AL_INVERSE_DISTANCE;
+
+    if (dist_delay) dist_model |= AAX_DISTANCE_DELAY;
+    else dist_model &= ~AAX_DISTANCE_DELAY;
+
+    return dist_model;
 }
 
 
@@ -703,7 +709,8 @@ _oalAAXGetRendererString(const void* config)
         unsigned int ncpu = _oalAAXGetNoCores(cfg);
         if (ncpu == 1) {
             snprintf(renderer, 80, "%s", rstr);
-        } else
+        }
+        else
         {
             if (ncpu > _MAX_THREADS) ncpu = _MAX_THREADS;
             snprintf(renderer, 80, "%s using %i cores", rstr, ncpu);
@@ -718,7 +725,7 @@ unsigned int
 _oalAAXGetNoCores(const void* config)
 {
     const char *enabled = getenv("OPENAL_ENABLE_MULTICORE");
-    int cores = 1;
+    int cores = -1;
 
     if (!enabled || atoi(enabled))
     {
