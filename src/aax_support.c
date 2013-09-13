@@ -725,7 +725,7 @@ unsigned int
 _oalAAXGetNoCores(const void* config)
 {
     const char *enabled = getenv("OPENAL_ENABLE_MULTICORE");
-    int cores = -1;
+    int cores = 1;
 
     if (!enabled || atoi(enabled))
     {

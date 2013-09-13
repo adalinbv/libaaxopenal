@@ -102,7 +102,7 @@ alcOpenDevice(const ALCchar *name)
                 device = INT_TO_PTR(devid);
 
                 d->lst.frame_no = 0;
-                d->lst.framecnt_max = _oalAAXGetNoCores();
+                d->lst.framecnt_max = _oalAAXGetNoCores(handle);
                 if (d->lst.framecnt_max > 1)
                 {
                     for(i=0; i<d->lst.framecnt_max; i++)
