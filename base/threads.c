@@ -236,7 +236,7 @@ _oalMutexUnLockDebug(void *mutex, char *file, int line)
 #endif
 
 
-#elif defined( WIN32 )	/* HAVE_PTHREAD_H */
+#elif defined( _WIN32 )	/* HAVE_PTHREAD_H */
 
 #include <base/dlsym.h> 
 							/* --- WINDOWS --- */

@@ -15,6 +15,7 @@ FIND_PATH(AAX_INCLUDE_DIR aax.h
   $ENV{AAXDIR}
   $ENV{ProgramFiles}/aax
   $ENV{ProgramFiles}/AeonWave
+  ${CMAKE_SOURCE_DIR}/aax
   PATH_SUFFIXES include
   PATHS
   ~/Library/Frameworks
@@ -30,6 +31,7 @@ FIND_LIBRARY(AAX_LIBRARY
   $ENV{AAXDIR}
   $ENV{ProgramFiles}/AAX
   $ENV{ProgramFiles}/AeonWave
+  ${CMAKE_BUILD_DIR}/aax
   PATH_SUFFIXES lib lib/${CMAKE_LIBRARY_ARCHITECTURE} lib64 libs64 libs libs/Win32 libs/Win64
   PATHS
   ~/Library/Frameworks
@@ -42,12 +44,17 @@ FIND_LIBRARY(AAX_LIBRARY
 IF(AAX_LIBRARY AND AAX_INCLUDE_DIR)
   SET(AAX_FOUND "YES")
 ELSE(AAX_LIBRARY AND AAX_INCLUDE_DIR)
-  SET(AAX_FOUND "NO")
   IF(NOT AAX_INCLUDE_DIR)
-    MESSAGE(FATAL_ERROR "Unable to find the AeonWave Audio eXtensions library development files.")
+    MESSAGE(FATAL_ERROR "Unable to find the AAX library development files.")
+    SET(AAX_FOUND "NO")
   ENDIF(NOT AAX_INCLUDE_DIR)
   IF(NOT AAX_LIBRARY)
-    MESSAGE(FATAL_ERROR "Unable to find the AeonWave Audio eXtensions library binary files.")
-  ENDIF(AAX_LIBRARY)
+    IF(SINGLE_PACKAGE)
+      SET(AAX_LIBRARY "${CMAKE_BUILD_DIR}/aax/${LIBAEONWAVE}.dll")
+      SET(AAX_FOUND "YES")
+message("AAX_LIBRARY: ${AAX_LIBRARY}")
+    ELSE(SINGLE_PACKAGE)
+    ENDIF(SINGLE_PACKAGE)
+  ENDIF(NOT AAX_LIBRARY)
 ENDIF(AAX_LIBRARY AND AAX_INCLUDE_DIR)
 

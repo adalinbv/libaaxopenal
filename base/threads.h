@@ -32,7 +32,7 @@ extern "C" {
 # endif
  } _oalMutex;
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
 # include <Windows.h>			/* WINDOWS */
 
  typedef struct _oalMutex

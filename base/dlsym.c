@@ -80,7 +80,7 @@ void* _oalGetGlobalProcAddress(const char *func)
   return function;
 }
 
-#elif defined( WIN32 )
+#elif defined( _WIN32 )
 #include <direct.h>
 #include <windows.h>
 
