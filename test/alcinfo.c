@@ -35,12 +35,19 @@
 
 
 #include <stdio.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#if HAVE_SYS_IOCTL_H
+# include <sys/ioctl.h>
+#endif
 #include <base/logging.h>
 #include "driver.h"
 
 #define MAX_DATA	16
-static const int indentation = 2;
-static const int maxmimumWidth = 79;
+
+static int indentation = 2;
+static int maximumWidth = 79;
 
 static void
 printChar (int c, int *width)
@@ -74,7 +81,7 @@ printList(const char *header, char separator, const char eol, const char *extens
    {
       if (extensions[end] == separator || extensions[end] == '\0')
       {
-         if (width + end - start + 2 > maxmimumWidth)
+         if (width + end - start + 2 > maximumWidth)
          {
             printChar ('\n', &width);
             indent (&width);
@@ -108,6 +115,32 @@ printList(const char *header, char separator, const char eol, const char *extens
    printChar ('\n', &width);
 }
 
+#if _WIN32
+static int
+terminalWidth()
+{
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    int ret, rv = maximumWidth;
+    ret = GetConsoleScreenBufferInfo(GetStdHandle( STD_OUTPUT_HANDLE ),&csbi);
+    if (ret) rv = csbi.dwSize.X;
+    return rv;
+}
+#elif HAVE_SYS_IOCTL_H
+static int
+terminalWidth()
+{
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    return w.ws_col;
+}
+#else
+#pragma warning Implement terminal width
+static int
+terminalWidth() {
+    return maximumWidth;
+}
+#endif
+
 int main(int argc, char **argv)
 {
    ALCint data[MAX_DATA];
@@ -115,6 +148,8 @@ int main(int argc, char **argv)
    ALCcontext *context = NULL;
    ALenum error;
    char *s;
+
+   maximumWidth = terminalWidth();
 
    if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_TRUE)
    {
