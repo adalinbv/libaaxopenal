@@ -41,6 +41,10 @@
 #if HAVE_SYS_IOCTL_H
 # include <sys/ioctl.h>
 #endif
+#if _WIN32
+# include <Windows.h>
+#endif
+
 #include <base/logging.h>
 #include "driver.h"
 
