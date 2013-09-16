@@ -51,7 +51,7 @@
 #define MAX_DATA	16
 
 static int indentation = 2;
-static int maximumWidth = 79;
+static int maximumWidth = 80;
 
 static void
 printChar (int c, int *width)
@@ -85,7 +85,7 @@ printList(const char *header, char separator, const char eol, const char *extens
    {
       if (extensions[end] == separator || extensions[end] == '\0')
       {
-         if (width + end - start + 2 > maximumWidth)
+         if (width + end - start + 2 >= maximumWidth)
          {
             printChar ('\n', &width);
             indent (&width);
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
    ALenum error;
    char *s;
 
-   maximumWidth = terminalWidth();
+   maximumWidth = terminalWidth()-1;
 
    if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_TRUE)
    {
