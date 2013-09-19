@@ -1,5 +1,10 @@
 ; CPack install script designed for a nmake build
 
+;;
+; modifications are blocks marked with:
+; -- local modifications ---
+;;
+
 ;--------------------------------
 ; You must define these values
 
@@ -652,7 +657,7 @@ Section "-Core installation"
   WriteRegStr SHCTX "Software\@CPACK_PACKAGE_VENDOR@\@CPACK_PACKAGE_INSTALL_REGISTRY_KEY@" "" $INSTDIR
 
   ;Create uninstaller
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
+  WriteUninstaller "$INSTDIR\Uninstall-@CPACK_NSIS_DISPLAY_NAME@.exe"
   Push "DisplayName"
   Push "@CPACK_NSIS_DISPLAY_NAME@"
   Call ConditionalAddToRegisty
@@ -663,7 +668,7 @@ Section "-Core installation"
   Push "@CPACK_PACKAGE_VENDOR@"
   Call ConditionalAddToRegisty
   Push "UninstallString"
-  Push "$INSTDIR\Uninstall.exe"
+  Push "$INSTDIR\Uninstall-@CPACK_NSIS_DISPLAY_NAME@.exe"
   Call ConditionalAddToRegisty
   Push "NoRepair"
   Push "1"
@@ -700,7 +705,7 @@ Section "-Core installation"
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
 @CPACK_NSIS_CREATE_ICONS@
 @CPACK_NSIS_CREATE_ICONS_EXTRA@
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall-@CPACK_NSIS_DISPLAY_NAME@.exe"
 
   ;Read a value from an InstallOptions INI file
   !insertmacro MUI_INSTALLOPTIONS_READ $DO_NOT_ADD_TO_PATH "NSIS.InstallOptions.ini" "Field 2" "State"
@@ -741,7 +746,7 @@ SectionEnd
 ;--------------------------------
 ; Create custom pages
 Function InstallOptionsPage
-  !insertmacro MUI_HEADER_TEXT "Install Options" "Choose options for installing @CPACK_NSIS_PACKAGE_NAME@"
+  !insertmacro MUI_HEADER_TEXT "Install Options" "Choose options for installing @CPACK_NSIS_DISPLAY_NAME@"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "NSIS.InstallOptions.ini"
 
 FunctionEnd
@@ -839,7 +844,7 @@ Section "Uninstall"
 !endif
 
   ;Remove the uninstaller itself.
-  Delete "$INSTDIR\Uninstall.exe"
+  Delete "$INSTDIR\Uninstall-@CPACK_NSIS_DISPLAY_NAME@.exe"
   DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\@CPACK_PACKAGE_INSTALL_REGISTRY_KEY@"
 
   ;Remove the installation directory if it is empty.
@@ -908,20 +913,30 @@ SectionEnd
 ; "Program Files" for AllUsers, "My Documents" for JustMe...
 
 Function .onInit
+; -- local modifications ---
   StrCmp "@CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL@" "ON" 0 inst
 
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@CPACK_PACKAGE_INSTALL_REGISTRY_KEY@" "UninstallString"
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@CPACK_NSIS_DISPLAY_NAME@" "UninstallString"
   StrCmp $0 "" inst
 
-  MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION \
-  "@CPACK_NSIS_PACKAGE_NAME@ is already installed. $\n$\nDo you want to uninstall the old version before installing the new one?" \
-  IDYES uninst IDNO inst
-  Abort
+; MessageBox MB_YESNOCANCEL|MB_ICONEXCLAMATION \
+; "@CPACK_NSIS_DISPLAY_NAME@ is already installed. $\n$\nDo you want to uninstall the old version before installing the new one?" \
+; IDYES uninst IDNO inst
+; Abort
 
 ;Run the uninstaller
 uninst:
   ClearErrors
-  ExecWait '$0 _?=$INSTDIR' ;Do not copy the uninstaller to a temp file
+  ReadRegStr $1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@CPACK_NSIS_DISPLAY_NAME@" "DisplayIcon" ; abuse the fact that we don't provide an icon
+  IfFileExists "$1\Uninstall-@CPACK_NSIS_DISPLAY_NAME@.exe" uninstaller_found uninstaller_not_found
+
+  uninstaller_found:
+  Exec $1\Uninstall-@CPACK_NSIS_DISPLAY_NAME@.exe
+  goto inst
+  uninstaller_not_found:
+  Exec $1\Uninstall.exe
+  goto inst
+; -- local modifications ---
 
   IfErrors uninst_failed inst
 uninst_failed:

@@ -25,7 +25,7 @@
 #include <AL/alc.h>
 #include <AL/alcext.h>
 
-#include <aaxdefs.h>
+#include <aax/defines.h>
 
 #include <base/types.h>
 

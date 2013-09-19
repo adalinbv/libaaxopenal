@@ -37,7 +37,7 @@
 # include <stdio.h>
 #endif
 
-#include <aaxdefs.h>
+#include <aax/defines.h>
 #include <AL/alc.h>
 
 #include <base/types.h>

@@ -33,7 +33,7 @@
 # include <unistd.h>	/* for sysconf */
 #endif
 
-#include <aax.h>
+#include <aax/aax.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>

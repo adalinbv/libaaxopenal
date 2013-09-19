@@ -25,7 +25,7 @@
 #include <AL/al.h>
 #include <AL/alext.h>
 
-#include <aaxdefs.h>
+#include <aax/defines.h>
 
 #include "api.h"
 #include "aax_support.h"

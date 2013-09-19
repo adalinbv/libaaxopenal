@@ -30,7 +30,7 @@ SET(CPACK_COMPONENT_HEADERS_DESCRIPTION
    "Development header files and library components for use with the software")
 IF (ROUTER_COMPONENT)
   SET(CPACK_COMPONENT_ROUTER_DESCRIPTION
-      "OpenAL router wrapper library")
+      "OpenAL device router support library")
 ENDIF(ROUTER_COMPONENT)
 
 # Dependecies
