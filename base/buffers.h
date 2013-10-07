@@ -21,35 +21,50 @@
 #ifndef _AL_BUFFERS_H
 #define _AL_BUFFERS_H 1
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <limits.h>		/* for UINT_MAX */
+
+#if 0
+#define PRINT_FUNC		1
+#endif
+#ifndef NDEBUG
+# define BUFFER_DEBUG		1
+#endif
 
 typedef struct
 {
-   void *mutex;
+#ifndef _AL_NOTHREADS
+    void *mutex;
+#endif
 
-   unsigned int reference_ctr;
-   void *ptr;
+    unsigned int reference_ctr;
+    const void *ptr;
 
 } _intBufferData;
 
 typedef struct
 {
-   void *mutex;
-   unsigned int id;
+    unsigned int id;
 
-   unsigned int first_free;
-   unsigned int num_allocated;
-   unsigned int max_allocations;
+    void *mutex;
+    unsigned int lock_ctr;
 
-   _intBufferData **data;
+    unsigned int start;			/* start of the queue,		 */
+    unsigned int first_free;		/* first free, relative to start */
+    unsigned int num_allocated;		/* no. allocated buffers	 */
+    unsigned int max_allocations;	/* max. no. allocations possible */
+					/* without the need te resize	 */
+    _intBufferData **data;
 
 } _intBuffers;
 
-typedef void _intBufFreeCallback(void *, unsigned int);
+typedef void _intBufFreeCallback(void *);
 
 
-#define BUFFER_DEBUG 0
-
+#define BUFFER_RESERVE		8
 #define _intBufPosToId(a)	((a) == UINT_MAX) ? 0 : (((a) + 1) << 4)
 #define _intBufIdToPos(a)	(((a) == 0) || ((a) & 0xF))  ? UINT_MAX : (((a) >> 4) - 1)
 	
@@ -70,19 +85,29 @@ typedef void _intBufFreeCallback(void *, unsigned int);
  * @param buffer pointer to the root of the internal buffer structure
  * @param id the id of the buffer this array should represent
  * @return the position of the new object in the array upon success,
-           UINT_MAX otherwise.
+              UINT_MAX otherwise.
  */
-#if BUFFER_DEBUG
-# define _intBufCreate(a, b) __intBufCreate(a, b, __FILE__, __LINE__)
-
+#ifdef BUFFER_DEBUG
+# define _intBufCreate(a, b)  _intBufCreateDebug(a, b, __FILE__, __LINE__)
 unsigned int
-__intBufCreate(_intBuffers **, unsigned int, char *, int);
+_intBufCreateDebug(_intBuffers **, unsigned int, char *, int);
 #else
-# define _intBufCreate(a, b) int_intBufCreate(a, b);
+# define _intBufCreate(a, b)  _intBufCreateNormal(a, b)
 #endif
 
 unsigned int
-int_intBufCreate(_intBuffers **, unsigned int);
+_intBufCreateNormal(_intBuffers **, unsigned int);
+
+
+/**
+ * Destroy a data object that was retreieved using _intBufPop
+ * and free it's contents, provided it wasn't referenced by others buffers.
+ *
+ * @param data pointer to the data object to destroy
+ */
+int
+_intBufDestroyDataNoLock(_intBufferData *);
+
 
 /**
  * Add a new object to the buffer list.
@@ -96,7 +121,8 @@ int_intBufCreate(_intBuffers **, unsigned int);
  * @return the position in the array upon success, UINT_MAX otherwise.
  */
 unsigned int
-_intBufAddData(_intBuffers *, unsigned int, void *);
+_intBufAddData(_intBuffers *, unsigned int, const void *);
+
 
 /**
  * Refer a buffer from another buffer list. No data is copied.
@@ -112,7 +138,7 @@ _intBufAddData(_intBuffers *, unsigned int, void *);
  */
 unsigned int
 _intBufAddReference(_intBuffers *, unsigned int, const _intBuffers *,
-                                                  unsigned int);
+                                                                  unsigned int);
 
 /**
  * Replace the content of one buffer position with a new object.
@@ -123,8 +149,9 @@ _intBufAddReference(_intBuffers *, unsigned int, const _intBuffers *,
  * @param pos the position in the array of the object to replace
  * @param data pointer to the new object data
  */
-void *
+const void *
 _intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
+
 
 /**
  * Get the data from a specific object in the array.
@@ -138,16 +165,17 @@ _intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
  * @param pos the position in the array of the opbject to get
  * @return the object data
  */
-#if BUFFER_DEBUG
+#if defined(BUFFER_DEBUG) || defined(PRINT_FUNC)
 # define _intBufGet(a, b, c)  _intBufGetDebug(a, b, c, __FILE__, __LINE__)
  _intBufferData *
- _intBufGetDebug(const _intBuffers *, unsigned int, unsigned int,
-                                            char *, int);
+ _intBufGetDebug(_intBuffers *, unsigned int, unsigned int, char *, int);
 #else
-# define _intBufGet(a, b, c)  _intBufGetNormal(a, b, c)
- _intBufferData *
- _intBufGetNormal(const _intBuffers *, unsigned int, unsigned int);
+# define _intBufGet(a, b, c)  _intBufGetNormal(a, b, c, 0)
 #endif
+
+_intBufferData *
+_intBufGetNormal(_intBuffers *, unsigned int, unsigned int, char);
+
 
 /**
  * Get the data from a specific object in the array.
@@ -158,18 +186,8 @@ _intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
  * @param pos the position in the array of the opbject to get
  * @return the object data
  */
-_intBufferData *
-_intBufGetNoLock(const _intBuffers *, unsigned int, unsigned int);
+#define _intBufGetNoLock(a, b, c) _intBufGetNormal(a, b, c, 1)
 
-/**
- * Lock a data entry for changing or deletion until it gets released again.
- *
- * @param buffer the buffer to get the data from
- * @param id the id of the buffer this array should represent
- * @param pos the position in the array of the opbject to lock
- */
-void
-_intBufLockData(_intBuffers *, unsigned int, unsigned int);
 
 /**
  * Unlock the data associated with a specific buffer position
@@ -178,8 +196,13 @@ _intBufLockData(_intBuffers *, unsigned int, unsigned int);
  * @param id the id of the buffer this array should represent
  * @param pos the position in the array of the opbject to unlock
  */
+#ifndef _AL_NOTHREADS
 void
-_intBufRelease(const _intBuffers *, unsigned int, unsigned int);
+_intBufRelease(_intBuffers *, unsigned int, unsigned int);
+#else
+# define _intBufRelease(a, b, c)
+#endif
+
 
 /**
  * Release a previously locked data entry.
@@ -187,33 +210,20 @@ _intBufRelease(const _intBuffers *, unsigned int, unsigned int);
  * @param object the object to unlock
  * @param id the id of the buffer this array should represent
  */
+#ifndef _AL_NOTHREADS
+# ifndef NDEBUG
+#  define _intBufReleaseData(a, b)  _intBufReleaseDataDebug((a), (b), __FILE__, __LINE__)
 void
-_intBufReleaseData(const _intBufferData *, unsigned int);
+_intBufReleaseDataDebug(const _intBufferData*, unsigned int, char*, int);
+# else
+#  define _intBufReleaseData(a, b)  _intBufReleaseDataNormal(a, b)
+# endif
 
-/**
- * Lock the buffer and return the number of allocated objects.
- *
- * @param buffer the buffer to get the data from
- * @param id the id of the buffer this array should represent
- * @return the number of allocated objects in the buffer array
- */
-unsigned int
-_intBufGetNum(const _intBuffers *, unsigned int);
-
-/**
- * Lock the buffer and return the maximum possible number of allocated objects.
- *
- * To allow for the buffer to grow easily the buffer might allocates more
- * positions than requested. In contrast to _intBufGetNum, which returns
- * the number currently allocated positions, this function returns the number
- * of prealocated positions instead.
- *
- * @param buffer the buffer to get the data from
- * @param id the id of the buffer this array should represent
- * @return the number of allocated objects in the buffer array
- */
-unsigned int
-_intBufGetMaxNum(const _intBuffers *, unsigned int);
+void
+_intBufReleaseDataNormal(const _intBufferData *, unsigned int);
+#else
+# define _intBufReleaseData(a, b)
+#endif
 
 /**
  * Return the number of allocated objects.
@@ -224,6 +234,7 @@ _intBufGetMaxNum(const _intBuffers *, unsigned int);
  */
 unsigned int
 _intBufGetNumNoLock(const _intBuffers *, unsigned int);
+
 
 /**
  * Return the maximum possible number of allocated objects.
@@ -240,6 +251,62 @@ _intBufGetNumNoLock(const _intBuffers *, unsigned int);
 unsigned int
 _intBufGetMaxNumNoLock(const _intBuffers *, unsigned int);
 
+
+/**
+ * Lock the buffer and return the number of allocated objects.
+ *
+ * @param buffer the buffer to get the data from
+ * @param id the id of the buffer this array should represent
+ * @param lock set to 1 for operations that mangle the pointer array
+ * @return the number of allocated objects in the buffer array
+ */
+#if !defined(NDEBUG) || defined(PRINT_FUNC)
+# define _intBufGetNum(a, b)  _intBufGetNumDebug(a, b, __FILE__, __LINE__)
+unsigned int
+_intBufGetNumDebug(_intBuffers *, unsigned int, char *, int);
+#else
+# define _intBufGetNum(a, b)  _intBufGetNumNormal(a, b, 0)
+#endif
+
+unsigned int
+_intBufGetNumNormal(_intBuffers *, unsigned int, char);
+
+
+/**
+ * Lock the buffer and return the maximum possible number of allocated objects.
+ *
+ * To allow for the buffer to grow easily the buffer might allocates more
+ * positions than requested. In contrast to _intBufGetNum, which returns
+ * the number currently allocated positions, this function returns the number
+ * of prealocated positions instead.
+ *
+ * @param buffer the buffer to get the data from
+ * @param id the id of the buffer this array should represent
+ * @param lock set to 1 for operations that mangle the pointer array
+ * @return the number of allocated objects in the buffer array
+ */
+#define _intBufGetMaxNum(a, b)	_intBufGetMaxNumNormal(a, b, 0)
+
+unsigned int
+_intBufGetMaxNumNormal(_intBuffers *, unsigned int, char);
+
+
+/**
+ * Unlock the buffer
+ *
+ * @param buffer the buffer to unlock
+ * @param id the id of the buffer this array should represent
+ * @param lock set to 1 for operations that mangle the pointer array
+ */
+#ifndef _AL_NOTHREADS
+# define _intBufReleaseNum(a, b) _intBufReleaseNumNormal(a, b, 0)
+void
+_intBufReleaseNumNormal(_intBuffers *, unsigned int, char);
+#else
+# define _intBufReleaseNum(a, b)
+#endif
+
+
 /**
  * Return the position of an object.
  *
@@ -249,34 +316,8 @@ _intBufGetMaxNumNoLock(const _intBuffers *, unsigned int);
  * @return the position of the object in the buffer array
  */
 unsigned int
-_intBufGetPosNoLock(const _intBuffers *, unsigned int, void *);
+_intBufGetPos(_intBuffers *, unsigned int, void *);
 
-/**
- * Unlock the buffer
- *
- * @param buffer the buffer to unlock
- * @param id the id of the buffer this array should represent
- */
-void 
-_intBufReleaseNum(const _intBuffers *, unsigned int);
-
-/**
- * Lock a complete buffer to prevent any changes to it.
- *
- * @param buffer the buffer to lock
- * @param id the id of the buffer this array should represent
- */
-void
-_intBufLock(_intBuffers *, unsigned int);
-
-/**
- * Unlock a complete buffer.
- *
- * @param buffer the buffer to lock
- * @param id the id of the buffer this array should represent
- */
-void
-_intBufUnlock(_intBuffers *, unsigned int);
 
 /**
  * Remove a buffer from the array.
@@ -292,40 +333,58 @@ _intBufUnlock(_intBuffers *, unsigned int);
  * @param locked indicate whether te buffer is locked or not
  * @return the user data from the object
  */
-#if BUFFER_DEBUG
-# define _intBufRemove(a, b, c, d) __intBufRemove(a, b, c, d, __FILE__, __LINE__)
-
+#ifdef BUFFER_DEBUG
+# define _intBufRemove(a, b, c, d)  _intBufRemoveDebug(a, b, c, d, 0, __FILE__, __LINE__)
 void *
-__intBufRemove(_intBuffers *, unsigned int, unsigned int, char, char *, int);
+_intBufRemoveDebug(_intBuffers *, unsigned int, unsigned int, char, char, char *, int);
 #else
-# define _intBufRemove(a, b, c, d) int_intBufRemove(a, b, c, d);
+# define _intBufRemove(a, b, c, d)  _intBufRemoveNormal(a, b, c, d, 0)
 #endif
 
 void *
-int_intBufRemove(_intBuffers *, unsigned int, unsigned int, char);
+ _intBufRemoveNormal(_intBuffers *, unsigned int, unsigned int, char, char);
 
 
 /**
- * Remove some buffers from the array and shift the remaining buffers 
- * (src-dst) positions forward.
+ * Remove the first buffer from the array and shift the remaining buffers 
+ * one position forward.
  *
- * Not only is this a rather heavy operation but it also messes with the
+ * Not only is this a moderately heavy operation but it also messes with the
  * buffer index array so positional refferences get mixed up. Use only when
  * the buffer acts as a stack array where just the first entry from the array
  * is required.
  *
- * This function returns an aray containing the user data associated with the
+ * This function return a pointer to the user data associated with the
  * object and it's up to the developer to use it or free it from memory.
- * It is up to the caller to free the returned array from memory.
  *
  * @param buffer the buffer to remove the object from
  * @param id the id of the buffer this array should represent
- * @param dst the destination position within the array to move to
- * @param src the source position within the array to move from
- * @return an array of pointers refferencing the user data from the objects
+ * @return te user data from the first object in the array
  */
-void **
-_intBufShiftIndex(_intBuffers *, unsigned int, unsigned int, unsigned int);
+#ifdef BUFFER_DEBUG
+# define _intBufPop(a, b)  _intBufPopDebug(a, b, 0, __FILE__, __LINE__)
+_intBufferData *
+_intBufPopDebug(_intBuffers*, unsigned int, char, char*, int);
+#else
+# define _intBufPop(a, b)  _intBufPopNormal(a, b, 0)
+#endif
+
+_intBufferData *
+_intBufPopNormal(_intBuffers *, unsigned int, char);
+
+
+/**
+ * Add an existing buffer to the end of the buffer array.
+ *
+ * @param buffer the buffer to remove the object from
+ * @param id the id of the buffer this array should represent
+ * @param buffer the buffer to add to the array
+ * @return te user data from the first object in the array
+ */
+#define _intBufPush(a, b, c) _intBufPushNormal(a, b, c, 0)
+void
+_intBufPushNormal(_intBuffers *, unsigned int, const _intBufferData*, char);
+
 
 /**
  * Free all entries form the array by calling a callback funtion to remove
@@ -336,17 +395,16 @@ _intBufShiftIndex(_intBuffers *, unsigned int, unsigned int, unsigned int);
  * @param function a pointer to the callback function
  * @param data user data which will be passed to the callback function
  */
-#if BUFFER_DEBUG
-# define _intBufClear(a, b, c, d) __intBufClear(a, b, c, d, __FILE__, __LINE__)
-
+#ifdef BUFFER_DEBUG
+# define _intBufClear(a, b, c)  _intBufClearDebug(a, b, c, __FILE__, __LINE__)
 void
-__intBufClear(_intBuffers *, unsigned int, _intBufFreeCallback, void *, char *, int);
+_intBufClearDebug(_intBuffers *, unsigned int, _intBufFreeCallback, char*, int);
 #else
-# define _intBufClear(a, b, c, d) int_intBufClear(a, b, c, d);
+# define _intBufClear(a, b, c)  _intBufClearNormal(a, b, c)
 #endif
 
 void
-int_intBufClear(_intBuffers *, unsigned int, _intBufFreeCallback, void *);
+_intBufClearNormal(_intBuffers *, unsigned int, _intBufFreeCallback);
 
 
 /**
@@ -359,18 +417,16 @@ int_intBufClear(_intBuffers *, unsigned int, _intBufFreeCallback, void *);
  * @param function a pointer to the callback function
  * @param data user data which will be passed to the callback function
  */
-#if BUFFER_DEBUG
-# define _intBufErase(a, b, c, d) \
-	_intBufEraseDebug(a, b, c, d, __FILE__, __LINE__)
-
+#ifdef BUFFER_DEBUG
+# define _intBufErase(a, b, c)  _intBufEraseDebug(a, b, c, __FILE__, __LINE__)
 void
-_intBufEraseDebug(_intBuffers **, unsigned int,  _intBufFreeCallback, void *, char *, int);
+_intBufEraseDebug(_intBuffers**, unsigned int, _intBufFreeCallback, char*, int);
 #else
-# define _intBufErase(a, b, c, d) _intBufEraseNormal(a, b, c, d);
+# define _intBufErase(a, b, c)  _intBufEraseNormal(a, b, c)
 #endif
 
 void
-_intBufEraseNormal(_intBuffers **, unsigned int, _intBufFreeCallback, void *);
+_intBufEraseNormal(_intBuffers **, unsigned int, _intBufFreeCallback);
 
 
 /**
@@ -381,6 +437,23 @@ _intBufEraseNormal(_intBuffers **, unsigned int, _intBufFreeCallback, void *);
  */
 void *
 _intBufGetDataPtr(const _intBufferData *);
+
+
+/**
+ * Set the pointer to new user data from an object
+ *
+ * @param object a pointer tot the object
+ * @param data a pointer to the new user data
+ * @return a pointer to the old user data.
+ */
+void *
+_intBufSetDataPtr(_intBufferData *, void*);
+
+
+#if defined(__cplusplus)
+}  /* extern "C" */
+#endif
+
 
 #endif /* !_AL_BUFFERS_H */
 

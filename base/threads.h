@@ -11,13 +11,12 @@ extern "C" {
 #include "config.h"
 #endif
 
-#include "types.h"
-
 #if HAVE_TIME_H
 #include <time.h>
 #endif
 
-// #include "timer.h"
+#include "types.h"
+
 
 #if HAVE_PTHREAD_H
 # include <pthread.h>			/* UNIX */
@@ -61,6 +60,7 @@ int _oalMutexLock(void *);
 int _oalMutexUnLock(void *);
 #endif
 void _oalMutexDestroy(void *);
+int _aaxThreadSwitch();
 
 
 #if defined(__cplusplus)

@@ -24,9 +24,9 @@
 #if HAVE_PTHREAD_H
 # include <string.h>	/* for memcpy */
 
-#define _TH_SYSLOG(a) __oal_log(LOG_SYSLOG, 0, (a), 0, LOG_SYSLOG);
+# define _TH_SYSLOG(a) __oal_log(LOG_SYSLOG, 0, (a), 0, LOG_SYSLOG);
 
-#ifdef NDEBUG
+# ifdef NDEBUG
 void *
 _oalMutexCreate(void *mutex)
 {
@@ -42,7 +42,7 @@ _oalMutexCreate(void *mutex)
    return m;
 }
 
-#else
+# else
 void *
 _oalMutexCreateDebug(void *mutex, const char *name, const char *fn)
 {
@@ -60,7 +60,7 @@ _oalMutexCreateDebug(void *mutex, const char *name, const char *fn)
 
    return m;
 }
-#endif
+# endif
 
 _oalMutex *
 _oalMutexCreateInt(_oalMutex *m)
@@ -68,24 +68,24 @@ _oalMutexCreateInt(_oalMutex *m)
    if (m && m->initialized == 0)
    {
       int status;
-#if 1
+# if 1
       pthread_mutexattr_t mta;
 
       status = pthread_mutexattr_init(&mta);
       if (!status)
       {
-#ifndef NDEBUG
+#  ifndef NDEBUG
          status = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
-#else
+#  else
          status = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-#endif
+#  endif
          if (!status) {
             status = pthread_mutex_init(&m->mutex, &mta);
          }
       }
-#else
+# else
       status = pthread_mutex_init(&m->mutex, NULL);
-#endif
+# endif
 
       if (!status) {
          m->initialized = 1;
@@ -109,7 +109,7 @@ _oalMutexDestroy(void *mutex)
    m = 0;
 }
 
-#ifdef NDEBUG
+# ifdef NDEBUG
 int
 _oalMutexLock(void *mutex)
 {
@@ -129,7 +129,7 @@ _oalMutexLock(void *mutex)
    }
    return r;
 }
-#else
+# else
 
 int
 _oalMutexLockDebug(void *mutex, char *file, int line)
@@ -146,7 +146,7 @@ _oalMutexLockDebug(void *mutex, char *file, int line)
       if (m->initialized != 0)
       {
          struct timespec to;
-#ifdef __GNUC__
+#  ifdef __GNUC__
          unsigned int mtx;
  
          mtx = m->mutex.__data.__count;
@@ -157,7 +157,7 @@ _oalMutexLockDebug(void *mutex, char *file, int line)
             r = -mtx;
             abort();
          }
-#endif
+#  endif
 
          to.tv_sec = time(NULL) + DEBUG_TIMEOUT;
          to.tv_nsec = 0;
@@ -174,21 +174,21 @@ _oalMutexLockDebug(void *mutex, char *file, int line)
             printf("mutex lock error %i in %s line %i\n", r, file, line);
          }
 
-#ifdef __GNUC__
+#  ifdef __GNUC__
          mtx = m->mutex.__data.__count;
          if (mtx != 1) {
             printf("lock mutex != 1 (%i) in %s line %i, for: %s in %s\n", mtx, file, line, m->name, m->function);
             r = -mtx;
             abort();
          }
-#endif
+#  endif
       }
    }
    return r;
 }
-#endif
+# endif
 
-#ifdef NDEBUG
+# ifdef NDEBUG
 int
 _oalMutexUnLock(void *mutex)
 {
@@ -202,7 +202,7 @@ _oalMutexUnLock(void *mutex)
    return r;
 }
 
-#else
+# else
 int
 _oalMutexUnLockDebug(void *mutex, char *file, int line)
 {
@@ -211,7 +211,7 @@ _oalMutexUnLockDebug(void *mutex, char *file, int line)
 
    if (m)
    {
-#ifdef __GNUC__
+#  ifdef __GNUC__
       unsigned int mtx;
 
       mtx = m->mutex.__data.__count;
@@ -225,16 +225,19 @@ _oalMutexUnLockDebug(void *mutex, char *file, int line)
          r = -mtx;
          abort();
       }
-#endif
+#  endif
 
       r = pthread_mutex_unlock(&m->mutex);
-#ifndef NDEBUG
-#endif
    }
    return r;
 }
-#endif
+# endif
 
+int
+_aaxThreadSwitch()
+{
+   return pthread_yield() ? -1 : 0;
+}
 
 #elif defined( _WIN32 )	/* HAVE_PTHREAD_H */
 
@@ -398,6 +401,13 @@ _oalConditionDestroy(void *c)
    CloseHandle(c);
    c = 0;
 }
+
+int
+_aaxThreadSwitch()
+{
+   return SwitchToThread() ? 0 : -1;
+}
+
 
 #else
 # error "threads not implemented for this platform"
