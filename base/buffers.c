@@ -460,9 +460,13 @@ _intBufGetNumNormal(_intBuffers *buffer, unsigned int id, char lock)
     _oalMutexLock(buffer->mutex);
     if (lock)
     {
+#ifndef NDEBUG
+        unsigned int i = 0;
+#endif
         while(buffer->lock_ctr > 0)
         {
             _oalMutexUnLock(buffer->mutex);
+            assert(++i < 20000);
             _aaxThreadSwitch();
             _oalMutexLock(buffer->mutex);
         }
@@ -562,8 +566,14 @@ _intBufGetPos(_intBuffers *buffer, unsigned int id, void *data)
 _intBufferData *
 _intBufPopDebug(_intBuffers *buffer, unsigned int id, char locked, char *file, int line)
 {
+    _intBufferData *rv;
+
     assert(buffer != 0);
     assert(buffer->id == id);
+
+    if (!locked) {
+        _intBufGetNum(buffer, id);
+    }
 
     if (buffer->num_allocated > 0)
     {
@@ -571,7 +581,7 @@ _intBufPopDebug(_intBuffers *buffer, unsigned int id, char locked, char *file, i
         if (buffer->data[start] == 0)
         {
             buffer->num_allocated = 0;
-            printf("buffer->data[0] == 0 in file '%s' at line %i\n", file, line);
+            printf("buffer->data[%i] == 0 in file '%s' at line %i\n", start, file, line);
             for(i=0; i<buffer->max_allocations; i++)
                 printf("%x ", (unsigned int)buffer->data[i]);
             printf("\n");
@@ -579,7 +589,13 @@ _intBufPopDebug(_intBuffers *buffer, unsigned int id, char locked, char *file, i
         }
     }
 
-    return _intBufPopNormal(buffer, id, locked);
+    rv = _intBufPopNormal(buffer, id, 1);
+
+    if (!locked) {
+        _intBufReleaseNum(buffer, id);
+    }
+
+    return rv;
 }
 #endif
 
@@ -712,9 +728,10 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
     assert(buffer->start+n < buffer->max_allocations);
     assert(buffer->data != 0);
 
-    if (!num_locked) {
-        _intBufGetNum(buffer, id);
+    if (num_locked) {
+        _intBufReleaseNum(buffer, id);
     }
+    _intBufGetNumNormal(buffer, id, 1);
 
     buf = _intBufGetNormal(buffer, id, n, locked);
     if (buf)
@@ -746,8 +763,9 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
         }
     }
 
-    if (!num_locked) {
-        _intBufReleaseNum(buffer, id);
+    _intBufReleaseNumNormal(buffer, id, 1);
+    if (num_locked) {
+        _intBufGetNum(buffer, id);
     }
     
     return rv;
