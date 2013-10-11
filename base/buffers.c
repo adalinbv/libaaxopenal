@@ -5,8 +5,8 @@
  * This file is part of AeonWave-OpenAL.
  *
  *  AeonWave-OpenAL is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
+ *  it under the terms of the Lesser GNU General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
  *  AeonWave-OpenAL is distributed in the hope that it will be useful,
@@ -14,7 +14,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
+ *  You should have received a copy of the Lesser GNU General Public License
  *  along with AeonWave-OpenAL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -410,7 +410,18 @@ _intBufReleaseDataNormal(const _intBufferData *data, unsigned int id)
 }
 #endif
 
-#if !defined(NDEBUG) || defined(PRINT_FUNC)
+unsigned int
+_intBufGetNumNoLock(const _intBuffers *buffer, unsigned int id)
+{
+    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
+
+    assert(buffer != 0);
+    assert(buffer->id == id);
+
+    return buffer->num_allocated;
+}
+
+#ifndef NDEBUG
 unsigned int
 _intBufGetNumDebug(_intBuffers *buffer, unsigned int id, char *file, int line)
 {
@@ -430,12 +441,31 @@ _intBufGetNumDebug(_intBuffers *buffer, unsigned int id, char *file, int line)
 #endif
 
 unsigned int
-_intBufGetNumNoLock(const _intBuffers *buffer, unsigned int id)
+_intBufGetNumNormal(_intBuffers *buffer, unsigned int id, char lock)
 {
     _BUF_LOG(LOG_BULK, id, __FUNCTION__);
 
-    assert(buffer != 0);
-    assert(buffer->id == id);
+#ifndef _AL_NOTHREADS
+    _oalMutexLock(buffer->mutex);
+    if (lock)
+    {
+        unsigned int i = 0;
+        while((buffer->lock_ctr > 0) && (++i < 20000))
+        {
+            _oalMutexUnLock(buffer->mutex);
+            _oalThreadSwitch();
+            _oalMutexLock(buffer->mutex);
+        }
+        if (i >= 20000) {
+            printf("_intBufGetNumNormal timeout\n");
+        }
+    }
+    else
+    {
+        buffer->lock_ctr++;
+        _oalMutexUnLock(buffer->mutex);
+    }
+#endif
 
     return buffer->num_allocated;
 }
@@ -449,36 +479,6 @@ _intBufGetMaxNumNoLock(const _intBuffers *buffer, unsigned int id)
     assert(buffer->id == id);
 
     return buffer->max_allocations;
-}
-
-unsigned int
-_intBufGetNumNormal(_intBuffers *buffer, unsigned int id, char lock)
-{
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
-#ifndef _AL_NOTHREADS
-    _oalMutexLock(buffer->mutex);
-    if (lock)
-    {
-#ifndef NDEBUG
-        unsigned int i = 0;
-#endif
-        while(buffer->lock_ctr > 0)
-        {
-            _oalMutexUnLock(buffer->mutex);
-            assert(++i < 20000);
-            _aaxThreadSwitch();
-            _oalMutexLock(buffer->mutex);
-        }
-    }
-    else
-    {
-        buffer->lock_ctr++;
-        _oalMutexUnLock(buffer->mutex);
-    }
-#endif
-
-    return buffer->num_allocated;
 }
 
 unsigned int
@@ -496,7 +496,7 @@ _intBufGetMaxNumNormal(_intBuffers *buffer, unsigned int id, char lock)
         while(buffer->lock_ctr > 0)
         {
             _oalMutexUnLock(buffer->mutex);
-            _aaxThreadSwitch();
+            _oalThreadSwitch();
             _oalMutexLock(buffer->mutex);
         }
     }
@@ -626,30 +626,10 @@ _intBufPopNormal(_intBuffers *buffer, unsigned int id, char locked)
          */
         if (--buffer->num_allocated > 0)
         {
-            unsigned int start = ++buffer->start;
-            unsigned int max = buffer->max_allocations - start;
-
-            if ((start == BUFFER_RESERVE) ||
-                (start && (buffer->num_allocated == buffer->max_allocations))
-               )
-            {
-                _intBufferData **ptr = buffer->data;
-
-                memmove(ptr, ptr+start, max*sizeof(void*));
-                memset(ptr+max, 0, start*sizeof(void*));
-
-                if (buffer->first_free == 0) {
-                    buffer->first_free = max+1;
-                }
-                max += start;
-                start = buffer->start = 0;
-            }
-
+            buffer->start++;
             if (buffer->first_free) {
                 buffer->first_free--;
             }
-            assert((buffer->data[start+buffer->first_free] == NULL) ||
-                   ((start+buffer->first_free) >= buffer->max_allocations));
         }
         else
         {
@@ -843,12 +823,7 @@ _intBufEraseNormal(_intBuffers **buf, unsigned int id,
         {
             do
             {
-#ifndef NDEBUG
-                _intBufferData *dptr = _intBufPopDebug(buffer, id, 1,
-                                                            __FILE__, __LINE__);
-#else
                 _intBufferData *dptr = _intBufPopNormal(buffer, id, 1);
-#endif
                 if (dptr && dptr->ptr)
                 {
                     dptr->reference_ctr--;
@@ -907,6 +882,8 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
             memset(ptr+max, 0, start*sizeof(void*));
             buffer->start = 0;
             rv = -1;
+if (buffer->data[buffer->start] == 0)
+printf("1. buffer->data[buffer->start] == 0\n");
         }
         else			/* increment buffer size */
         {

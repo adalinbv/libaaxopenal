@@ -234,7 +234,7 @@ _oalMutexUnLockDebug(void *mutex, char *file, int line)
 # endif
 
 int
-_aaxThreadSwitch()
+_oalThreadSwitch()
 {
    return pthread_yield() ? -1 : 0;
 }

@@ -60,7 +60,7 @@ int _oalMutexLock(void *);
 int _oalMutexUnLock(void *);
 #endif
 void _oalMutexDestroy(void *);
-int _aaxThreadSwitch();
+int _oalThreadSwitch();
 
 
 #if defined(__cplusplus)

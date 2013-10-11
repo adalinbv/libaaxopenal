@@ -1,21 +1,21 @@
 /*
- * Copyright (C) 2005-2011 by Erik Hofman.
- * Copyright (C) 2007-2011 by Adalin B.V.
+ * Copyright (C) 2005-2013 by Erik Hofman.
+ * Copyright (C) 2007-2013 by Adalin B.V.
  *
- * This file is part of OpenAL-AeonWave.
+ * This file is part of AeonWave-OpenAL.
  *
- *  OpenAL-AeonWave is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
+ *  AeonWave-OpenAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the Lesser GNU General Public License as published
+ *  by the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  OpenAL-AeonWave is distributed in the hope that it will be useful,
+ *  AeonWave-OpenAL is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenAL-AeonWave.  If not, see <http://www.gnu.org/licenses/>.
+ *  You should have received a copy of the Lesser GNU General Public License
+ *  along with AeonWave-OpenAL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef _AL_BUFFERS_H
@@ -27,7 +27,7 @@
 
 #include <limits.h>		/* for UINT_MAX */
 
-#if 0
+#if 1
 #define PRINT_FUNC		1
 #endif
 #ifndef NDEBUG
@@ -260,7 +260,7 @@ _intBufGetMaxNumNoLock(const _intBuffers *, unsigned int);
  * @param lock set to 1 for operations that mangle the pointer array
  * @return the number of allocated objects in the buffer array
  */
-#if !defined(NDEBUG) || defined(PRINT_FUNC)
+#ifndef NDEBUG
 # define _intBufGetNum(a, b)  _intBufGetNumDebug(a, b, __FILE__, __LINE__)
 unsigned int
 _intBufGetNumDebug(_intBuffers *, unsigned int, char *, int);
