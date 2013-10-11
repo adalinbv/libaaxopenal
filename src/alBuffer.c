@@ -300,27 +300,11 @@ _oalFindBufferById(ALuint id, ALuint *pos)
 }
 
 void
-_oalRemoveBufferByPos(void *dev, unsigned int pos)
+_oalFreeBuffer(void *buffer)
 {
-    _oalDevice *d = (_oalDevice*)dev;
-    _intBufferData *dptr = NULL;
+    aaxBuffer buf = (aaxBuffer)buffer;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    if (!d && ((dptr = _oalGetCurrentDevice()) != NULL)) {
-        d = _intBufGetDataPtr(dptr);
-    }
-
-    if (d)
-    {
-        aaxBuffer buf;
-        buf = _intBufRemove(d->buffers, _OAL_BUFFER, pos, AL_FALSE);
-        if (buf) {
-            aaxBufferDestroy(buf);
-        }
-    }
-
-   if (dptr) {
-      _intBufReleaseData(dptr, _OAL_DEVICE);
-   }
+    aaxBufferDestroy(buf);
 }

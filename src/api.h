@@ -119,7 +119,7 @@ typedef struct
     int mode;
 } _oalSource;
 
-void _oalRemoveSourceByPos(void *context, unsigned int);
+void _oalFreeSource(void *);
 
 /* -- Contexts --- */
 
@@ -183,7 +183,7 @@ ALCenum __oalContextSetErrorReport(ALCenum, char *, int);
 
 _intBuffers *_oalGetBuffers(_oalDevice *d);
 _intBufferData *_oalFindBufferById(ALuint, ALuint*);
-_intBufFreeCallback _oalRemoveBufferByPos;
+void _oalFreeBuffer(void*);
 
 #endif
 

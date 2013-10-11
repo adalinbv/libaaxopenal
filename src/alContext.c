@@ -41,6 +41,7 @@
 #include <AL/alc.h>
 
 #include <base/types.h>
+#include <base/buffers.h>
 
 #include "api.h"
 #include "aax_support.h"
@@ -58,12 +59,7 @@ static _intBufferData *_oalDeviceContextAdd(_oalDevice *);
 
 static _intBufferData *_oalFindContextByDeviceId(uint32_t);
 static void _oalSourcesCreate(void *);
-
-/**
- * The following function(s) require locked data, which will be unlocked
- * by the function automatically.
- */
-static _intBufFreeCallback _oalDestroyContextByPos;
+static void _oalFreeContext(void*);
 
 ALC_API ALCdevice * ALC_APIENTRY
 alcOpenDevice(const ALCchar *name)
@@ -95,16 +91,16 @@ alcOpenDevice(const ALCchar *name)
             pos = _intBufAddData(_oalDevices, _OAL_DEVICE, d);
             if (pos != UINT_MAX)
             {
-                uint32_t i, id, devid;
+                uint32_t id, devid;
 
                 id = _intBufPosToId(pos);
                 devid = _oalIdToDevice(id);
                 device = INT_TO_PTR(devid);
-
                 d->lst.frame_no = 0;
                 d->lst.framecnt_max = _oalAAXGetNoCores(handle);
                 if (d->lst.framecnt_max > 1)
                 {
+                    unsigned int i;
                     for(i=0; i<d->lst.framecnt_max; i++)
                     {
                         aaxFrame frame = aaxAudioFrameCreate(handle);
@@ -113,9 +109,6 @@ alcOpenDevice(const ALCchar *name)
                         aaxMatrixSetIdentityMatrix(mtx);
                         aaxAudioFrameSetMatrix(frame, mtx);
                         aaxAudioFrameSetMode(frame, AAX_POSITION, AAX_RELATIVE);
-                        aaxMixerRegisterAudioFrame(handle, frame);
-                        aaxAudioFrameSetState(frame, AAX_PLAYING);
-
                         d->lst.frame[i] = frame;
                     }
                 }
@@ -141,6 +134,9 @@ alcCloseDevice(ALCdevice *device)
         d = _intBufRemove(_oalDevices, _OAL_DEVICE, pos, AL_FALSE);
         if (d)
         {
+            d->current_context = UINT_MAX;
+            aaxMixerSetState(d->lst.handle, AAX_STOPPED);
+
             if (d->lst.framecnt_max > 1)
             {
                 unsigned int i;
@@ -153,13 +149,11 @@ alcCloseDevice(ALCdevice *device)
             }
 
             aaxDriverClose(d->lst.handle);
-            aaxDriverDestroy(d->lst.handle);
-            _intBufErase(&d->contexts,_OAL_CONTEXT, _oalDestroyContextByPos, d);
-
-            _intBufErase(&d->buffers, _OAL_BUFFER, _oalRemoveBufferByPos, d);
+            _intBufErase(&d->contexts, _OAL_CONTEXT, _oalFreeContext);
+            _intBufErase(&d->buffers, _OAL_BUFFER, _oalFreeBuffer);
             free(d);
 
-            _intBufErase(&_oalDevices, _OAL_DEVICE, 0, 0);
+            _intBufErase(&_oalDevices, _OAL_DEVICE, free);
 
             return ALC_TRUE;
         }
@@ -230,6 +224,17 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 
         _oalStateCreate(handle, ctx);
         _oalSourcesCreate(ctx);
+
+        if (d->lst.framecnt_max > 1)
+        {
+            unsigned int i;
+            for(i=0; i<d->lst.framecnt_max; i++)
+            {
+                aaxFrame frame = d->lst.frame[i];
+                aaxMixerRegisterAudioFrame(handle, frame);
+                aaxAudioFrameSetState(frame, AAX_PLAYING);
+            }
+        }
 
         _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
@@ -353,7 +358,15 @@ alcDestroyContext(ALCcontext *context)
         pos = _intBufIdToPos(id);
         if (pos != UINT_MAX)
         {
-            _oalDestroyContextByPos(dev, pos);
+            _oalContext *ctx;
+
+            if (dev->current_context == pos) {
+                dev->current_context = UINT_MAX;
+            }
+//          aaxMixerSetState(dev->lst.handle, AAX_STOPPED);
+
+            ctx = _intBufRemove(dev->contexts, _OAL_CONTEXT, pos, AL_FALSE);
+            if (ctx) _oalFreeContext(ctx);
             return;  
         }
     }
@@ -829,7 +842,7 @@ _oalFindDeviceById(uint32_t id)
 static _intBufferData *
 _oalFindContextByDeviceId(uint32_t id)
 {
-    const _intBuffers *ctx;
+    _intBuffers *ctx;
     _intBufferData *dptr = 0;
     _oalDevice *dev;
 
@@ -851,27 +864,15 @@ _oalFindContextByDeviceId(uint32_t id)
 }
 
 static void
-_oalDestroyContextByPos(void *device, unsigned int ctx_num)
+_oalFreeContext(void *context)
 {
-    _oalDevice *d = (_oalDevice *)device;
-    _oalContext *ctx;
+    _oalContext *ctx = (_oalContext*)context;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    assert(d);
-
-    if (d->current_context == ctx_num) {
-        d->current_context = UINT_MAX;
-    }
-
-    aaxMixerSetState(d->lst.handle, AAX_STOPPED);
-    ctx = _intBufRemove(d->contexts, _OAL_CONTEXT, ctx_num, AL_FALSE);
-    if (ctx)
-    {
-        _intBufErase(&ctx->sources, _OAL_SOURCE, _oalRemoveSourceByPos, ctx);
-        free(ctx->state);
-        free(ctx);
-    }
+    _intBufErase(&ctx->sources, _OAL_SOURCE, _oalFreeSource);
+    free(ctx->state);
+    free(ctx);
 }
 
 static void

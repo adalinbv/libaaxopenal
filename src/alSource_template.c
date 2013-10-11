@@ -454,7 +454,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             if (buf)
             {
                 _intBuffers *db = _oalGetBuffers(NULL);
-                unsigned int pos = _intBufGetPosNoLock(db, _OAL_BUFFER, buf);
+                unsigned int pos = _intBufGetPos(db, _OAL_BUFFER, buf);
                 *value = (T)_intBufPosToId(pos);
             } else {
                 *value = 0;

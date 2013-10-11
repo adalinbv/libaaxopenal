@@ -295,7 +295,7 @@ alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
                 do
                 {
                     buf = aaxEmitterGetBufferByPos(src->handle, --i, AAX_FALSE);
-                    pos = _intBufGetPosNoLock(db, _OAL_BUFFER, buf);
+                    pos = _intBufGetPos(db, _OAL_BUFFER, buf);
                     ids[i] = _intBufPosToId(pos);
                     if (ids[i] == 0) break;
                 }
@@ -711,31 +711,17 @@ _oalFindSourceById(ALuint id, _intBuffers *scs, ALuint *rpos)
 }
 
 void
-_oalRemoveSourceByPos(void *context, unsigned int pos)
+_oalFreeSource(void *source)
 {
-    _oalContext *ctx = (_oalContext *)context;
-    _intBufferData *dptr_ctx = 0;
+    _oalSource *src = (_oalSource*)source;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    if (!ctx && ((dptr_ctx = _oalGetCurrentContext()) != NULL)) {
-        ctx = _intBufGetDataPtr(dptr_ctx);
-    }
-
-    if (ctx)
+    if (src)
     {
-        _oalSource *src;
-        src = _intBufRemove(ctx->sources, _OAL_SOURCE, pos, AL_FALSE);
-        if (src)
-        {
-            aaxEmitterSetState(src->handle, AAX_STOPPED);
-            aaxEmitterDestroy(src->handle);
-            free(src);
-        }
+        aaxEmitterSetState(src->handle, AAX_STOPPED);
+        aaxEmitterDestroy(src->handle);
+        free(src);
     }
-
-   if (dptr_ctx) {
-       _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
-   }
 }
 
