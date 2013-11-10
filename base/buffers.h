@@ -30,6 +30,9 @@
 #if 1
 #define PRINT_FUNC		1
 #endif
+#if 1
+#define _AAX_PERSISTENT_GETNUM	1
+#endif
 #ifndef NDEBUG
 # define BUFFER_DEBUG		1
 #endif
@@ -120,8 +123,9 @@ _intBufDestroyDataNoLock(_intBufferData *);
  * @param data pointer to the object to add
  * @return the position in the array upon success, UINT_MAX otherwise.
  */
+#define _intBufAddData(a, b, c) _intBufAddDataNormal(a, b, c, 0)
 unsigned int
-_intBufAddData(_intBuffers *, unsigned int, const void *);
+_intBufAddDataNormal(_intBuffers *, unsigned int, const void *, char);
 
 
 /**
@@ -165,7 +169,7 @@ _intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
  * @param pos the position in the array of the opbject to get
  * @return the object data
  */
-#if defined(BUFFER_DEBUG) || defined(PRINT_FUNC)
+#ifdef BUFFER_DEBUG
 # define _intBufGet(a, b, c)  _intBufGetDebug(a, b, c, __FILE__, __LINE__)
  _intBufferData *
  _intBufGetDebug(_intBuffers *, unsigned int, unsigned int, char *, int);
