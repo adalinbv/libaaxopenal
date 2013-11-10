@@ -150,6 +150,7 @@ alcCloseDevice(ALCdevice *device)
             }
 
             aaxDriverClose(d->lst.handle);
+            aaxDriverDestroy(d->lst.handle);
             _intBufErase(&d->contexts, _OAL_CONTEXT, _oalFreeContext);
             _intBufErase(&d->buffers, _OAL_BUFFER, _oalFreeBuffer);
             free(d);
@@ -364,7 +365,7 @@ alcDestroyContext(ALCcontext *context)
             if (dev->current_context == pos) {
                 dev->current_context = UINT_MAX;
             }
-//          aaxMixerSetState(dev->lst.handle, AAX_STOPPED);
+            aaxMixerSetState(dev->lst.handle, AAX_STOPPED);
 
             ctx = _intBufRemove(dev->contexts, _OAL_CONTEXT, pos, AL_FALSE);
             if (ctx) _oalFreeContext(ctx);

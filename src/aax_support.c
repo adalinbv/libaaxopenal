@@ -587,6 +587,7 @@ _oalAAXGetDeviceSpecifiersAll(enum aaxRenderMode mode)
                         }
                         else
                         {
+                            aaxDriverClose(cfg);
                             aaxDriverDestroy(cfg);
                             break;
                         }
@@ -603,6 +604,7 @@ _oalAAXGetDeviceSpecifiersAll(enum aaxRenderMode mode)
                         *ptr = '\0';
                     }
                 }
+                aaxDriverClose(cfg);
                 aaxDriverDestroy(cfg);
             }
         }
