@@ -121,10 +121,7 @@ alGenSources(ALsizei num, ALuint *ids)
                     _oalSource *src;
                     pos = _intBufIdToPos(ids[r]);
                     src = _intBufRemove(cs, _OAL_SOURCE, pos, AL_FALSE);
-                    if (src->handle) {
-                        aaxEmitterDestroy(src->handle);
-                    }
-                    free(src);
+                    _oalFreeSource(ctx, src);
                 }
 
                 _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -186,11 +183,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
                 {
                     _oalSource *src;
                     src = _intBufRemove(cs, _OAL_SOURCE, pos[i], AL_FALSE);
-                    if (src)
-                    {
-                        aaxEmitterDestroy(src->handle);
-                        free(src);
-                    }
+                    _oalFreeSource(ctx, src);
                 }
             }
             else {
@@ -711,14 +704,25 @@ _oalFindSourceById(ALuint id, _intBuffers *scs, ALuint *rpos)
 }
 
 void
-_oalFreeSource(void *source)
+_oalFreeSource(void *context, void *source)
 {
+    _oalContext *ctx = (_oalContext*)context;
     _oalSource *src = (_oalSource*)source;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
     if (src)
     {
+        if (src->parent)
+        {
+            const _oalDevice *dev = ctx->parent_device;
+            if (src->parent == dev->lst.handle) {
+                aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
+            } else {
+                aaxAudioFrameDeregisterEmitter(src->parent, src->handle);
+            }       
+            src->parent = NULL; 
+        }
         aaxEmitterSetState(src->handle, AAX_STOPPED);
         aaxEmitterDestroy(src->handle);
         free(src);

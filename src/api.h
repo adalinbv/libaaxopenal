@@ -119,7 +119,7 @@ typedef struct
     int mode;
 } _oalSource;
 
-void _oalFreeSource(void *);
+void _oalFreeSource(void *, void*);
 
 /* -- Contexts --- */
 
