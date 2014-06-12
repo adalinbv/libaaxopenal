@@ -362,24 +362,9 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
                 if (!src->parent)
                 {
                     _oalDevice *dev = (_oalDevice *)ctx->parent_device;
-                    unsigned int frame_no = dev->lst.frame_no/_SRC_PER_THREAD;
 
-                    if (dev->lst.framecnt_max == 1)	// single core
-                    {
-                        aaxMixerRegisterEmitter(dev->lst.handle, src->handle);
-                        src->parent = dev->lst.handle;
-                    }
-                    else
-                    {
-                        src->parent = dev->lst.frame[frame_no];
-                        aaxAudioFrameRegisterEmitter(src->parent, src->handle);
-                    }
-
-                    dev->lst.frame_no++;
-                    frame_no = dev->lst.frame_no/_SRC_PER_THREAD;
-                    if (frame_no >= dev->lst.framecnt_max) {
-                        dev->lst.frame_no = 0;
-                    }
+                    aaxMixerRegisterEmitter(dev->lst.handle, src->handle);
+                    src->parent = dev->lst.handle;
                 }
 
                 if (aaxEmitterGetState(src->handle) == AAX_PLAYING) {

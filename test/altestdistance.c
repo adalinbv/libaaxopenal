@@ -43,7 +43,7 @@
 ALfloat SourcePos[] = { 100.0, 100.0, 0.0 };
 ALfloat SourceVel[] = { -10.0, 0.0, 0.0 };
 
-ALfloat ListenerPos[] = { 0.0, 0.0, 0.0 };
+ALfloat ListenerPos[] = { 0.0, 100.0, 0.0 };
 ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
 ALfloat ListenerOri[] = { 0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f };
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 
             SourcePos[0] = dist;
             dist -= 0.33f;
-#if 0
+#if 1
             printf("dist: %5.4f\tpos (% f, % f, % f)\n", dist,
                      SourcePos[0], SourcePos[1], SourcePos[2]);
 #endif

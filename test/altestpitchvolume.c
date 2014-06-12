@@ -100,22 +100,22 @@ int main(int argc, char **argv)
          alSourcePlay(source);
 
          q = 0;
-         pf = -0.000008f;
-         gf = 0.007f;
+         pf = -0.0011f;
+         gf = 0.0007f;
          pitch = 1.0f;
-         gain = 1.0f;
+         gain = 0.1f;
          do {
             msecSleep(10);
             _time += 0.01f;
 
-            if ((pitch <= 0.1f) || (pitch >= 2.0f)) pf = -pf;
+            if ((pitch <= 0.001f) || (pitch >= 2.0f)) pf = -pf;
             if ((gain <= 0.001f) || (gain >= 1.0f)) gf = -gf;
 
 #if 1
             pitch += pf;
             alSourcef(source, AL_PITCH, pitch);
 #endif
-#if 0
+#if 1
             gain += gf;
             alSourcef(source, AL_GAIN, (exp(gain)-1)/(M_E-1));
 #endif
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
                alGetSourcef(source, AL_SEC_OFFSET, &off_s);
                alGetSourcei(source, AL_SAMPLE_OFFSET, &offs);
                alGetSourcei(source, AL_BYTE_OFFSET, &offb);
-#if 0
+#if 1
                printf("gain: %5.4f, pitch: %5.4f\n", gain, pitch);
 #endif
             }

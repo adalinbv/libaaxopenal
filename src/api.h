@@ -102,8 +102,6 @@ ALenum __oalStateSetErrorNormal(ALenum);
 typedef struct
 {
     aaxConfig handle;
-    aaxFrame frame[_MAX_THREADS-1];
-    unsigned int frame_no, framecnt_max;
     aaxVec3f pos, at, up;
     void *buf;
 

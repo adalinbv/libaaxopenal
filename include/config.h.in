@@ -110,7 +110,7 @@
 #cmakedefine VERSION "@AL_VERSION@"
 
 /* OpenAL does use threads */
-#undef _AL_NOTHREADS 
+#define _AL_NOTHREADS 
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

@@ -145,20 +145,27 @@ ELSE(MSVC)
     ENDIF(LTO)
 
     IF(NOT MINGW)
-       SET(C_FLAGS "${C_FLAGS} -fPIC  -Wl,--hash-style=both")
+       SET(C_FLAGS "${C_FLAGS} -fPIC -Wl,--hash-style=both")
     ENDIF(NOT MINGW)
 
     IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
        SET(C_FLAGS "${C_FLAGS} -march=i386")
     ENDIF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
 
-    SET(C_FLAGS "${C_FLAGS} -Werror=format-security -Wall -fomit-frame-pointer" CACHE STRING
+    SET(C_FLAGS "${C_FLAGS} -Werror=format-security -Wall" CACHE STRING
         "Flags used by al build types."
         FORCE)
-    SET(CMAKE_C_FLAGS_RELWITHDEBINFO "${C_FLAGS} -g -O2 -D_DEBUG" CACHE STRING
+
+    SET(CMAKE_C_FLAGS_RELWITHDEBINFO "${C_FLAGS} -g -O2 -DNDEBUG" CACHE STRING
         "Flags used by the compiler during Release with Debug Info builds."
         FORCE)
-    SET(CMAKE_C_FLAGS_MINSIZEREL "${C_FLAGS} -Os -s -DNDEBUG" CACHE STRING
+    SET(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} -pg" CACHE STRING
+        "Flags used by the linker during Release with Debug Info builds."
+        FORCE)
+    SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} -pg" CACHE STRING
+        "Flags used by the linker during Release with Debug Info builds."
+        FORCE)
+    SET(CMAKE_C_FLAGS_MINSIZEREL "${C_FLAGS} -Os -s -fomit-frame-pointer -DNDEBUG" CACHE STRING
         "Flags used by the compiler during release minsize builds."
         FORCE)
     SET(CMAKE_C_FLAGS_RELEASE "${C_FLAGS} -Os -s -fomit-frame-pointer -DNDEBUG"
@@ -180,7 +187,6 @@ CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 CHECK_INCLUDE_FILE(syslog.h HAVE_SYSLOG_H)
 CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
 CHECK_INCLUDE_FILE(assert.h HAVE_ASSERT_H)
-CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
 IF(HAVE_DLFCN_H)
   CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_LIBDL)
@@ -201,7 +207,6 @@ CONFIGURE_FILE(
 SET(BASE_OBJS
      base/buffers.c
      base/dlsym.c
-     base/threads.c
      base/logging.c
      base/types.c
    )
@@ -233,7 +238,7 @@ IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
     SET_TARGET_PROPERTIES(${LIBOPENAL} PROPERTIES PREFIX "")
 ENDIF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
 
-TARGET_LINK_LIBRARIES(${LIBOPENAL} ${EXTRA_LIBS} ${AAX_LIBRARY} ${LIBBASE})
+TARGET_LINK_LIBRARIES(${LIBOPENAL} ${AAX_LIBRARY} ${LIBBASE} ${EXTRA_LIBS})
 
 # Add an install target here
 # Note Windows DLL are specified by RUNTIME

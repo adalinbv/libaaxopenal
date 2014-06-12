@@ -1,4 +1,8 @@
-* Tue Aug 27 2013 - tech@adalin.org
+* Thu Mar 13 2014 - tech@adalin.org
+- Set the default distance model for emitters (again)
+- Remove code that uses multiple audio-frames for threading, AeonWave now supports a different threading model which doesn't require this hack.
+
+* Fri Oct 18 2013 - tech@adalin.org
 - Add support for AL_DISTANCE_DELAY_AAX (requires AeonWave 2.3.0 or later).
 - AeonWave-Lite only supports distance delayed starting/stopping of sources.
 - AeonWave-HD also supports distance delayed state changes: position/orientation/velocity/pitch and gain.

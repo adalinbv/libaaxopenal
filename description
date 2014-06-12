@@ -3,9 +3,9 @@ OpenAL layer for the AeonWave 4D audio library
  rendering OpenAL implementations available.
  .
  This package can be used to replace OpenAL-Soft and OpenAL-Sample.
- AeonWave-OpenAL will render 5 to 7 times faster than either OpenAL-Soft or
- OpenAL-Sample since it makes use of the hardware acceleration provided by
- AeonWave.
+ AeonWave-OpenAL will render 4 to 6 times faster than OpenAL-Soft and 7 to 12 
+ times faster than OpenAL-Sample by making use of the hardware acceleration
+ and multi-threading capabilities of the AeonWave audio library.
  .
  OpenAL is a cross-platform 3D audio API appropriate for use with gaming
  applications and many other types of audio applications. Its API style and

@@ -26,9 +26,6 @@
 #include <assert.h>
 #endif
 #include <errno.h>
-#if HAVE_STRINGS_H
-# include <strings.h>	/* strncpy */
-#endif
 #ifndef NDEBUG
 #if HAVE_UNISTD_H
 #  include <unistd.h>
@@ -96,22 +93,6 @@ alcOpenDevice(const ALCchar *name)
                 id = _intBufPosToId(pos);
                 devid = _oalIdToDevice(id);
                 device = INT_TO_PTR(devid);
-                d->lst.frame_no = 0;
-                d->lst.framecnt_max = _oalAAXGetNoCores(handle);
-                if (d->lst.framecnt_max > 1)
-                {
-                    unsigned int i;
-                    for(i=0; i<d->lst.framecnt_max; i++)
-                    {
-                        aaxFrame frame = aaxAudioFrameCreate(handle);
-                        aaxMtx4f mtx;
-
-                        aaxMatrixSetIdentityMatrix(mtx);
-                        aaxAudioFrameSetMatrix(frame, mtx);
-                        aaxAudioFrameSetMode(frame, AAX_POSITION, AAX_RELATIVE);
-                        d->lst.frame[i] = frame;
-                    }
-                }
             }
         }
     }
@@ -136,18 +117,6 @@ alcCloseDevice(ALCdevice *device)
         {
             d->current_context = UINT_MAX;
             aaxMixerSetState(d->lst.handle, AAX_STOPPED);
-
-            if (d->lst.framecnt_max > 1)
-            {
-                unsigned int i;
-                for(i=0; i<d->lst.framecnt_max; i++) 
-                {
-                    aaxFrame frame = d->lst.frame[i];
-                    aaxAudioFrameSetState(frame, AAX_STOPPED);
-                    aaxMixerDeregisterAudioFrame(d->lst.handle, frame);
-                    aaxAudioFrameDestroy(frame);
-                }
-            }
 
             aaxDriverClose(d->lst.handle);
             aaxDriverDestroy(d->lst.handle);
@@ -226,17 +195,6 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 
         _oalStateCreate(handle, ctx);
         _oalSourcesCreate(ctx);
-
-        if (d->lst.framecnt_max > 1)
-        {
-            unsigned int i;
-            for(i=0; i<d->lst.framecnt_max; i++)
-            {
-                aaxFrame frame = d->lst.frame[i];
-                aaxMixerRegisterAudioFrame(handle, frame);
-                aaxAudioFrameSetState(frame, AAX_PLAYING);
-            }
-        }
 
         _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }

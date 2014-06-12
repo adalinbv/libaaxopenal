@@ -113,9 +113,9 @@ _intBufCreateNormal(_intBuffers **buffer, unsigned int id)
 #ifndef _AL_NOTHREADS
             (*buffer)->mutex =
 # ifndef NDEBUG
-                _oalMutexCreateDebug(0, _intBufNames[id], __FUNCTION__);
+                _aaxMutexCreateDebug(0, _intBufNames[id], __FUNCTION__);
 # else
-                _oalMutexCreate(0);
+                _aaxMutexCreate(0);
 # endif
 #endif
             (*buffer)->lock_ctr = 0;
@@ -146,7 +146,7 @@ _intBufDestroyDataNoLock(_intBufferData *ptr)
     if ((rv = --ptr->reference_ctr) == 0)
     {
 #ifndef _AL_NOTHREADS
-        _oalMutexDestroy(ptr->mutex);
+        _aaxMutexDestroy(ptr->mutex);
 #endif
         free(ptr);
     }
@@ -181,9 +181,9 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
 #ifndef _AL_NOTHREADS
             b->mutex =
 # ifndef NDEBUG
-                _oalMutexCreateDebug(0, _intBufNames[id], __FUNCTION__);
+                _aaxMutexCreateDebug(0, _intBufNames[id], __FUNCTION__);
 # else
-                _oalMutexCreate(0);
+                _aaxMutexCreate(0);
 # endif
 #endif
             b->reference_ctr = 1;
@@ -252,11 +252,11 @@ _intBufAddReference(_intBuffers *buffer, unsigned int id,
             unsigned int i, num;
 
 #ifndef _AL_NOTHREADS
-            _oalMutexLock(b->mutex);
+            _aaxMutexLock(b->mutex);
 #endif
             b->reference_ctr++;
 #ifndef _AL_NOTHREADS
-            _oalMutexUnLock(b->mutex);
+            _aaxMutexUnLock(b->mutex);
 #endif
 
             _intBufGetNum(buffer, id);
@@ -326,7 +326,7 @@ _intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char *file
 #ifndef _AL_NOTHREADS
     if (buffer->data[n] != 0)
     {
-        int r = _oalMutexLockDebug(buffer->data[n]->mutex, file, line);
+        int r = _aaxMutexLockDebug(buffer->data[n]->mutex, file, line);
         if (r < 0) PRINT("error: %i at %s line %i\n", -r, file, line);
     }
 #endif
@@ -347,7 +347,7 @@ _intBufGetNormal(_intBuffers *buffer, unsigned int id, unsigned int n, char lock
 
 #ifndef _AL_NOTHREADS
     if (!locked && buffer->data[n] != NULL) {
-        _oalMutexLock(buffer->data[n]->mutex);
+        _aaxMutexLock(buffer->data[n]->mutex);
     }
 #endif
 
@@ -373,7 +373,7 @@ _intBufRelease(_intBuffers *buffer, unsigned int id, unsigned int n)
     assert(buffer->data[n] != 0);
     assert(buffer->data[n]->ptr != 0);
 
-    _oalMutexUnLock(buffer->data[n]->mutex);
+    _aaxMutexUnLock(buffer->data[n]->mutex);
 }
 #endif
 
@@ -408,7 +408,7 @@ _intBufReleaseDataDebug(const _intBufferData *data, unsigned int id, char *file,
 
     assert(data != 0);
 
-    _oalMutexUnLockDebug(data->mutex, file, line);
+    _aaxMutexUnLockDebug(data->mutex, file, line);
 }
 # endif
 
@@ -417,7 +417,7 @@ _intBufReleaseDataNormal(const _intBufferData *data, unsigned int id)
 {
     _BUF_LOG(LOG_BULK, id, __FUNCTION__);
 
-    _oalMutexUnLock(data->mutex);
+    _aaxMutexUnLock(data->mutex);
 }
 #endif
 
@@ -442,16 +442,16 @@ _intBufGetNumDebug(_intBuffers *buffer, unsigned int id, char *file, int line)
     assert(buffer->id == id);
 
 #ifndef _AL_NOTHREADS
-    _oalMutexLockDebug(buffer->mutex, file, line);
+    _aaxMutexLockDebug(buffer->mutex, file, line);
 # ifndef _AAX_PERSISTENT_GETNUM
     if (lock)
     {
         unsigned int i = 0;
         while((buffer->lock_ctr > 0) && (++i < 20000))
         {
-            _oalMutexUnLock(buffer->mutex);
+            _aaxMutexUnLock(buffer->mutex);
             _aaxThreadSwitch();
-            _oalMutexLock(buffer->mutex);
+            _aaxMutexLock(buffer->mutex);
         }
         if (i >= 20000) {
             PRINT("_intBufGetNumNormal timeout\n");
@@ -460,7 +460,7 @@ _intBufGetNumDebug(_intBuffers *buffer, unsigned int id, char *file, int line)
     else
     {
         buffer->lock_ctr++;
-        _oalMutexUnLock(buffer->mutex);
+        _aaxMutexUnLock(buffer->mutex);
     }
 # endif
 #endif
@@ -476,16 +476,16 @@ _intBufGetNumNormal(_intBuffers *buffer, unsigned int id, char lock)
     _BUF_LOG(LOG_BULK, id, __FUNCTION__);
 
 #ifndef _AL_NOTHREADS
-    _oalMutexLock(buffer->mutex);
+    _aaxMutexLock(buffer->mutex);
 # ifndef _AAX_PERSISTENT_GETNUM
     if (lock)
     {
         unsigned int i = 0;
         while((buffer->lock_ctr > 0) && (++i < 20000))
         {
-            _oalMutexUnLock(buffer->mutex);
+            _aaxMutexUnLock(buffer->mutex);
             _aaxThreadSwitch();
-            _oalMutexLock(buffer->mutex);
+            _aaxMutexLock(buffer->mutex);
         }
         if (i >= 20000) {
             PRINT("_intBufGetNumNormal timeout\n");
@@ -494,7 +494,7 @@ _intBufGetNumNormal(_intBuffers *buffer, unsigned int id, char lock)
     else
     {
         buffer->lock_ctr++;
-        _oalMutexUnLock(buffer->mutex);
+        _aaxMutexUnLock(buffer->mutex);
     }
 # endif
 #endif
@@ -522,21 +522,21 @@ _intBufGetMaxNumNormal(_intBuffers *buffer, unsigned int id, char lock)
     assert(buffer->id == id);
 
 #ifndef _AL_NOTHREADS
-    _oalMutexLock(buffer->mutex);
+    _aaxMutexLock(buffer->mutex);
 # ifndef _AAX_PERSISTENT_GETNUM
     if (lock)
     {
         while(buffer->lock_ctr > 0)
         {
-            _oalMutexUnLock(buffer->mutex);
+            _aaxMutexUnLock(buffer->mutex);
             _aaxThreadSwitch();
-            _oalMutexLock(buffer->mutex);
+            _aaxMutexLock(buffer->mutex);
         }
     }
     else
     {
         buffer->lock_ctr++;
-        _oalMutexUnLock(buffer->mutex);
+        _aaxMutexUnLock(buffer->mutex);
     }
 # endif
 #endif
@@ -556,13 +556,13 @@ _intBufReleaseNumNormal(_intBuffers *buffer, unsigned int id, char lock)
 # ifndef _AAX_PERSISTENT_GETNUM
     if (!lock)
     {
-        _oalMutexLock(buffer->mutex);
+        _aaxMutexLock(buffer->mutex);
 
         assert(buffer->lock_ctr > 0);
         buffer->lock_ctr--;
     }
 # endif
-    _oalMutexUnLock(buffer->mutex);
+    _aaxMutexUnLock(buffer->mutex);
 }
 #endif
 
@@ -765,7 +765,7 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
         if (--buf->reference_ctr == 0)
         {
 #ifndef _AL_NOTHREADS
-            _oalMutexDestroy(buf->mutex);
+            _aaxMutexDestroy(buf->mutex);
 #endif
             rv = (void*)buf->ptr;
             free(buf);
@@ -782,7 +782,9 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
         }
     }
 
+#ifndef _AL_NOTHREADS
     _intBufReleaseNumNormal(buffer, id, 1);
+#endif
     if (num_locked) {
         _intBufGetNum(buffer, id);
     }
@@ -884,7 +886,7 @@ _intBufEraseNormal(_intBuffers **buf, unsigned int id,
         free(buffer->data);
 
 #ifndef _AL_NOTHREADS
-        _oalMutexDestroy(buffer->mutex);
+        _aaxMutexDestroy(buffer->mutex);
 #endif
         free(buffer);
         *buf = 0;
