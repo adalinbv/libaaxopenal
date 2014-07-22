@@ -839,11 +839,7 @@ _oalCtxFreeSource(void *source)
             {
                 _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
                 const _oalDevice *dev = ctx->parent_device;
-                if (src->parent == dev->lst.handle) {
-                    aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
-                } else {
-                    aaxAudioFrameDeregisterEmitter(src->parent, src->handle);
-                }
+                aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
                 src->parent = NULL;
             }
         }

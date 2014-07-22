@@ -708,34 +708,11 @@ _oalAAXGetRendererString(const void* config)
     if (!init && cfg)
     {
         const char *rstr = aaxDriverGetSetup(cfg, AAX_RENDERER_STRING);
-        unsigned int ncpu = _oalAAXGetNoCores(cfg);
-        if (ncpu == 1) {
-            snprintf(renderer, 80, "%s", rstr);
-        }
-        else
-        {
-            if (ncpu > _MAX_THREADS) ncpu = _MAX_THREADS;
-            snprintf(renderer, 80, "%s using %i cores", rstr, ncpu);
-        }
+        snprintf(renderer, 80, "%s", rstr);
         init = -1;
     }
 
     return (char*)&renderer;
-}
-
-unsigned int
-_oalAAXGetNoCores(const void* config)
-{
-    const char *enabled = getenv("OPENAL_ENABLE_MULTICORE");
-    int cores = 1;
-
-    if (!enabled || atoi(enabled))
-    {
-        aaxConfig cfg = (aaxConfig)config;
-        cores = aaxGetNoCores(cfg);
-    }
-
-    return cores;
 }
 
 /*-------------------------------------------------------------------------- */

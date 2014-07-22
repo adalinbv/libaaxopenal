@@ -452,11 +452,7 @@ alSourceStopv(ALsizei num, const ALuint *ids)
                 _oalSource *src = _intBufGetDataPtr(dptr);
 
                 aaxEmitterSetState(src->handle, AAX_STOPPED);
-                if (src->parent == dev->lst.handle) {
-                    aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
-                } else {
-                    aaxAudioFrameDeregisterEmitter(src->parent, src->handle);
-                }
+                aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
                 src->parent = NULL;
             }
         }
@@ -703,11 +699,7 @@ _oalFreeSource(void *context, void *source)
         if (src->parent)
         {
             const _oalDevice *dev = ctx->parent_device;
-            if (src->parent == dev->lst.handle) {
-                aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
-            } else {
-                aaxAudioFrameDeregisterEmitter(src->parent, src->handle);
-            }       
+            aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
             src->parent = NULL; 
         }
         aaxEmitterSetState(src->handle, AAX_STOPPED);
