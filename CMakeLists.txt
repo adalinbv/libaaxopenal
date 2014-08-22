@@ -148,9 +148,16 @@ ELSE(MSVC)
        SET(C_FLAGS "${C_FLAGS} -fPIC -Wl,--hash-style=both")
     ENDIF(NOT MINGW)
 
-    IF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
-       SET(C_FLAGS "${C_FLAGS} -march=i386")
-    ENDIF(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    IF(X86_64)
+        message("Build environment: X86_64")
+    ELSEIF(X86)
+        message("Build environment: X86")
+        SET(C_FLAGS "${C_FLAGS} -march=i386")
+    ELSEIF(ARM)
+        message("Build environment: ARM-HF")
+    ELSE()
+        message("Build environment: Other (${CMAKE_SYSTEM_PROCESSOR})")
+    ENDIF()
 
     SET(C_FLAGS "${C_FLAGS} -Werror=format-security -Wall" CACHE STRING
         "Flags used by al build types."
