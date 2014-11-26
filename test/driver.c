@@ -10,9 +10,9 @@
 # include <strings.h>
 #endif
 
+#include <aax/aax.h>
 #include <AL/alc.h>
 #include <AL/al.h>
-#include <aax.h>
 
 #include "driver.h"
 

@@ -25,9 +25,9 @@
 #include "config.h"
 #endif
 
+#include <aax/aax.h>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <aax.h>
 
 #include <base/buffers.h>
 #include <base/logging.h>

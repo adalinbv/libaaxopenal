@@ -21,12 +21,11 @@
 #ifndef _AAX_SUPPORT_H
 #define _AAX_SUPPORT_H 1
 
+#include <aax/aax.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 
 #include <base/buffers.h>
-
-#include <aax.h>
 
 typedef struct
 {
