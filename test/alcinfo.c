@@ -157,19 +157,19 @@ int main(int argc, char **argv)
 
    if (alcIsExtensionPresent(NULL, "ALC_enumerate_all_EXT") == AL_TRUE)
    {
-      s = (char *)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-      printList("Available output devices", '\0', '\n', s);
-
       s = (char *)alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
       printList("Available input devices", '\0', '\n', s);
+
+      s = (char *)alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+      printList("Available output devices", '\0', '\n', s);
    }
    else if (alcIsExtensionPresent(NULL, "ALC_enumeration_EXT") == AL_TRUE)
    {
-      s = (char *)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-      printList("Available output backends", '\0', '\n', s);
-
       s = (char *)alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
       printList("Available input backends", '\0', '\n', s);
+
+      s = (char *)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+      printList("Available output backends", '\0', '\n', s);
    }
 
    s = getDeviceName(argc, argv);
@@ -182,10 +182,7 @@ int main(int argc, char **argv)
    alcMakeContextCurrent(context);
    testForALCError(device);
 
-   s = (char *)alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER);
-   printf("Default output device: %s\n", s);
-   testForALCError(device);
-
+   printf("\n");
    error = alcIsExtensionPresent(device, "ALC_EXT_capture");
    if (error)
    {
@@ -193,7 +190,12 @@ int main(int argc, char **argv)
       printf("Default input device:  %s\n", s);
       testForALCError(device);
    }
-   printf("capture support: %s\n", (error) ? "yes" : "no");
+   printf("capture support: %s\n\n", (error) ? "yes" : "no");
+
+
+   s = (char *)alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER);
+   printf("Default output device: %s\n", s);
+   testForALCError(device);
 
    alcGetIntegerv(device, ALC_FREQUENCY, 1, data);
    printf("mixer frequency: %u hz\n", data[0]);
