@@ -1,7 +1,7 @@
 /* -*- mode: C; tab-width:8; c-basic-offset:8 -*-
  * vi:set ts=8:
  *
- * alcinfo.x
+ * alcinfo.c
  *
  * alcinfo display info about a ALC extension and OpenAL renderer
  *
@@ -183,14 +183,14 @@ int main(int argc, char **argv)
    testForALCError(device);
 
    s = (char *)alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER);
-   printf("Current output device: %s\n", s);
+   printf("Default output device: %s\n", s);
    testForALCError(device);
 
    error = alcIsExtensionPresent(device, "ALC_EXT_capture");
    if (error)
    {
       s = (char *)alcGetString(device, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
-      printf("Current input device:  %s\n", s);
+      printf("Default input device:  %s\n", s);
       testForALCError(device);
    }
    printf("capture support: %s\n", (error) ? "yes" : "no");

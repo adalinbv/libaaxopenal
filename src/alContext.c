@@ -505,7 +505,8 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         if (device == 0) {
             retstr = (char *)_oalAAXGetDeviceSpecifiersAll(AAX_MODE_READ);
         }
-        else {
+        else
+        {
             aaxConfig config = dev->lst.handle;
             retstr = (char *)aaxDriverGetRenderer(config);
         }
@@ -514,7 +515,8 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         if (device == 0) {
             retstr = (char *)_oalAAXGetDriverSpecifiers(AAX_MODE_WRITE_STEREO);
         }
-        else {
+        else
+        {
             aaxConfig config = dev->lst.handle;
             retstr = (char *)aaxDriverGetRenderer(config);
         }
@@ -523,25 +525,34 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         if (device == 0) {
             retstr = (char *)_oalAAXGetDeviceSpecifiersAll(AAX_MODE_WRITE_STEREO);
         }
-        else {
+        else
+        {
             aaxConfig config = dev->lst.handle;
             retstr = (char *)aaxDriverGetRenderer(config);
         }
         break;
     case ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER:
-    {
-        aaxConfig config = aaxDriverGetDefault(AAX_MODE_READ);
-        retstr = (char *)aaxDriverGetRenderer(config);
-        aaxDriverDestroy(config);
+        {
+            static char renderer[128];
+            aaxConfig config = aaxDriverGetByName(NULL, AAX_MODE_READ);
+            retstr = (char *)aaxDriverGetSetup(config, AAX_RENDERER_STRING);
+            snprintf(renderer, 128, "%s", retstr);
+            renderer[127] = '\0';
+            aaxDriverDestroy(config);
+            retstr = renderer;
+        }
         break;
-    }
     case ALC_DEFAULT_DEVICE_SPECIFIER:
-    {
-        aaxConfig config = aaxDriverGetDefault(AAX_MODE_WRITE_STEREO);
-        retstr = (char *)aaxDriverGetRenderer(config);
-        aaxDriverDestroy(config);
+        {
+            static char renderer[128];
+            aaxConfig config = aaxDriverGetByName(NULL, AAX_MODE_WRITE_STEREO);
+            retstr = (char *)aaxDriverGetSetup(config, AAX_RENDERER_STRING);
+            snprintf(renderer, 128, "%s", retstr);
+            renderer[127] = '\0';
+            aaxDriverDestroy(config);
+            retstr = renderer;
+        }
         break;
-    }
     default:
         _oalContextSetError(ALC_INVALID_ENUM);
     }
