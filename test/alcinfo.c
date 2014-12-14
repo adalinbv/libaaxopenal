@@ -151,7 +151,7 @@ int main(int argc, char **argv)
    ALCdevice *device = NULL;
    ALCcontext *context = NULL;
    ALenum error;
-   char *s;
+   char *s, *d;
 
    maximumWidth = terminalWidth()-1;
 
@@ -172,8 +172,8 @@ int main(int argc, char **argv)
       printList("Available output backends", '\0', '\n', s);
    }
 
-   s = getDeviceName(argc, argv);
-   device = alcOpenDevice(s);
+   d = getDeviceName(argc, argv);
+   device = alcOpenDevice(d);
    testForError(device, "Audio device not available.");
 
    context = alcCreateContext(device, NULL);
@@ -182,7 +182,6 @@ int main(int argc, char **argv)
    alcMakeContextCurrent(context);
    testForALCError(device);
 
-   printf("\n");
    error = alcIsExtensionPresent(device, "ALC_EXT_capture");
    if (error)
    {
@@ -190,12 +189,14 @@ int main(int argc, char **argv)
       printf("Default input device:  %s\n", s);
       testForALCError(device);
    }
-   printf("capture support: %s\n\n", (error) ? "yes" : "no");
-
 
    s = (char *)alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER);
    printf("Default output device: %s\n", s);
    testForALCError(device);
+
+   printf("capture support: %s\n\n", (error) ? "yes" : "no");
+
+   printf("Device info for: %s\n", d);
 
    alcGetIntegerv(device, ALC_FREQUENCY, 1, data);
    printf("mixer frequency: %u hz\n", data[0]);
