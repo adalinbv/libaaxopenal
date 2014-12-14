@@ -194,9 +194,8 @@ int main(int argc, char **argv)
    printf("Default output device: %s\n", s);
    testForALCError(device);
 
-   printf("capture support: %s\n\n", (error) ? "yes" : "no");
-
-   printf("Device info for: %s\n", d);
+   printf("\nDevice info for: %s\n", d ? d : s);
+   printf("capture support: %s\n", (error) ? "yes" : "no");
 
    alcGetIntegerv(device, ALC_FREQUENCY, 1, data);
    printf("mixer frequency: %u hz\n", data[0]);
