@@ -1,3 +1,10 @@
+/* -*- mode: C; tab-width:8; c-basic-offset:8 -*-
+ * vi:set ts=8:
+ *
+ * This file is in the Public Domain and comes with no warranty.
+ * Erik Hofman <erik@ehofman.com>
+ *
+ */
 #ifndef __DRIVER_H_
 #define __DRIVER_H_
 

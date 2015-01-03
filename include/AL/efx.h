@@ -1,3 +1,10 @@
+/*
+ * al.h : OpenAL header definitions.
+ * 
+ * (C) Copyright 2005-2013 by Adalin B.V.
+ * (C) Copyright 2007-2013 by Erik Hofman
+ *
+ */
 
 #ifndef __efx_h
 #define __efx_h 1
