@@ -275,16 +275,26 @@ IF(ROUTER_COMPONENT)
           RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Router
          )
 
-  SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+  SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "!include 'x64.nsh'
+    ${If} ${RunningX64}
+      IfFileExists \\\"$INSTDIR\\\\bin\\\\${LIBROUTERDRIVER}.dll\\\" 0 next1
+        CopyFiles \\\"$INSTDIR\\\\bin\\\\${LIBROUTERDRIVER}.dll\\\" \\\"$WINDIR\\\\SysWOW64\\\\${LIBROUTERDRIVER}.dll\\\"
+    ${Else}
       IfFileExists \\\"$INSTDIR\\\\bin\\\\${LIBROUTERDRIVER}.dll\\\" 0 next1
         CopyFiles \\\"$INSTDIR\\\\bin\\\\${LIBROUTERDRIVER}.dll\\\" \\\"$SYSDIR\\\\${LIBROUTERDRIVER}.dll\\\"
-      next1:
-      ")
-  SET(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-         IfFileExists \\\"$SYSDIR\\\\${LIBROUTERDRIVER}.dll\\\" 0 next2
-           Delete \\\"$SYSDIR\\\\${LIBROUTERDRIVER}.dll\\\"
-         next2:
-      ")
+    ${EndIf}
+    next1:
+    ")
+  SET(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "!include 'x64.nsh'
+    ${If} ${RunningX64}
+      IfFileExists \\\"$WINDIR\\\\SysWOW64\\\\${LIBROUTERDRIVER}.dll\\\" 0 next2
+        Delete \\\"$WINDIR\\\\SysWOW64\\\\${LIBROUTERDRIVER}.dll\\\"
+    ${Else}
+      IfFileExists \\\"$SYSDIR\\\\${LIBROUTERDRIVER}.dll\\\" 0 next2
+        Delete \\\"$SYSDIR\\\\${LIBROUTERDRIVER}.dll\\\"
+    ${EndIf}
+    next2:
+    ")
 # IF(EXISTS "C:/WINDOWS/System32/OpenAL32.dll")
 #   INSTALL(FILES C:/WINDOWS/System32/OpenAL32.dll
 #           DESTINATION "${CMAKE_INSTALL_BINDIR}"
