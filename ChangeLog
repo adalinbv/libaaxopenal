@@ -1,7 +1,5 @@
-* Sat Dec 13 2014 - tech@adalin.org
+* Tue Feb 24 2015 - tech@adalin.org
 - Fix a problem when calling alcGetString with ALC_(CAPTURE_DEFAULT_)DEVICE_SPECIFIER: the results of aaxDriverGetSetup(config, AAX_RENDERER_STRING) should be cached before calling aaxDriverDestroy(config).
-
-* Thu Mar 13 2014 - tech@adalin.org
 - Set the default distance model for emitters (again)
 - Remove code that uses multiple audio-frames for threading, AeonWave now supports a different threading model which doesn't require this hack.
 
