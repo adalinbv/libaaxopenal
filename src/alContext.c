@@ -124,7 +124,9 @@ alcCloseDevice(ALCdevice *device)
             _intBufErase(&d->buffers, _OAL_BUFFER, _oalFreeBuffer);
             free(d);
 
-            _intBufErase(&_oalDevices, _OAL_DEVICE, free);
+            if (_intBufGetNumNoLock(_oalDevices, _OAL_DEVICE) == 0) {
+                _intBufErase(&_oalDevices, _OAL_DEVICE, free);
+            }
 
             return ALC_TRUE;
         }
