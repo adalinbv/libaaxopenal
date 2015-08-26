@@ -102,10 +102,11 @@ int main(int argc, char **argv)
          alSourcei(source[0], AL_BUFFER, buffer);
          alSourcei(source[0], AL_LOOPING, AL_TRUE);
          alSourcei(source[0], AL_SOURCE_RELATIVE, AL_FALSE);
-         alSourcefv(source[0], AL_DIRECTION, SourceDir);
          testForALError();
 
          alSourcefv(source[0], AL_POSITION, SourcePos);
+         alSourcefv(source[0], AL_VELOCITY, SourceVel);
+         alSourcefv(source[0], AL_DIRECTION, SourceDir);
          testForALError();
 
          /* set listener values */
