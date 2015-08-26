@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
          alGetError();
          alGenBuffers(1, &buffer);
-         alBufferData(buffer, format, data, no_samples*bps>>3, freq);
+         alBufferData(buffer, format, data, no_samples*channels*bps>>3, freq);
          free(data);
          testForALError();
          alGenSources(1, &source);
