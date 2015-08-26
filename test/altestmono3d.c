@@ -42,10 +42,11 @@
 #define FILE_PATH		SRC_PATH"/tictac.wav"
 #define RADIUS			20.0
 
-ALfloat SourcePos[] = { 0.0, 100.0, 0.0 };
+ALfloat SourcePos[] = { 0.0, -100.0, 0.0 };
+ALfloat SourceDir[] = { 0.0, 0.0, 0.0 };
 ALfloat SourceVel[] = { 0.0, 0.0, 0.0 };
 
-ALfloat ListenerPos[] = { RADIUS, 100.0, 0.0 };
+ALfloat ListenerPos[] = { 0.0, -100.0, 0.0 };
 ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
 ALfloat ListenerOri[] = { 0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f };
 
@@ -104,13 +105,14 @@ int main(int argc, char **argv)
          pitch = getPitch(argc, argv);
          alSourcei(source[0], AL_BUFFER, buffer);
          alSourcei(source[0], AL_LOOPING, AL_TRUE);
-         alSourcei(source[0], AL_SOURCE_RELATIVE, AL_TRUE);
-         alSourcef(source[0], AL_REFERENCE_DISTANCE, 50.0);
+         alSourcei(source[0], AL_SOURCE_RELATIVE, AL_FALSE);
+         alSourcef(source[0], AL_REFERENCE_DISTANCE, 5.0);
          alSourcef(source[0], AL_PITCH, pitch);
          testForALError();
 
          SourcePos[2] = -r;
          alSourcefv(source[0], AL_POSITION, SourcePos);
+         alSourcefv(source[0], AL_DIRECTION, SourceVel);
          testForALError();
 
          /* set listener values */
