@@ -44,7 +44,7 @@ ALfloat SourcePos[] = { 100.0, 100.0, 0.0 };
 ALfloat SourceVel[] = { -10.0, 0.0, 0.0 };
 
 ALfloat ListenerPos[] = { 0.0, 100.0, 0.0 };
-ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
+ALfloat ListenerVel[] = { 1.0, 0.0, 0.0 };
 ALfloat ListenerOri[] = { 0.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f };
 
 
@@ -109,23 +109,20 @@ int main(int argc, char **argv)
          dist = 100.0f;
          while(dist > -100)
          {
-            ALfloat pos[3];
-
             msecSleep(50);
 
+            ListenerPos[0] = 0.1f*(-50.0f-dist);
             SourcePos[0] = dist;
             dist -= 0.33f;
 #if 1
-            printf("dist: %5.4f\tpos (% f, % f, % f)\n", dist,
+            printf("dist: %5.4f\tlst: % 3.2f % 3.2f % 3.2f, src: % 3.2f, % 3.2f, % 3.2f)\n",
+                     ListenerPos[1] - ListenerPos[0],
+                     ListenerPos[0], ListenerPos[1], ListenerPos[2],
                      SourcePos[0], SourcePos[1], SourcePos[2]);
 #endif
 
-            pos[0] = SourcePos[0] - ListenerPos[0];
-            pos[1] = SourcePos[1] - ListenerPos[1];
-            pos[2] = SourcePos[2] - ListenerPos[2];
-
-            alSourcefv(source[1], AL_POSITION, pos);
-
+            alSourcefv(source[1], AL_POSITION, SourcePos);
+            alListenerfv(AL_POSITION, ListenerPos);
          };
 
          alSourceStop(source[1]);
