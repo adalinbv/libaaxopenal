@@ -121,6 +121,81 @@ ALC_API void ALCEXT_APIENTRY alcRenderSamplesSOFT(ALCdevice *device, ALCvoid *bu
 #endif
 
 
+#ifndef ALC_EXT_ASA
+#define ALC_EXT_ASA 1
+#define ALC_ASA_REVERB_ON			'rvon'
+#define ALC_ASA_REVERB_GLOBAL_LEVEL		'rvgl'
+#define ALC_ASA_REVERB_ROOM_TYPE		'rvrt'
+#define ALC_ASA_REVERB_ROOM_TYPE_SmallRoom	0
+#define ALC_ASA_REVERB_ROOM_TYPE_MediumRoom	1
+#define ALC_ASA_REVERB_ROOM_TYPE_LargeRoom	2
+#define ALC_ASA_REVERB_ROOM_TYPE_MediumHall	3
+#define ALC_ASA_REVERB_ROOM_TYPE_LargeHall	4
+#define ALC_ASA_REVERB_ROOM_TYPE_Plate		5
+#define ALC_ASA_REVERB_ROOM_TYPE_MediumChamber	6
+#define ALC_ASA_REVERB_ROOM_TYPE_LargeChamber	7
+#define ALC_ASA_REVERB_ROOM_TYPE_Cathedral	8
+#define ALC_ASA_REVERB_ROOM_TYPE_LargeRoom2	9
+#define ALC_ASA_REVERB_ROOM_TYPE_MediumHall2	10
+#define ALC_ASA_REVERB_ROOM_TYPE_MediumHall3	11
+#define ALC_ASA_REVERB_ROOM_TYPE_LargeHall2	12
+#define ALC_ASA_REVERB_PRESET			'rvps'
+#define ALC_ASA_REVERB_EQ_GAIN			'rveg'
+#define ALC_ASA_REVERB_EQ_BANDWITH		'rveb'
+#define ALC_ASA_REVERB_EQ_FREQ			'rvef'
+#define ALC_ASA_REVERB_QUALITY			'rvqt'
+#define ALC_ASA_REVERB_QUALITY_Max		0x7F
+#define ALC_ASA_REVERB_QUALITY_High		0x60
+#define ALC_ASA_REVERB_QUALITY_Medium		0x40
+#define ALC_ASA_REVERB_QUALITY_Low		0x20
+#define ALC_ASA_REVERB_QUALITY_Min		0
+
+#define ALC_ASA_REVERB_SEND_LEVEL		'rvsl'
+#define ALC_ASA_OCCLUSION			'occl'
+#define ALC_ASA_OBSTRUCTION			'obst'
+
+ALC_API ALenum ALCEXT_APIENTRY alcASAGetSource(ALuint property, ALuint source, ALvoid *data, ALuint* dataSize);
+ALC_API ALenum  ALCEXT_APIENTRY alcASASetSource(ALuint property, ALuint source, ALvoid *data, ALuint dataSize);
+ALC_API ALenum  ALCEXT_APIENTRY alcASAGetListener(ALuint property, ALvoid *data, ALuint* dataSize);
+ALC_API ALenum  ALCEXT_APIENTRY alcASASetListener(ALuint property, ALvoid *data, ALuint dataSize);
+
+typedef ALenum  (*alcASAGetSourceProcPtr) (ALuint property, ALuint source, ALvoid *data, ALuint* dataSize);
+typedef ALenum  (*alcASASetSourceProcPtr) (ALuint property, ALuint source, ALvoid *data, ALuint dataSize);
+typedef ALenum  (*alcASAGetListenerProcPtr) (ALuint property, ALvoid *data, ALuint* dataSize);
+typedef ALenum  (*alcASASetListenerProcPtr) (ALuint property, ALvoid *data, ALuint dataSize);
+#endif
+
+#ifndef ALC_EXT_ASA_DISTORTION
+#define ALC_EXT_ASA_DISTORTION
+#define ALC_ASA_DISTORTION_ENABLE		'dsen'
+#define ALC_ASA_DISTORTION_ON			'dson'
+#define ALC_ASA_DISTORTION_MIX			'dsmx'
+#define ALC_ASA_DISTORTION_TYPE			'dstp'
+#define ALC_ASA_DISTORTION_PRESET		'dsps'
+#define ALC_ASA_DISTORTION_TYPE_BitBrush	    0
+#define ALC_ASA_DISTORTION_TYPE_BufferBeats	    1
+#define ALC_ASA_DISTORTION_TYPE_LoFi		    2
+#define ALC_ASA_DISTORTION_TYPE_BrokenSpeaker	    3
+#define ALC_ASA_DISTORTION_TYPE_Cellphone	    4
+#define ALC_ASA_DISTORTION_TYPE_Decimated1	    5
+#define ALC_ASA_DISTORTION_TYPE_Decimated2	    6
+#define ALC_ASA_DISTORTION_TYPE_Decimated3	    7
+#define ALC_ASA_DISTORTION_TYPE_Decimated4	    8
+#define ALC_ASA_DISTORTION_TYPE_DistortedFunk	    9
+#define ALC_ASA_DISTORTION_TYPE_DistortionCubed	   10
+#define ALC_ASA_DISTORTION_TYPE_DistortionSquared  11
+#define ALC_ASA_DISTORTION_TYPE_Echo1		   12
+#define ALC_ASA_DISTORTION_TYPE_Echo2		   13
+#define ALC_ASA_DISTORTION_TYPE_EchoTight1	   14
+#define ALC_ASA_DISTORTION_TYPE_EchoTight2	   15
+#define ALC_ASA_DISTORTION_TYPE_EverythingBroken   16
+#define ALC_ASA_DISTORTION_TYPE_AlienChatter	   17
+#define ALC_ASA_DISTORTION_TYPE_CosmicInteference  18
+#define ALC_ASA_DISTORTION_TYPE_GoldenPi	   19
+#define ALC_ASA_DISTORTION_TYPE_RadioTower	   20
+#define ALC_ASA_DISTORTION_TYPE_Waves		   21
+#endif
+
 #if defined(__cplusplus)
 }
 #endif
