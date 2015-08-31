@@ -55,5 +55,7 @@ unsigned int _oalOffsetInSamplesToAAXOffset(unsigned int, unsigned);
 unsigned long _oalAAXOffsetToOffsetInBytes(unsigned int, unsigned, enum aaxFormat);
 unsigned int _oalAAXOffsetToOffsetInSamples(unsigned int, unsigned);
 
+void _oalSetReverb(aaxConfig, float, float, float, float, float);
+
 #endif
 

@@ -715,6 +715,13 @@ _oalAAXGetRendererString(const void* config)
     return (char*)&renderer;
 }
 
+void
+_oalSetReverb(aaxConfig config, float pre_delay_time, float reflection_time, float reflection_factor, float decay_time, float decay_time_hf)
+{
+// AAX_CUTOFF_FREQUENCY, AAX_DELAY_DEPTH, AAX_DECAY_LEVEL, AAX_DECAY_DEPTH
+// TODO:
+}
+
 /*-------------------------------------------------------------------------- */
 
 /**
@@ -734,7 +741,7 @@ static const char* aaxExtensions[] =
 //"AL_AAX_environment",
   "AL_AAX_distance_delay_model",
   "AL_AAX_frequency_filter",
-//"AL_AAX_reverb",
+  "AL_AAX_reverb",
 
   NULL				/* always last */
 };

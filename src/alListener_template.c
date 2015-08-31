@@ -105,7 +105,6 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
                 aaxScenerySetFrequencyFilter(config, (float)values[0],
                                             (float)values[1], (float)values[2]);
                 break;
-
             /* AL_AAX_environment */
             case AL_SCENE_DIMENSIONS_AAX:
             case AL_SCENE_CENTER_AAX:
@@ -162,6 +161,30 @@ ALLISTENER(N)(ALenum attrib, T value)
             break;
         case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
             aaxScenerySetFrequencyFilter(config, fval, AAX_FPNONE, AAX_FPNONE);
+            break;
+        /* AL_AAX_reverb */
+        case AL_REVERB_ENABLE_AAX:
+        {
+            aaxEffect e = aaxMixerGetEffect(config, AAX_REVERB_EFFECT);
+            aaxEffectSetState(e, value ? AAX_TRUE : AAX_FALSE);
+            aaxMixerSetEffect(config, e);
+            aaxEffectDestroy(e);
+            break;
+        }
+        case AL_REVERB_PRE_DELAY_TIME_AAX:
+            _oalSetReverb(config, fval, AAX_FPNONE, AAX_FPNONE, AAX_FPNONE, AAX_FPNONE);
+            break;
+        case AL_REVERB_REFLECTION_TIME_AAX:
+            _oalSetReverb(config, AAX_FPNONE, fval, AAX_FPNONE, AAX_FPNONE, AAX_FPNONE);
+            break;
+        case AL_REVERB_REFLECTION_FACTOR_AAX:
+            _oalSetReverb(config, AAX_FPNONE, AAX_FPNONE, fval, AAX_FPNONE, AAX_FPNONE);
+            break;
+        case AL_REVERB_DECAY_TIME_AAX:
+            _oalSetReverb(config, AAX_FPNONE, AAX_FPNONE, AAX_FPNONE, fval, AAX_FPNONE);
+            break;
+        case AL_REVERB_DECAY_TIME_HF_AAX:
+            _oalSetReverb(config, AAX_FPNONE, AAX_FPNONE, AAX_FPNONE,  AAX_FPNONE, fval);
             break;
         /* AL_AAX_environment */
         case AL_SCENE_LENGTH_AAX:

@@ -1,3 +1,7 @@
+* Fri Aug 21 2015 - tech@adalin.org
+- Fix a possible crash at exit when uding more than one device.
+- Treat "\0", "AeonWave" (and "DirectSound3D", "DirectSound" and "MMSYSTEM") as a request for the Default sound output.
+
 * Tue Feb 24 2015 - tech@adalin.org
 - Fix a problem when calling alcGetString with ALC_(CAPTURE_DEFAULT_)DEVICE_SPECIFIER: the results of aaxDriverGetSetup(config, AAX_RENDERER_STRING) should be cached before calling aaxDriverDestroy(config).
 - Set the default distance model for emitters (again)

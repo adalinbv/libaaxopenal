@@ -77,6 +77,21 @@ alcOpenDevice(const ALCchar *name)
         }
     }
 
+    /**
+     * Treat "\0", "AeonWave" (and "DirectSound3D", "DirectSound"
+     * and "MMSYSTEM") as a request for the Default sound output
+     */
+    if (name && (name[0] == '\0' || !strcasecmp(name, "AeonWave")
+#if _WIN32
+        || !strcasecmp(name, "DirectSound3D")
+        || !strcasecmp(name, "DirectSound")
+        || !strcasecmp(name, "MMSYSTEM")
+#endif
+        ))
+    {
+        name = NULL;
+    }
+
     handle = aaxDriverOpenByName(name, AAX_MODE_WRITE_STEREO);
     if (handle != NULL)
     {
@@ -238,7 +253,7 @@ alcMakeContextCurrent(ALCcontext *context)
             _oalContextSetError(ALC_INVALID_CONTEXT);
         }
     }
-    else
+    else if (_oalDevices)
     {
         unsigned int num, i;
 

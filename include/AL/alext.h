@@ -262,10 +262,6 @@ ALEXT_API ALboolean ALEXT_APIENTRY alIsBufferFormatSupportedSOFT(ALenum format);
 #define AL_REVERB_REFLECTION_FACTOR_AAX		0x27000B
 #define AL_REVERB_DECAY_TIME_AAX		0x27000C
 #define AL_REVERB_DECAY_TIME_HF_AAX		0x27000D
-
-ALEXT_API void ALEXT_APIENTRY alReverbfAAX(ALenum attirb, ALfloat value);
-ALEXT_API void ALEXT_APIENTRY alReverbvfAAX(ALenum attrib, ALfloat *values);
-ALEXT_API void ALEXT_APIENTRY alReverbiAAX(ALenum attrib, ALint value);
 #endif
 
 #ifndef AL_AAX_distance_delay_model

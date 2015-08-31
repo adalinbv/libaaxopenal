@@ -105,6 +105,13 @@ typedef struct
     aaxVec3f pos, at, up;
     void *buf;
 
+    struct
+    {
+        float pre_delay_time;
+        float decay_time, decay_time_hf;
+        float reflection_time, reflection_factor;
+    } reverb;
+
 } _oalListener;
 
 /* --- Source -- */

@@ -30,6 +30,7 @@
 
 #include <base/types.h>
 
+#include "aax_support.h"
 #include "api.h"
 
 _oalListener* _oalGetListeners(_oalContext *);

@@ -80,7 +80,7 @@ int main(int argc, char **argv)
       if(data)
       {
          ALenum format, capture_fmt;
-         ALuint buffer, source[1];
+         ALuint buffer[2], source[1];
          ALint q, status;
 
          if      ((no_bits == 4) && (tracks == 1)) format = AL_FORMAT_MONO_IMA4;
@@ -93,10 +93,10 @@ int main(int argc, char **argv)
 
          /* generate a new buffer */
          alGetError();
-         alGenBuffers(1, &buffer);
+         alGenBuffers(2, buffer);
 
          /* fill the buffer with the previously read audio data */
-         alBufferData(buffer, format, data, no_samples*tracks*no_bits/8, freq);
+         alBufferData(buffer[0], format, data, no_samples*tracks*no_bits/8, freq);
          free(data);
 
          testForALError();
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
          testForALError();
 
          /* assing the buffer to the source */
-         alSourcei(source[0], AL_BUFFER, buffer);
+         alSourcei(source[0], AL_BUFFER, buffer[0]);
          alSourcePlay(source[0]);
          testForALError();
 
@@ -185,10 +185,13 @@ int main(int argc, char **argv)
              /* retrieve some or all of the available captured samples */
              alcCaptureSamples(device, data, no_samples);
 
-             alBufferData(buffer,format,data,no_samples*tracks*no_bits/8,freq);
+printf(">>>>>>>>>>>>>>>>>>\n");
+             alBufferData(buffer[1],format,data,no_samples*tracks*no_bits/8,freq);
+printf("<<<<<<<<<<<<<<<<<<\n");
              free(data);
 
-             alSourcei(source[0], AL_BUFFER, buffer);
+             alSourcei(source[0], AL_BUFFER, 0); // detach the associated buffer
+             alSourcei(source[0], AL_BUFFER, buffer[1]);
              alSourcePlay(source[0]);
 
              do
@@ -203,7 +206,7 @@ int main(int argc, char **argv)
          }
 
          alDeleteSources(1, source);
-         alDeleteBuffers(1, &buffer);
+         alDeleteBuffers(2, buffer);
       }
    }
 
