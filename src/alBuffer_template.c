@@ -35,6 +35,8 @@
 # define ALGETBUFFER3(NAME)	__ALGETBUFFER3(NAME)
 # define ALGETBUFFER(NAME)	__ALGETBUFFER(NAME)
 
+#define IMA4_SMP_TO_BLOCKSIZE(a)	(((a)/2)+4)
+
 AL_API void AL_APIENTRY
 ALBUFFER3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
 {
@@ -100,10 +102,17 @@ ALBUFFER(N)(ALuint id, ALenum attrib, T value)
     if (dptr)
     {
         aaxBuffer buf = _intBufGetDataPtr(dptr);
+        int res = 1;
         switch (attrib)
         {
         case AL_FREQUENCY:
-            aaxBufferSetFrequency(buf, (unsigned)value);
+            res = aaxBufferSetSetup(buf, AAX_FREQUENCY, (unsigned)value);
+            break;
+        /* AL_SOFT_block_alignment */
+        case AL_UNPACK_BLOCK_ALIGNMENT_SOFT:
+        case AL_PACK_BLOCK_ALIGNMENT_SOFT:
+            res = aaxBufferSetSetup(buf, AAX_BLOCK_ALIGNMENT,
+                                    IMA4_SMP_TO_BLOCKSIZE( (unsigned)value ));
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);

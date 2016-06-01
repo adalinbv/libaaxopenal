@@ -359,6 +359,12 @@ typedef void (AL_APIENTRY*LPALGETSOURCE3I64SOFT)(ALuint,ALenum,ALint64SOFT*,ALin
 typedef void (AL_APIENTRY*LPALGETSOURCEI64VSOFT)(ALuint,ALenum,ALint64SOFT*);
 #endif
 
+#ifndef AL_SOFT_block_alignment
+#define AL_SOFT_block_alignment 1
+# define AL_UNPACK_BLOCK_ALIGNMENT_SOFT		0x200C
+# define AL_PACK_BLOCK_ALIGNMENT_SOFT		0x200D
+#endif
+
 
 #if defined(__cplusplus)
 }

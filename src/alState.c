@@ -376,6 +376,7 @@ static const char* _oalExtensions[] =
   "AL_EXT_loop_points",
   "AL_EXT_source_distance_model",
   "AL_SOFT_source_latency",
+  "AL_SOFT_block_alignment",
 
   NULL					/* always last */
 };
