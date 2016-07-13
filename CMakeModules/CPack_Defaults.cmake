@@ -116,7 +116,7 @@ ELSE(WIN32)
   )
 
   EXECUTE_PROCESS(COMMAND "cp" -f -p ChangeLog debian/ChangeLog
-                  COMMAND "gzip" -f -9 debian/ChangeLog
+                  COMMAND "gzip" -n -f -9 debian/ChangeLog
                   WORKING_DIRECTORY ${aaxopenal_SOURCE_DIR}
                   RESULT_VARIABLE varRes)
   INSTALL(FILES
