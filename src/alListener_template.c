@@ -102,9 +102,16 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
                 break;
             /* AL_AAX_frequency_filter */
             case AL_FREQUENCY_FILTER_PARAMS_AAX:
-                aaxScenerySetFrequencyFilter(config, (float)values[0],
-                                            (float)values[1], (float)values[2]);
+            {
+                aaxFilter flt;
+                flt = aaxSceneryGetFilter(config, AAX_FREQUENCY_FILTER);
+                aaxFilterSetParam(flt, AAX_CUTOFF_FREQUENCY, AAX_LINEAR, (float)values[0]);
+                aaxFilterSetParam(flt, AAX_LF_GAIN, AAX_LINEAR, (float)values[1]);
+                aaxFilterSetParam(flt, AAX_HF_GAIN, AAX_LINEAR, (float)values[2]);
+                aaxScenerySetFilter(config, flt);
+                aaxFilterDestroy(flt);
                 break;
+            }
             /* AL_AAX_environment */
             case AL_SCENE_DIMENSIONS_AAX:
             case AL_SCENE_CENTER_AAX:
@@ -133,12 +140,16 @@ ALLISTENER(N)(ALenum attrib, T value)
     {
         aaxConfig config = lst->handle;
         float fval = (float)value;
+        aaxFilter flt;
 
         switch(attrib)
         {
         case AL_GAIN:
         if (value >= 0) {
-             aaxMixerSetGain(config, value);
+            flt = aaxMixerGetFilter(config, AAX_VOLUME_FILTER);
+            aaxFilterSetParam(flt, AAX_GAIN, value, AAX_LINEAR);
+            aaxMixerSetFilter(config, flt);
+            aaxFilterDestroy(flt);
         }
         else {
             _oalStateSetError(AL_INVALID_VALUE);
@@ -146,21 +157,28 @@ ALLISTENER(N)(ALenum attrib, T value)
         break;
         /* AL_AAX_frequency_filter */
         case AL_FREQUENCY_FILTER_ENABLE_AAX:
-        {
-            aaxFilter f = aaxSceneryGetFilter(config, AAX_FREQUENCY_FILTER);
-            aaxFilterSetState(f, value ? AAX_TRUE : AAX_FALSE);
-            aaxScenerySetFilter(config, f);
-            aaxFilterDestroy(f);
+            flt = aaxSceneryGetFilter(config, AAX_FREQUENCY_FILTER);
+            aaxFilterSetState(flt, value ? AAX_TRUE : AAX_FALSE);
+            aaxScenerySetFilter(config, flt);
+            aaxFilterDestroy(flt);
             break;
-        }
         case AL_FREQUENCY_FILTER_GAINLF_AAX:
-            aaxScenerySetFrequencyFilter(config, AAX_FPNONE, fval, AAX_FPNONE);
+            flt = aaxSceneryGetFilter(config, AAX_FREQUENCY_FILTER);
+            aaxFilterSetParam(flt, AAX_LF_GAIN, fval, AAX_LINEAR);
+            aaxScenerySetFilter(config, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_FREQUENCY_FILTER_GAINHF_AAX:
-            aaxScenerySetFrequencyFilter(config, AAX_FPNONE, AAX_FPNONE, fval);
+            flt = aaxSceneryGetFilter(config, AAX_FREQUENCY_FILTER);
+            aaxFilterSetParam(flt, AAX_HF_GAIN, fval, AAX_LINEAR);
+            aaxScenerySetFilter(config, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
-            aaxScenerySetFrequencyFilter(config, fval, AAX_FPNONE, AAX_FPNONE);
+            flt = aaxSceneryGetFilter(config, AAX_FREQUENCY_FILTER);
+            aaxFilterSetParam(flt, AAX_CUTOFF_FREQUENCY, fval, AAX_LINEAR);
+            aaxScenerySetFilter(config, flt);
+            aaxFilterDestroy(flt);
             break;
         /* AL_AAX_reverb */
         case AL_REVERB_ENABLE_AAX:
@@ -288,8 +306,12 @@ ALGETLISTENER(N)(ALenum attrib, T *value)
         switch(attrib)
         {
         case AL_GAIN:
-            *value = (T)aaxMixerGetGain(config);
+        {
+            aaxFilter flt = aaxMixerGetFilter(config, AAX_VOLUME_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_GAIN, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
+        }
         case AL_SCENE_LENGTH_AAX:
         case AL_SCENE_WIDTH_AAX:
         case AL_SCENE_HEIGHT_AAX:

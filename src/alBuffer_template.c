@@ -71,7 +71,8 @@ ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
         switch (attrib)
         {
         case AL_LOOP_POINTS:
-            aaxBufferSetLoopPoints(buf,(unsigned)values[0],(unsigned)values[1]);
+            aaxBufferSetSetup(buf, AAX_LOOP_START, (unsigned)values[0]);
+            aaxBufferSetSetup(buf, AAX_LOOP_END, (unsigned)values[1]);
             break;
         default:
             ALBUFFER(N)(id, attrib, *values);
@@ -102,17 +103,16 @@ ALBUFFER(N)(ALuint id, ALenum attrib, T value)
     if (dptr)
     {
         aaxBuffer buf = _intBufGetDataPtr(dptr);
-        int res = 1;
         switch (attrib)
         {
         case AL_FREQUENCY:
-            res = aaxBufferSetSetup(buf, AAX_FREQUENCY, (unsigned)value);
+            aaxBufferSetSetup(buf, AAX_FREQUENCY, (unsigned)value);
             break;
         /* AL_SOFT_block_alignment */
         case AL_UNPACK_BLOCK_ALIGNMENT_SOFT:
         case AL_PACK_BLOCK_ALIGNMENT_SOFT:
-            res = aaxBufferSetSetup(buf, AAX_BLOCK_ALIGNMENT,
-                                    IMA4_SMP_TO_BLOCKSIZE( (unsigned)value ));
+            aaxBufferSetSetup(buf, AAX_BLOCK_ALIGNMENT,
+                                   IMA4_SMP_TO_BLOCKSIZE( (unsigned)value ));
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -188,16 +188,17 @@ ALGETBUFFER(N)(ALuint id, ALenum attrib, T *value)
         switch (attrib)
         {
         case AL_FREQUENCY:
-            *value = (T)aaxBufferGetFrequency(buf);
+            *value = (T)aaxBufferGetSetup(buf, AAX_FREQUENCY);
             break;
         case AL_SIZE:
-            *value = (T)aaxBufferGetSize(buf);
+            *value = (T)(aaxBufferGetSetup(buf, AAX_TRACK_SIZE)
+                         * aaxBufferGetSetup(buf, AAX_TRACKS));
             break;
         case AL_BITS:
             *value = (T)aaxGetBitsPerSample(aaxBufferGetSetup(buf, AAX_FORMAT));
             break;
         case AL_CHANNELS:
-            *value = (T)aaxBufferGetNoTracks(buf);
+            *value = (T)aaxBufferGetSetup(buf, AAX_TRACKS);
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);

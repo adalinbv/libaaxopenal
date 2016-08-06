@@ -34,7 +34,7 @@
 # include <stdio.h>
 #endif
 
-#include <aax/defines.h>
+#include <aax/aax.h>
 #include <AL/alc.h>
 
 #include <base/types.h>
@@ -185,16 +185,16 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
                     ctx->sync = attributes[n];
                     break;
                 case ALC_MONO_SOURCES:
-                    aaxMixerSetMonoSources(attributes[n]);
+                    aaxMixerSetSetup(NULL, AAX_MONO_EMITTERS, attributes[n]);
                     break;
                 case ALC_STEREO_SOURCES:
-                    aaxMixerSetStereoSources(attributes[n]);
+                    aaxMixerSetSetup(NULL, AAX_STEREO_EMITTERS, attributes[n]);
                     break;
                 case ALC_FREQUENCY:
-                    aaxMixerSetFrequency(handle, (unsigned)attributes[n]);
+                    aaxMixerSetSetup(handle, AAX_FREQUENCY, (unsigned)attributes[n]);
                     break;
                 case ALC_REFRESH:
-                    aaxMixerSetRefreshRate(handle, (unsigned)attributes[n]);
+                     aaxMixerSetSetup(handle, AAX_REFRESHRATE, (unsigned)attributes[n]);
                     break;
                 default:
                     _oalContextSetError(ALC_INVALID_VALUE);
@@ -202,7 +202,7 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
             }
         }
 
-        aaxMixerInit(handle);
+        aaxMixerSetState(handle, AAX_INITIALIZED);
         aaxMixerSetState(handle, AAX_PLAYING);
 
         format = aaxMixerGetSetup(handle, AAX_FORMAT);
@@ -525,7 +525,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         else
         {
             aaxConfig config = dev->lst.handle;
-            retstr = (char *)aaxDriverGetRenderer(config);
+            retstr = (char *)aaxDriverGetSetup(config, AAX_RENDERER_STRING);
         }
         break;
     case ALC_DEVICE_SPECIFIER:
@@ -535,7 +535,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         else
         {
             aaxConfig config = dev->lst.handle;
-            retstr = (char *)aaxDriverGetRenderer(config);
+            retstr = (char *)aaxDriverGetSetup(config, AAX_RENDERER_STRING);
         }
         break;
     case ALC_ALL_DEVICES_SPECIFIER:
@@ -545,7 +545,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
         else
         {
             aaxConfig config = dev->lst.handle;
-            retstr = (char *)aaxDriverGetRenderer(config);
+            retstr = (char *)aaxDriverGetSetup(config, AAX_RENDERER_STRING);
         }
         break;
     case ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER:

@@ -38,10 +38,10 @@ ALCGETINTEGERV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
     switch(attrib)
     {
     case ALC_MONO_SOURCES:
-        *value = (T)_MIN((unsigned)aaxMixerGetNoMonoSources(), 255);
+        *value = (T)_MIN((unsigned)aaxMixerGetSetup(NULL, AAX_MONO_EMITTERS), 255);
         break;
     case ALC_STEREO_SOURCES:
-        *value = (T)_MIN((unsigned)aaxMixerGetNoStereoSources(), 255);
+        *value = (T)_MIN((unsigned)aaxMixerGetSetup(NULL, AAX_STEREO_EMITTERS), 255);
         break;
     case ALC_MAJOR_VERSION:
         *value = (T)_oalContextVersion[0];
@@ -73,7 +73,7 @@ ALCGETINTEGERV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
             switch(attrib)
             {
             case ALC_FREQUENCY:
-                *value = (T)aaxMixerGetFrequency(config);
+                *value = (T)aaxMixerGetSetup(config, AAX_FREQUENCY);
                 break;
             case ALC_REFRESH:
                 *value = (T)aaxMixerGetSetup(config, AAX_REFRESHRATE);

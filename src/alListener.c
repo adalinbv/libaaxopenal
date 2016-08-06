@@ -25,7 +25,6 @@
 #include <math.h>
 
 #include <aax/aax.h>
-#include <aax/defines.h>
 #include <AL/alext.h>
 
 #include <base/types.h>

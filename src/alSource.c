@@ -28,7 +28,6 @@
 #include <math.h>
 
 #include <aax/aax.h>
-#include <aax/defines.h>
 #include <AL/al.h>
 #include <AL/alext.h>
 
@@ -85,13 +84,15 @@ alGenSources(ALsizei num, ALuint *ids)
             ALsizei i = 0;
             ALint nsrcs;
 
-            nsrcs = _MIN(aaxMixerGetNoMonoSources(), 255);
+            nsrcs = _MIN(aaxMixerGetSetup(NULL, AAX_MONO_EMITTERS), 255);
             if (nsrcs < num) num = 0;
             for (i=0; i<num; i++)
             {
                 _oalSource *src = calloc(1, sizeof(_oalSource));
                 if (src != NULL)
                 {
+                    aaxFilter flt;
+
                     src->handle = aaxEmitterCreate();
                     if (!src->handle)
                     {
@@ -101,9 +102,15 @@ alGenSources(ALsizei num, ALuint *ids)
                     }
                     src->mode = AAX_ABSOLUTE;
                     aaxEmitterSetMode(src->handle, AAX_POSITION, src->mode);
-                    aaxEmitterSetGainMinMax(src->handle, 0.0f, 1.0f);
-                    aaxEmitterSetDistanceModel(src->handle,
-                                               AAX_AL_INVERSE_DISTANCE_CLAMPED);
+
+                    flt = aaxEmitterGetFilter(src->handle, AAX_VOLUME_FILTER);
+                    aaxFilterSetParam(flt, AAX_MIN_GAIN, AAX_LINEAR, 0.0f);
+                    aaxFilterSetParam(flt, AAX_MAX_GAIN, AAX_LINEAR, 1.0f);
+                    aaxEmitterSetFilter(src->handle, flt);
+
+                    flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+                    aaxFilterSetState(flt, AAX_AL_INVERSE_DISTANCE_CLAMPED);
+                    aaxEmitterSetFilter(src->handle, flt);
 
                     pos = _intBufAddData(cs, _OAL_SOURCE, src);
                     if (pos == UINT_MAX) break;

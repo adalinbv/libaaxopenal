@@ -31,7 +31,6 @@
 #include <assert.h>
 
 #include <aax/aax.h>
-#include <aax/defines.h> 
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -182,7 +181,7 @@ alGetString(ALenum attrib)
             retstr = (ALchar *)_oalAAXGetRendererString(dev->lst.handle);
             break;
         case AL_VENDOR:
-            retstr = (ALchar *)aaxDriverGetVendor(dev->lst.handle);
+            retstr = (ALchar *)aaxDriverGetSetup(dev->lst.handle, AAX_VENDOR_STRING);
             break;
         default:
             for (i=0; ((e = &_oalEnumValues[i]) != NULL) && e->name; i++)
@@ -581,6 +580,7 @@ _oalStateCreate(aaxConfig handle, void *context)
         if (cs)
         {
             unsigned int dist_model;
+            aaxEffect eff;
 
             cs->error = AL_NONE;
             cs->maxDistance = 1.0f;
@@ -592,11 +592,14 @@ _oalStateCreate(aaxConfig handle, void *context)
             cs->src_dist_model = AL_FALSE;
             ctx->state = cs;
 
-            aaxScenerySetSoundVelocity(handle, cs->soundVelocity);
-
             dist_model = _oalDistanceModeltoAAXDistanceModel(cs->distanceModel,
                                                              AAX_FALSE);
-            aaxScenerySetDistanceModel(handle, dist_model);
+
+            eff = aaxSceneryGetEffect(handle, AAX_VELOCITY_EFFECT);
+            aaxEffectSetParam(eff, AAX_SOUND_VELOCITY, cs->soundVelocity, AAX_LINEAR);
+            aaxEffectSetState(eff, dist_model);
+            aaxScenerySetEffect(handle, eff);
+            aaxEffectDestroy(eff);
         }
         else
         {
@@ -670,12 +673,16 @@ _oalSetDopplerFactor(ALfloat f)
         _oalState *cs = ctx->state;
         aaxConfig handle;
         _oalDevice *dev;
+        aaxEffect eff;
  
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
 
         cs->dopplerFactor = f;
-        aaxScenerySetDopplerFactor(handle, f);
+        eff = aaxSceneryGetEffect(handle, AAX_VELOCITY_EFFECT);
+        aaxEffectSetParam(eff, AAX_DOPPLER_FACTOR, f, AAX_LINEAR);
+        aaxScenerySetEffect(handle, eff);
+        aaxEffectDestroy(eff);
 
         _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
@@ -750,12 +757,16 @@ _oalSetSoundVelocity(ALfloat f)
         _oalState *cs = ctx->state;
         aaxConfig handle;
         _oalDevice *dev;
+        aaxEffect eff;
 
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
 
         cs->soundVelocity = f;
-        aaxScenerySetSoundVelocity(handle, f);
+        eff = aaxSceneryGetEffect(handle, AAX_VELOCITY_EFFECT);
+        aaxEffectSetParam(eff, AAX_SOUND_VELOCITY, f, AAX_LINEAR);
+        aaxScenerySetEffect(handle, eff);
+        aaxEffectDestroy(eff);
 
         _intBufReleaseData(dptr, _OAL_CONTEXT);
     }
@@ -833,6 +844,7 @@ _oalSetDistanceModel(ALenum e)
         _oalState *cs = ctx->state;
         aaxConfig handle;
         _oalDevice *dev;
+        aaxFilter flt;
 
         dev = (_oalDevice *)ctx->parent_device;
         handle = dev->lst.handle;
@@ -840,7 +852,10 @@ _oalSetDistanceModel(ALenum e)
         e = _oalDistanceModeltoAAXDistanceModel(e, ddelay);
         cs->distanceModel = e;
 
-        aaxScenerySetDistanceModel(handle, e);
+        flt = aaxSceneryGetFilter(handle, AAX_DISTANCE_FILTER);
+        aaxFilterSetState(flt, e);
+        aaxScenerySetFilter(handle, flt);
+        aaxFilterDestroy(flt);
 
         _intBufReleaseData(dptr, _OAL_CONTEXT);
     }

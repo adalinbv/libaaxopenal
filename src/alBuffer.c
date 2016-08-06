@@ -25,7 +25,7 @@
 #include <AL/al.h>
 #include <AL/alext.h>
 
-#include <aax/defines.h>
+#include <aax/aax.h>
 
 #include "api.h"
 #include "aax_support.h"
@@ -184,7 +184,7 @@ alBufferData(ALuint id, ALenum format,
                     _intBuffers *db = _oalGetBuffers(NULL);
                     unsigned int pos = _intBufIdToPos(id);
 
-                    aaxBufferSetFrequency(new_buf, frequency);
+                    aaxBufferSetSetup(new_buf, AAX_FREQUENCY, frequency);
                     aaxBufferSetData(new_buf, data);
 
                     _intBufReplace(db, _OAL_BUFFER, pos, new_buf);
@@ -194,9 +194,9 @@ alBufferData(ALuint id, ALenum format,
                 }
             }
         }
-        else if (aaxfmt == aaxBufferGetFormat(buf)
-             && channels == aaxBufferGetNoTracks(buf)
-             && no_samples == aaxBufferGetNoSamples(buf))
+        else if (aaxfmt == aaxBufferGetSetup(buf, AAX_FORMAT)
+             && channels == aaxBufferGetSetup(buf, AAX_TRACKS)
+             && no_samples == aaxBufferGetSetup(buf, AAX_NO_SAMPLES))
         {
             aaxBufferSetData(buf, data);
         }

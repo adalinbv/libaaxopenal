@@ -86,7 +86,11 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
             src->at[1] = (float)values[1];
             src->at[2] = (float)values[2];
             if (!values[0] && !values[1] && !values[2]) {
-                aaxEmitterSetAudioCone(emitter, 360.0f, AAX_FPNONE, AAX_FPNONE);
+                aaxFilter flt;
+                flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+                aaxFilterSetParam(flt, AAX_INNER_ANGLE, AAX_DEGREES, 360.0f);
+                aaxEmitterSetFilter(emitter, flt);
+                aaxFilterDestroy(flt);
             }
             aaxMatrixSetDirection(mtx, src->pos, src->at);
             aaxEmitterSetMatrix(emitter, mtx);
@@ -99,8 +103,14 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
             break;
         /* AL_AAX_frequency_filter */
         case AL_FREQUENCY_FILTER_PARAMS_AAX:
-            aaxEmitterSetFrequencyFilter(emitter,values[0],values[1],values[2]);
+        {
+            aaxFilter flt;
+            flt = aaxEmitterGetFilter(emitter, AAX_FREQUENCY_FILTER );
+            aaxFilterSetSlot(flt, 0, AAX_LINEAR, values[0],values[1],values[2],0.0f);
+            aaxEmitterSetFilter(emitter, flt);
+            aaxFilterDestroy(flt);
             break;
+        }
         default:
             ALSOURCE(N)(id, attrib, *values);
             break;
@@ -134,6 +144,8 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
         aaxEmitter *emitter = src->handle;
         unsigned int ival = (unsigned int)value;
         float fval = (float)value;
+        aaxEffect eff;
+        aaxFilter flt;
         switch(attrib)
         {
         case AL_SOURCE_STATE:
@@ -154,15 +166,15 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             break;
         case AL_SAMPLE_OFFSET:
         {
-            unsigned tracks = aaxEmitterGetNoTracks(emitter);
+            unsigned tracks = aaxEmitterGetSetup(emitter, AAX_TRACKS);
             unsigned int offs = _oalOffsetInSamplesToAAXOffset(ival, tracks);
             aaxEmitterSetOffset(emitter, offs, AAX_SAMPLES);
             break;
         }    
         case AL_BYTE_OFFSET:
         {
-            enum aaxFormat fmt = aaxEmitterGetFormat(emitter);
-            unsigned tracks = aaxEmitterGetNoTracks(emitter);
+            enum aaxFormat fmt = aaxEmitterGetSetup(emitter, AAX_FORMAT);
+            unsigned tracks = aaxEmitterGetSetup(emitter, AAX_TRACKS);
             unsigned long offs;
 
             offs  = _oalOffsetInBytesToAAXOffset(ival, tracks, fmt);
@@ -187,9 +199,14 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             case AL_EXPONENT_DISTANCE_DELAY_CLAMPED_AAX:
                 if (alIsEnabled(AL_SOURCE_DISTANCE_MODEL))
                 {
+                    aaxFilter flt;
                     char ddelay = alIsEnabled(AL_DISTANCE_DELAY_MODEL_AAX);
                     ival = _oalDistanceModeltoAAXDistanceModel(ival, ddelay);
-                    aaxEmitterSetDistanceModel(emitter, ival);
+
+                    flt = aaxEmitterGetFilter(emitter, AAX_DISTANCE_FILTER);
+                    aaxFilterSetState(flt, ival);
+                    aaxEmitterSetFilter(emitter, flt);
+                    aaxFilterDestroy(flt);
                 }
                 break;
             default:
@@ -198,7 +215,7 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             }
             break;
         case AL_LOOPING:
-            aaxEmitterSetLooping(emitter, ival);
+            aaxEmitterSetMode(emitter, AAX_LOOPING, ival);
             break;
         case AL_BUFFER:
             if (ival)
@@ -212,7 +229,7 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
                     aaxBuffer *buf = _intBufGetDataPtr(dptr_buf);
 
                     aaxEmitterAddBuffer(emitter, buf);
-                    if (aaxBufferGetNoTracks(buf) > 1) {
+                    if (aaxBufferGetSetup(buf, AAX_TRACKS) > 1) {
                         mode = AAX_MODE_NONE;
                     } else {
                         mode = src->mode;
@@ -247,36 +264,64 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             }
             break;
         case AL_GAIN:
-            aaxEmitterSetGain(emitter, fval);
+            flt = aaxEmitterGetFilter(src->handle, AAX_VOLUME_FILTER);
+            aaxFilterSetParam(flt, AAX_GAIN, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_MIN_GAIN:
-            aaxEmitterSetGainMinMax(emitter, fval, AAX_FPNONE);
+            flt = aaxEmitterGetFilter(src->handle, AAX_VOLUME_FILTER);
+            aaxFilterSetParam(flt, AAX_MIN_GAIN, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_MAX_GAIN:
-            aaxEmitterSetGainMinMax(emitter, AAX_FPNONE, fval);
+            flt = aaxEmitterGetFilter(src->handle, AAX_VOLUME_FILTER);
+            aaxFilterSetParam(flt, AAX_MAX_GAIN, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_REFERENCE_DISTANCE:
-            aaxEmitterSetReferenceDistance(emitter, fval);
+            flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+            aaxFilterSetParam(flt, AAX_REF_DISTANCE, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_ROLLOFF_FACTOR:
-            aaxEmitterSetRolloffFactor(emitter, fval);
+            flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+            aaxFilterSetParam(flt, AAX_ROLLOFF_FACTOR, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_MAX_DISTANCE:
-            aaxEmitterSetMaxDistance(emitter, fval);
+            flt = aaxEmitterGetFilter(src->handle, AAX_DISTANCE_FILTER);
+            aaxFilterSetParam(flt, AAX_MAX_DISTANCE, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_PITCH:
-            aaxEmitterSetPitch(emitter, fval);
+            eff = aaxEmitterGetEffect(src->handle, AAX_PITCH_EFFECT);
+            aaxEffectSetParam(eff, AAX_PITCH, AAX_LINEAR, fval);
+            aaxEmitterSetEffect(src->handle, eff);
+            aaxEffectDestroy(eff);
             break;
         case AL_CONE_INNER_ANGLE:
-            fval *= GMATH_DEG_TO_RAD;
-            aaxEmitterSetAudioCone(emitter, fval,  AAX_FPNONE, AAX_FPNONE);
+            flt = aaxEmitterGetFilter(src->handle, AAX_ANGULAR_FILTER);
+            aaxFilterSetParam(flt, AAX_INNER_ANGLE, AAX_DEGREES, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_ANGLE:
-            fval *= GMATH_DEG_TO_RAD;
-            aaxEmitterSetAudioCone(emitter, AAX_FPNONE, fval, AAX_FPNONE);
+            flt = aaxEmitterGetFilter(src->handle, AAX_ANGULAR_FILTER);
+            aaxFilterSetParam(flt, AAX_OUTER_ANGLE, AAX_DEGREES, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_GAIN:
-            aaxEmitterSetAudioCone(emitter, AAX_FPNONE, AAX_FPNONE, fval);
+            flt = aaxEmitterGetFilter(src->handle, AAX_ANGULAR_FILTER);
+            aaxFilterSetParam(flt, AAX_OUTER_GAIN, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(src->handle, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_SEC_OFFSET:
             aaxEmitterSetOffsetSec(emitter, fval);
@@ -289,21 +334,28 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             break;
         /* AL_AAX_frequency_filter */
         case AL_FREQUENCY_FILTER_ENABLE_AAX:
-        {
-            aaxFilter f = aaxEmitterGetFilter(emitter, AAX_FREQUENCY_FILTER);
-            aaxFilterSetState(f, value ? AAX_TRUE : AAX_FALSE);
-            aaxEmitterSetFilter(emitter, f);
-            aaxFilterDestroy(f);
+            flt = aaxEmitterGetFilter(emitter, AAX_FREQUENCY_FILTER);
+            aaxFilterSetState(flt, value ? AAX_TRUE : AAX_FALSE);
+            aaxEmitterSetFilter(emitter, flt);
+            aaxFilterDestroy(flt);
             break;
-        }
         case AL_FREQUENCY_FILTER_GAINLF_AAX:
-            aaxEmitterSetFrequencyFilter(emitter, AAX_FPNONE, fval, AAX_FPNONE);
+            flt = aaxEmitterGetFilter(emitter, AAX_FREQUENCY_FILTER );
+            aaxFilterSetParam(flt, AAX_LF_GAIN, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(emitter, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_FREQUENCY_FILTER_GAINHF_AAX:
-            aaxEmitterSetFrequencyFilter(emitter, AAX_FPNONE, AAX_FPNONE, fval);
+            flt = aaxEmitterGetFilter(emitter, AAX_FREQUENCY_FILTER );
+            aaxFilterSetParam(flt, AAX_HF_GAIN, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(emitter, flt);
+            aaxFilterDestroy(flt);
             break;
         case AL_FREQUENCY_FILTER_CUTOFF_FREQ_AAX:
-            aaxEmitterSetFrequencyFilter(emitter, fval, AAX_FPNONE, AAX_FPNONE);
+            flt = aaxEmitterGetFilter(emitter, AAX_FREQUENCY_FILTER );
+            aaxFilterSetParam(flt, AAX_CUTOFF_FREQUENCY, AAX_LINEAR, fval);
+            aaxEmitterSetFilter(emitter, flt);
+            aaxFilterDestroy(flt);
             break;
         default:
             _oalStateSetError(AL_INVALID_ENUM);
@@ -403,7 +455,8 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
     {
         _oalSource *src = _intBufGetDataPtr(dptr);
         aaxEmitter *emitter = src->handle;
-        float fval;
+        aaxEffect eff;
+        aaxFilter flt;
 
         switch(attrib)
         {
@@ -425,7 +478,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             break;
         }
         case AL_LOOPING:
-            *value = (T)aaxEmitterGetLooping(emitter);
+            *value = (T)aaxEmitterGetMode(emitter, AAX_LOOPING);
             break;
         case AL_SOURCE_TYPE:
         {
@@ -450,7 +503,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             break;
         case AL_BUFFER:
         {
-            const aaxBuffer buf = aaxEmitterGetBuffer(emitter);
+            const aaxBuffer buf = aaxEmitterGetBufferByPos(emitter,0,AAX_FALSE);
             if (buf)
             {
                 _intBuffers *db = _oalGetBuffers(NULL);
@@ -464,15 +517,15 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
         case AL_SAMPLE_OFFSET:
         {
             unsigned int offs = aaxEmitterGetOffset(emitter, AAX_SAMPLES);
-            unsigned tracks = aaxEmitterGetNoTracks(emitter);
+            unsigned tracks = aaxEmitterGetSetup(emitter, AAX_TRACKS);
             *value = (T)_oalAAXOffsetToOffsetInSamples(offs, tracks);
             break;
         }
         case AL_BYTE_OFFSET:
         {
             unsigned int offs = aaxEmitterGetOffset(emitter, AAX_SAMPLES);
-            unsigned tracks = aaxEmitterGetNoTracks(emitter);
-            enum aaxFormat fmt = aaxEmitterGetFormat(emitter);
+            unsigned tracks = aaxEmitterGetSetup(emitter, AAX_TRACKS);
+            enum aaxFormat fmt = aaxEmitterGetSetup(emitter, AAX_FORMAT);
             *value = (T)_oalAAXOffsetToOffsetInBytes(offs, tracks, fmt);
             break;
         }
@@ -480,45 +533,60 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             *value = (T)aaxEmitterGetOffsetSec(emitter);
             break;
         case AL_GAIN:
-            *value = (T)aaxEmitterGetGain(emitter);
+            flt = aaxEmitterGetFilter(emitter, AAX_VOLUME_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_GAIN, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         case AL_MIN_GAIN:
-            aaxEmitterGetGainMinMax(emitter, &fval, NULL);
-            *value = (T)fval;
+            flt = aaxEmitterGetFilter(emitter, AAX_VOLUME_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_MIN_GAIN, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         case AL_MAX_GAIN:
-            aaxEmitterGetGainMinMax(emitter, NULL, &fval);
-            *value = (T)fval;
+            flt = aaxEmitterGetFilter(emitter, AAX_VOLUME_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_MAX_GAIN, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         case AL_PITCH:
-            *value = aaxEmitterGetPitch(emitter);
+            eff = aaxEmitterGetEffect(emitter, AAX_PITCH_EFFECT);
+            *value = (T)aaxEffectGetParam(eff, AAX_PITCH, AAX_LINEAR);
+            aaxEffectDestroy(eff);
             break;
         case AL_REFERENCE_DISTANCE:
-            *value = (T)aaxEmitterGetReferenceDistance(emitter);
+            flt = aaxEmitterGetFilter(emitter, AAX_DISTANCE_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_REF_DISTANCE, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         case AL_ROLLOFF_FACTOR:
-            *value = (T)aaxEmitterGetRolloffFactor(emitter);
+            flt = aaxEmitterGetFilter(emitter, AAX_DISTANCE_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_ROLLOFF_FACTOR, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         case AL_MAX_DISTANCE:
-            *value = (T)aaxEmitterGetMaxDistance(emitter);
+            flt = aaxEmitterGetFilter(emitter, AAX_DISTANCE_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_MAX_DISTANCE, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         case AL_CONE_INNER_ANGLE:
-            aaxEmitterGetAudioCone(emitter, &fval, NULL, NULL);
-            *value = (T)(GMATH_RAD_TO_DEG*fval);
+            flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_INNER_ANGLE, AAX_DEGREES);
+            aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_ANGLE:
-            aaxEmitterGetAudioCone(emitter, NULL, &fval, NULL);
-            *value = (T)(GMATH_RAD_TO_DEG*fval);
+            flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_OUTER_ANGLE, AAX_DEGREES);
+            aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_GAIN:
-             aaxEmitterGetAudioCone(emitter, NULL, NULL, &fval);
-            *value = (T)fval;
+            flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+            *value = (T)aaxFilterGetParam(flt, AAX_OUTER_GAIN, AAX_LINEAR);
+            aaxFilterDestroy(flt);
             break;
         /* AL_EXT_source_latency */
         case AL_SAMPLE_OFFSET_LATENCY:
         {
             unsigned int offs = aaxEmitterGetOffset(emitter, AAX_SAMPLES);
-            unsigned tracks = aaxEmitterGetNoTracks(emitter);
+            unsigned tracks = aaxEmitterGetSetup(emitter, AAX_TRACKS);
             ALCcontext *ctx = alcGetCurrentContext();
             ALCdevice *device = alcGetContextsDevice(ctx);
             uint32_t id = _oalDeviceToId(device);
@@ -526,7 +594,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             T freq_hz, latency_us, fact = (T)((ALint64)1 << BITSHIFT);
 
             freq_hz = fact*aaxMixerGetSetup(dev->lst.handle, AAX_FREQUENCY);
-            latency_us = fact*aaxMixerGetSetup(dev->lst.handle,AAX_LATENCY);
+            latency_us = fact*aaxMixerGetSetup(dev->lst.handle, AAX_LATENCY);
 
             *value = (T)_oalAAXOffsetToOffsetInSamples(offs, tracks);
 #if BITSHIFT
@@ -543,7 +611,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             _oalDevice *dev = (_oalDevice *)_oalFindDeviceById(id);
             T latency;
 
-            latency = (T)1e-3*aaxMixerGetSetup(dev->lst.handle,AAX_LATENCY);
+            latency = (T)1e-3*aaxMixerGetSetup(dev->lst.handle, AAX_LATENCY);
             *value = (T)(aaxEmitterGetOffsetSec(emitter) + latency);
             break;
         }
