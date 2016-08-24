@@ -548,6 +548,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
             retstr = (char *)aaxDriverGetSetup(config, AAX_RENDERER_STRING);
         }
         break;
+    case 
     case ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER:
         {
             static char renderer[128];
@@ -559,6 +560,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
             retstr = renderer;
         }
         break;
+    case ALC_DEFAULT_ALL_DEVICES_SPECIFIER:
     case ALC_DEFAULT_DEVICE_SPECIFIER:
         {
             static char renderer[128];
@@ -570,6 +572,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
             retstr = renderer;
         }
         break;
+    case ALC_DEFAULT_ALL_DEVICES_SPECIFIER:
     default:
         _oalContextSetError(ALC_INVALID_ENUM);
     }
