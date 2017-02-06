@@ -13,6 +13,7 @@
 # include <io.h>
 #endif
 #include <fcntl.h>
+#include <stdint.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif

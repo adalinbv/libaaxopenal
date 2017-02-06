@@ -92,6 +92,20 @@ int main (int argc, char *argv[])
    alcMakeContextCurrent(context);
    testForALCError(device);
 
+   do {
+      int rr, f;
+      alcGetIntegerv(device, ALC_REFRESH, 1, &rr);
+      alcGetIntegerv(device, ALC_FREQUENCY,1, &f);
+ 
+      printf("Playback frequency: %i, requested %i\n", f, 44100);
+      printf("Refresh rate: %i, requested: %i\n", rr, 46);
+      if (f != 44100 || rr != 46) {
+         printf("=== Warning: this may affect CPU usage by a factor of : %4.1f ===\n\n",
+                 (float)f*rr/(44100.0f*46.0f));
+      }
+   }
+   while (0);
+
    nsrc = getNumSources(argc, argv);
    if (nsrc == 0) nsrc = NO_SOURCES;
 
