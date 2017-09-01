@@ -71,33 +71,33 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
         {
             aaxConfig config = lst->handle;
             aaxVec3f vec3f;
-            aaxMtx4f mtx;
+            aaxMtx4d mtx;
 
             switch(attrib)
             {
             case AL_POSITION:
-                lst->pos[0] = (T)values[0];
-                lst->pos[1] = (T)values[1];
-                lst->pos[2] = (T)values[2];
-                aaxMatrixSetOrientation(mtx, lst->pos, lst->at, lst->up);
-                aaxMatrixInverse(mtx);
-                aaxSensorSetMatrix(config, mtx);
+                lst->pos[0] = (double)values[0];
+                lst->pos[1] = (double)values[1];
+                lst->pos[2] = (double)values[2];
+                aaxMatrix64SetOrientation(mtx, lst->pos, lst->at, lst->up);
+                aaxMatrix64Inverse(mtx);
+                aaxSensorSetMatrix64(config, mtx);
                 break;
             case AL_ORIENTATION:
-                lst->at[0] = (T)values[0];
-                lst->at[1] = (T)values[1];
-                lst->at[2] = (T)values[2];
-                lst->up[0] = (T)values[3];
-                lst->up[1] = (T)values[4];
-                lst->up[2] = (T)values[5];
-                aaxMatrixSetOrientation(mtx, lst->pos, lst->at, lst->up);
-                aaxMatrixInverse(mtx);
-                aaxSensorSetMatrix(config, mtx);
+                lst->at[0] = (float)values[0];
+                lst->at[1] = (float)values[1];
+                lst->at[2] = (float)values[2];
+                lst->up[0] = (float)values[3];
+                lst->up[1] = (float)values[4];
+                lst->up[2] = (float)values[5];
+                aaxMatrix64SetOrientation(mtx, lst->pos, lst->at, lst->up);
+                aaxMatrix64Inverse(mtx);
+                aaxSensorSetMatrix64(config, mtx);
                 break;
             case AL_VELOCITY:
-                vec3f[0] = (T)values[0];
-                vec3f[1] = (T)values[1];
-                vec3f[2] = (T)values[2];
+                vec3f[0] = (float)values[0];
+                vec3f[1] = (float)values[1];
+                vec3f[2] = (float)values[2];
                 aaxSensorSetVelocity(config, vec3f);
                 break;
             /* AL_AAX_frequency_filter */

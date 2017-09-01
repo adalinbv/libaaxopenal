@@ -70,16 +70,16 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
         _oalSource *src = _intBufGetDataPtr(dptr);
         aaxEmitter *emitter = src->handle;
         aaxVec3f vec3f;
-        aaxMtx4f mtx;
+        aaxMtx4d mtx;
 
         switch(attrib)
         {
         case AL_POSITION:
-            src->pos[0] = (float)values[0];
-            src->pos[1] = (float)values[1];
-            src->pos[2] = (float)values[2];
-            aaxMatrixSetDirection(mtx, src->pos, src->at);
-            aaxEmitterSetMatrix(emitter, mtx);
+            src->pos[0] = (double)values[0];
+            src->pos[1] = (double)values[1];
+            src->pos[2] = (double)values[2];
+            aaxMatrix64SetDirection(mtx, src->pos, src->at);
+            aaxEmitterSetMatrix64(emitter, mtx);
             break;
         case AL_DIRECTION:
             src->at[0] = (float)values[0];
@@ -92,8 +92,8 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
                 aaxEmitterSetFilter(emitter, flt);
                 aaxFilterDestroy(flt);
             }
-            aaxMatrixSetDirection(mtx, src->pos, src->at);
-            aaxEmitterSetMatrix(emitter, mtx);
+            aaxMatrix64SetDirection(mtx, src->pos, src->at);
+            aaxEmitterSetMatrix64(emitter, mtx);
             break;
         case AL_VELOCITY:
             vec3f[0] = (float)values[0];
@@ -399,21 +399,22 @@ ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
     {
         _oalSource *src = _intBufGetDataPtr(dptr);
         aaxEmitter *emitter = src->handle;
+        aaxVec3d vec3d;
         aaxVec3f vec3f;
-        aaxMtx4f mtx;
+        aaxMtx4d mtx;
 
         switch(attrib)
         {
         case AL_POSITION:
-            aaxEmitterGetMatrix(emitter, mtx);
-            aaxMatrixGetOrientation(mtx, vec3f, NULL, NULL);
-            values[0] = (T)vec3f[0];
-            values[1] = (T)vec3f[1];
-            values[2] = (T)vec3f[2];
+            aaxEmitterGetMatrix64(emitter, mtx);
+            aaxMatrix64GetOrientation(mtx, vec3d, NULL, NULL);
+            values[0] = (T)vec3d[0];
+            values[1] = (T)vec3d[1];
+            values[2] = (T)vec3d[2];
             break;
         case AL_DIRECTION:
-            aaxEmitterGetMatrix(emitter, mtx);
-            aaxMatrixGetOrientation(mtx, NULL, vec3f, NULL);
+            aaxEmitterGetMatrix64(emitter, mtx);
+            aaxMatrix64GetOrientation(mtx, NULL, vec3f, NULL);
             values[0] = (T)vec3f[0];
             values[1] = (T)vec3f[1];
             values[2] = (T)vec3f[2];

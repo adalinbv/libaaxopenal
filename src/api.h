@@ -102,7 +102,8 @@ ALenum __oalStateSetErrorNormal(ALenum);
 typedef struct
 {
     aaxConfig handle;
-    aaxVec3f pos, at, up;
+    aaxVec3f at, up;
+    aaxVec3d pos;
     void *buf;
 
     struct
@@ -120,7 +121,8 @@ typedef struct
 {
     void *parent;
     aaxEmitter handle;
-    aaxVec3f pos, at, up;
+    aaxVec3f at, up;
+    aaxVec3d pos;
     int mode;
 } _oalSource;
 
