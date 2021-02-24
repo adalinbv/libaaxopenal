@@ -130,11 +130,11 @@ void _oalFreeSource(void *, void*);
 
 /* -- Contexts --- */
 
-#define _oalDeviceToId(a)	(uint32_t)((long)(a) >> 20)
-#define _oalIdToDevice(a)	(uint32_t)((long)(a) << 20)
-#define _oalContextMask(a)	(uint32_t)((long)(a) & 0x000FFFFF)
-#define _oalDeviceMask(a)	(uint32_t)((long)(a) & 0xFFF00000)
-#define INT_TO_PTR(a)		(void*)(long)(a)
+#define _oalDeviceToId(a)	(int32_t)((size_t)(a) >> 20)
+#define _oalIdToDevice(a)	(uint32_t)((size_t)(a) << 20)
+#define _oalContextMask(a)	(uint32_t)((size_t)(a) & 0x000FFFFF)
+#define _oalDeviceMask(a)	(uint32_t)((size_t)(a) & 0xFFF00000)
+#define INT_TO_PTR(a)		(void*)(size_t)(a)
 
 typedef struct
 {

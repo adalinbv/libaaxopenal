@@ -244,7 +244,7 @@ alcMakeContextCurrent(ALCcontext *context)
                 pos = _intBufIdToPos(id);
                 if (pos != UINT_MAX)
                 {
-                    _oalCurrentContext = (unsigned long)context;
+                    _oalCurrentContext = (size_t)context;
                     dev->current_context = _intBufIdToPos(id);
                 }
             }
