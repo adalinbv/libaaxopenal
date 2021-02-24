@@ -68,7 +68,7 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
     if (dptr)
     {
         _oalSource *src = _intBufGetDataPtr(dptr);
-        aaxEmitter *emitter = src->handle;
+        aaxEmitter emitter = src->handle;
         aaxVec3f vec3f;
         aaxMtx4d mtx;
 
@@ -141,7 +141,7 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
     if (dptr)
     {
         _oalSource *src = _intBufGetDataPtr(dptr);
-        aaxEmitter *emitter = src->handle;
+        aaxEmitter emitter = src->handle;
         unsigned int ival = (unsigned int)value;
         float fval = (float)value;
         aaxEffect eff;
@@ -226,7 +226,7 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
                 dptr_buf = _oalFindBufferById(ival, &pos);
                 if (dptr_buf)
                 {
-                    aaxBuffer *buf = _intBufGetDataPtr(dptr_buf);
+                    aaxBuffer buf = _intBufGetDataPtr(dptr_buf);
 
                     aaxEmitterAddBuffer(emitter, buf);
                     if (aaxBufferGetSetup(buf, AAX_TRACKS) > 1) {
@@ -398,7 +398,7 @@ ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
     if (dptr)
     {
         _oalSource *src = _intBufGetDataPtr(dptr);
-        aaxEmitter *emitter = src->handle;
+        aaxEmitter emitter = src->handle;
         aaxVec3d vec3d;
         aaxVec3f vec3f;
         aaxMtx4d mtx;
@@ -455,7 +455,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
     if (dptr)
     {
         _oalSource *src = _intBufGetDataPtr(dptr);
-        aaxEmitter *emitter = src->handle;
+        aaxEmitter emitter = src->handle;
         aaxEffect eff;
         aaxFilter flt;
 

@@ -14,6 +14,9 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#ifdef HAVE_TIME_H
+# include <time.h>              /* for time, nanosleep */
+#endif
 
 #ifdef __APPLE__
 # include <OpenAL/al.h>
@@ -52,22 +55,6 @@
 /* Test Function prototypes */
 ALvoid testMultiplesource(ALuint, ALint);
 
-#if 0
-#ifdef HAVE_TIME_H
-# include <time.h>              /* for nanosleep */
-#endif
-#if HAVE_SYS_TIME_H
-# include <sys/time.h>          /* for struct timeval */
-#endif
-int msecSleep(unsigned int dt_ms)
-{
-   static struct timespec s;
-   s.tv_sec = (dt_ms/1000);
-   s.tv_nsec = (dt_ms-s.tv_sec*1000)*1000000;
-   return nanosleep(&s, 0);
-}
-#endif
-
 int main (int argc, char *argv[])
 {
    const ALCint attr[] = { ALC_FREQUENCY, 44100, ALC_REFRESH, 46 };
@@ -100,8 +87,8 @@ int main (int argc, char *argv[])
       printf("Playback frequency: %i, requested %i\n", f, 44100);
       printf("Refresh rate: %i, requested: %i\n", rr, 46);
       if (f != 44100 || rr != 46) {
-         printf("=== Warning: this may affect CPU usage by a factor of : %4.1f ===\n\n",
-                 (float)f*rr/(44100.0f*46.0f));
+         printf("=== Warning: this may affect CPU usage by a factor of : %4.3f ===\n\n",
+                 ((float)f*rr)/(44100.0f*46.0f));
       }
    }
    while (0);
@@ -205,12 +192,13 @@ testMultiplesource (ALuint buffer, ALint sources)
    ALint error;
    ALint i;
 
+   srand(time(NULL));
+
    if (sources > MAX_SOURCES)
    {
       printf("Error: no_sources larger than %i.\n", MAX_SOURCES);
       sources = MAX_SOURCES;
    }
-
 
    for (i=0; i<sources; i++)
    {
@@ -228,7 +216,7 @@ testMultiplesource (ALuint buffer, ALint sources)
 
    for (i=0; i<no_sources; i++)
    {
-      float pitch;
+      float pitch, r;
 
       alSourcei(source[i], AL_BUFFER, buffer);
 
@@ -245,7 +233,8 @@ testMultiplesource (ALuint buffer, ALint sources)
       alSourcefv(source[i], AL_POSITION, pos);
       alSourcei(source[i], AL_LOOPING, AL_TRUE);
 
-      pitch = 0.8f + (float)(rand()/RAND_MAX) * 0.4f;
+      r = (float)rand()/RAND_MAX;
+      pitch = 0.33f + r * 0.8f;
       alSourcef(source[i], AL_PITCH, pitch);
    }
 

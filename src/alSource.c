@@ -243,7 +243,7 @@ alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
                 dptr_buf = _oalFindBufferById(value, &pos);
                 if (dptr_buf)
                 {
-                    aaxBuffer *buf = _intBufGetDataPtr(dptr_buf);
+                    aaxBuffer buf = _intBufGetDataPtr(dptr_buf);
                     aaxEmitterAddBuffer(src->handle, buf);
                 }
                 else {

@@ -36,7 +36,7 @@ enum
 char *
 getDeviceName(int argc, char **argv)
 {
-   static char devname[255];
+   static char devname[256];
    int len = 255;
    char *s;
 
