@@ -130,6 +130,14 @@ void _oalFreeSource(void *, void*);
 
 /* -- Contexts --- */
 
+/*
+ * Device pointers returned to the caller aren't really pointers at all
+ * but device-id's that reference the particular pointer in the device
+ * pointer-array.
+ *
+ * The top bits contain the id of the device, the bottom bits the id of the
+ * associated context.
+ */
 #define _oalDeviceToId(a)	(int32_t)((size_t)(a) >> 20)
 #define _oalIdToDevice(a)	(uint32_t)((size_t)(a) << 20)
 #define _oalContextMask(a)	(uint32_t)((size_t)(a) & 0x000FFFFF)
