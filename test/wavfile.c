@@ -24,8 +24,8 @@
 #include "driver.h"
 #include "wavfile.h"
 
-#define PRINT_DEBUG_MSG         0
-#define PRINT_INFO_MSG		0
+#define PRINT_DEBUG_MSG         1
+#define PRINT_INFO_MSG		1
 
 #define WAVE_HEADER_SIZE        11
 #define WAVE_EXT_HEADER_SIZE	17
@@ -70,7 +70,7 @@ static const uint32_t _defaultWaveHeader[WAVE_EXT_HEADER_SIZE] =
 
 
 static char __big_endian = 0;
-static void bufferComvertMSIMA_IMA4(void*, unsigned, unsigned int, unsigned*);
+static void bufferConvertMSIMA_IMA4(void*, unsigned, unsigned int, unsigned*);
 
 /**
  * Load a canonical WAVE file into memory and return a pointer to the buffer.
@@ -267,7 +267,7 @@ bufferFromFile(aaxConfig config, const char *infile)
       buffer = aaxBufferCreate(config, no_samples, channels, format);
       if (format == AAX_IMA4_ADPCM)
       {
-         bufferComvertMSIMA_IMA4(data, channels, no_samples, &block);
+         bufferConvertMSIMA_IMA4(data, channels, no_samples, &block);
 
          res = aaxBufferSetSetup(buffer, AAX_BLOCK_ALIGNMENT, block);
          testForState(res, "aaxBufferSetSetup(AAX_BLOCK_ALIGNMENT)");
@@ -361,7 +361,7 @@ getFormatFromFileFormat(unsigned int format, int  bps)
 }
 
 void
-bufferComvertMSIMA_IMA4(void *data, unsigned channels, unsigned int no_samples, unsigned *blocksz)
+bufferConvertMSIMA_IMA4(void *data, unsigned channels, unsigned int no_samples, unsigned *blocksz)
 {
    unsigned int blocksize = *blocksz;
    int32_t* buf;

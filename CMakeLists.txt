@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.9.0)
 SET(cmake_verbose_makefile TRUE)
 
 SET(CMAKE_MAKEFILE_DEPENDS
@@ -79,7 +79,7 @@ MACRO(GENERATE_PACKAGING_TARGET package)
     SET(CPACK_DEBIAN_PACKAGE_REPLACES "libopenal1, libopenal-dev, libopenal-data, libopenal, libaaxopenal, aaxopenal")
     IF (${package} MATCHES Libraries)
       SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${aaxopenal_SOURCE_DIR}/admin/debian/postinst;${aaxopenal_SOURCE_DIR}/admin/debian/postrm;" "${aaxopenal_SOURCE_DIR}/admin/debian/conffiles" COMPONENT Libraries)
-      SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax3-bin (>= 3.0.0)")
+      SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.1), libaax4-bin (>= 4.0.0)")
       SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
     ELSE(${package} MATCHES Libraries)
       SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS FALSE)

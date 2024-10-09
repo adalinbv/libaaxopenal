@@ -76,7 +76,7 @@ alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bu
             refrate *= (float)tracks;
             refrate *= (float)aaxGetBytesPerSample(format);
             refrate /= (float)bufsize;
-            aaxMixerSetSetup(handle, AAX_REFRESHRATE, refrate);
+            aaxMixerSetSetup(handle, AAX_REFRESH_RATE, refrate);
             aaxMixerSetState(handle, AAX_INITIALIZED);
 #endif
 

@@ -76,7 +76,7 @@ ALCGETINTEGERV(N)(ALCdevice *device, ALCenum attrib, ALCsizei size, T *value)
                 *value = (T)aaxMixerGetSetup(config, AAX_FREQUENCY);
                 break;
             case ALC_REFRESH:
-                *value = (T)aaxMixerGetSetup(config, AAX_REFRESHRATE);
+                *value = (T)aaxMixerGetSetup(config, AAX_REFRESH_RATE);
                 break;
             case ALC_CAPTURE_SAMPLES:
                 *value = (T)aaxSensorGetOffset(config, AAX_SAMPLES);

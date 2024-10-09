@@ -194,7 +194,7 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
                     aaxMixerSetSetup(handle, AAX_FREQUENCY, (unsigned)attributes[n]);
                     break;
                 case ALC_REFRESH:
-                     aaxMixerSetSetup(handle, AAX_REFRESHRATE, (unsigned)attributes[n]);
+                     aaxMixerSetSetup(handle, AAX_REFRESH_RATE, (unsigned)attributes[n]);
                     break;
                 default:
                     _oalContextSetError(ALC_INVALID_VALUE);

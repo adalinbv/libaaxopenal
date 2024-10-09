@@ -87,7 +87,7 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
             src->at[2] = (float)values[2];
             if (!values[0] && !values[1] && !values[2]) {
                 aaxFilter flt;
-                flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+                flt = aaxEmitterGetFilter(emitter, AAX_DIRECTIONAL_FILTER);
                 aaxFilterSetParam(flt, AAX_INNER_ANGLE, AAX_DEGREES, 360.0f);
                 aaxEmitterSetFilter(emitter, flt);
                 aaxFilterDestroy(flt);
@@ -306,19 +306,19 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
             aaxEffectDestroy(eff);
             break;
         case AL_CONE_INNER_ANGLE:
-            flt = aaxEmitterGetFilter(src->handle, AAX_ANGULAR_FILTER);
+            flt = aaxEmitterGetFilter(src->handle, AAX_DIRECTIONAL_FILTER);
             aaxFilterSetParam(flt, AAX_INNER_ANGLE, AAX_DEGREES, fval);
             aaxEmitterSetFilter(src->handle, flt);
             aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_ANGLE:
-            flt = aaxEmitterGetFilter(src->handle, AAX_ANGULAR_FILTER);
+            flt = aaxEmitterGetFilter(src->handle, AAX_DIRECTIONAL_FILTER);
             aaxFilterSetParam(flt, AAX_OUTER_ANGLE, AAX_DEGREES, fval);
             aaxEmitterSetFilter(src->handle, flt);
             aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_GAIN:
-            flt = aaxEmitterGetFilter(src->handle, AAX_ANGULAR_FILTER);
+            flt = aaxEmitterGetFilter(src->handle, AAX_DIRECTIONAL_FILTER);
             aaxFilterSetParam(flt, AAX_OUTER_GAIN, AAX_LINEAR, fval);
             aaxEmitterSetFilter(src->handle, flt);
             aaxFilterDestroy(flt);
@@ -569,17 +569,17 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             aaxFilterDestroy(flt);
             break;
         case AL_CONE_INNER_ANGLE:
-            flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+            flt = aaxEmitterGetFilter(emitter, AAX_DIRECTIONAL_FILTER);
             *value = (T)aaxFilterGetParam(flt, AAX_INNER_ANGLE, AAX_DEGREES);
             aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_ANGLE:
-            flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+            flt = aaxEmitterGetFilter(emitter, AAX_DIRECTIONAL_FILTER);
             *value = (T)aaxFilterGetParam(flt, AAX_OUTER_ANGLE, AAX_DEGREES);
             aaxFilterDestroy(flt);
             break;
         case AL_CONE_OUTER_GAIN:
-            flt = aaxEmitterGetFilter(emitter, AAX_ANGULAR_FILTER);
+            flt = aaxEmitterGetFilter(emitter, AAX_DIRECTIONAL_FILTER);
             *value = (T)aaxFilterGetParam(flt, AAX_OUTER_GAIN, AAX_LINEAR);
             aaxFilterDestroy(flt);
             break;

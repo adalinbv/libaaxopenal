@@ -690,8 +690,7 @@ _oalAAXGetVersionString(const void* config)
 
     if (!init)
     {
-        aaxConfig cfg = (aaxConfig)config;
-        snprintf(version, 40, "%s %s", VERSION, aaxGetVersionString(cfg));
+        snprintf(version, 40, "%s %s", VERSION, aaxGetString(AAX_VERSION_STRING));
         init = -1;
     }
 
