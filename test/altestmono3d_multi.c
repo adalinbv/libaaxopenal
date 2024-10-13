@@ -39,6 +39,7 @@
 #include "driver.h"
 #include "wavfile.h"
 
+#define NUM_SOURCES		8
 #define FILE_PATH		SRC_PATH"/tictac.wav"
 #define FILE2_PATH		SRC_PATH"/wasp.wav"
 
@@ -80,7 +81,7 @@ int main(int argc, char **argv)
       if (data)
       {
          float ang, r = 30.0f;
-         ALuint buffer, source[2];
+         ALuint buffer, source[NUM_SOURCES];
          ALenum format;
          ALint deg;
 
@@ -96,7 +97,7 @@ int main(int argc, char **argv)
          free(data);
          testForALError();
 
-         alGenSources(2, source);
+         alGenSources(NUM_SOURCES, source);
          testForALError();
 
          alSourcei(source[0], AL_BUFFER, buffer);
