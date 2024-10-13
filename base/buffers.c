@@ -1,21 +1,10 @@
 /*
- * Copyright (C) 2005-2016 by Erik Hofman.
- * Copyright (C) 2007-2016 by Adalin B.V.
+ * SPDX-FileCopyrightText: Copyright © 2005-2023 by Erik Hofman.
+ * SPDX-FileCopyrightText: Copyright © 2009-2023 by Adalin B.V.
  *
- * This file is part of AeonWave-OpenAL.
+ * Package Name: AeonWave Audio eXtentions library.
  *
- *  AeonWave-OpenAL is free software: you can redistribute it and/or modify
- *  it under the terms of the Lesser GNU General Public License as published
- *  by the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  AeonWave-OpenAL is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the Lesser GNU General Public License
- *  along with AeonWave-OpenAL.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only
  */
 
 #if HAVE_CONFIG_H
@@ -25,11 +14,9 @@
 #if HAVE_ASSERT_H
 #include <assert.h>
 #endif
+#include <stdarg.h>
 
 #include "buffers.h"
-#ifndef _AL_NOTHREADS
-# include "threads.h"
-#endif
 
 #ifdef NDEBUG
 # include <stdlib.h>
@@ -71,11 +58,16 @@ const char *_intBufNames[] =
 # endif
 #endif
 
-# define _BUF_LOG(a, b, c)
-#if 0
-# define PRINT(...)		printf(...)
-#else
-#define PRINT(...)
+#ifdef BUFFER_DEBUG
+# include <stdio.h>
+# undef DISREGARD
+# if 0
+#  define DISREGARD(x) x
+#  define PRINT(...)		printf(...)
+# else
+#  define DISREGARD(x) x __attribute__((unused))
+#  define PRINT(...)
+# endif
 #endif
 
 static int __intBufFreeSpace(_intBuffers *, int, char);
@@ -83,7 +75,7 @@ static int __intBufFreeSpace(_intBuffers *, int, char);
 
 #ifdef BUFFER_DEBUG
 unsigned int
-_intBufCreateDebug(_intBuffers **buffer, unsigned int id, char *file, int line)
+_intBufCreateDebug(_intBuffers **buffer, unsigned int id, DISREGARD(char *file), DISREGARD(int line))
 {
     unsigned int r = _intBufCreateNormal(buffer, id);
     PRINT("create: %s at line %i: %x\n", file, line, r);
@@ -95,8 +87,6 @@ unsigned int
 _intBufCreateNormal(_intBuffers **buffer, unsigned int id)
 {
     unsigned int rv = UINT_MAX;
-
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
 
     assert(buffer != 0);
     assert(*buffer == 0);
@@ -112,8 +102,8 @@ _intBufCreateNormal(_intBuffers **buffer, unsigned int id)
         {
 #ifndef _AL_NOTHREADS
             (*buffer)->mutex =
-# ifndef NDEBUG
-                _aaxMutexCreateDebug(0, _intBufNames[id], __FUNCTION__);
+# ifndef NDEBUGTHREADS
+                _aaxMutexCreateDebug(0, _intBufNames[id], __func__);
 # else
                 _aaxMutexCreate(0);
 # endif
@@ -161,8 +151,6 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
 {
     unsigned int rv = UINT_MAX;
 
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
-
     assert(data != 0);
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -180,8 +168,8 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
 
 #ifndef _AL_NOTHREADS
             b->mutex =
-# ifndef NDEBUG
-                _aaxMutexCreateDebug(0, _intBufNames[id], __FUNCTION__);
+# ifndef NDEBUGTHREADS
+                _aaxMutexCreateDebug(0, _intBufNames[id], __func__);
 # else
                 _aaxMutexCreate(0);
 # endif
@@ -196,11 +184,12 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
             rv = buffer->first_free++;
             pos = buffer->start + rv;
 
-            assert(buffer->data[pos] == NULL);
+//          assert(buffer->data[pos] == NULL);
 
             buffer->data[pos] = b;
             buffer->num_allocated++;
 
+            assert(pos+1 < buffer->max_allocations);
             if (buffer->data[++pos] != 0)
             {
                 unsigned int i, max = buffer->max_allocations - buffer->start;
@@ -226,8 +215,6 @@ _intBufAddReference(_intBuffers *buffer, unsigned int id,
                         const _intBuffers *data, unsigned int n)
 {
     unsigned int rv = UINT_MAX;
-
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
 
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -289,8 +276,6 @@ _intBufReplace(_intBuffers *buffer, unsigned int id, unsigned int n, void *data)
     _intBufferData *buf;
     const void *rv = NULL;
 
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
-
     assert(data != 0);
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -309,11 +294,11 @@ _intBufReplace(_intBuffers *buffer, unsigned int id, unsigned int n, void *data)
     return rv;
 }
 
-#ifndef NDEBUG
+#ifdef BUFFER_DEBUG
 _intBufferData *
-_intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char *file, int line)
+_intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char locked, char *file, int line)
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
+    if (n == UINT_MAX) return NULL;
 
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -324,10 +309,10 @@ _intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char *file
     assert(buffer->data != 0);
 
 #ifndef _AL_NOTHREADS
-    if (buffer->data[n] != 0)
+    if (!locked && buffer->data[n] != 0)
     {
         int r = _aaxMutexLockDebug(buffer->data[n]->mutex, file, line);
-        if (r < 0) PRINT("error: %i at %s line %i\n", -r, file, line);
+        if (r < 0) { PRINT("error: %i at %s line %i\n", -r, file, line); }
     }
 #endif
 
@@ -338,7 +323,7 @@ _intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char *file
 _intBufferData *
 _intBufGetNormal(_intBuffers *buffer, unsigned int id, unsigned int n, char locked)
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
+    if (n == UINT_MAX) return NULL;
 
     assert(buffer);
     assert(buffer->id == id);
@@ -361,8 +346,6 @@ _intBufGetNormal(_intBuffers *buffer, unsigned int id, unsigned int n, char lock
 void
 _intBufRelease(_intBuffers *buffer, unsigned int id, unsigned int n)
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(buffer != 0);
     assert(buffer->id == id);
 
@@ -400,12 +383,10 @@ _intBufSetDataPtr(_intBufferData *data, void *user_data)
 }
 
 #ifndef _AL_NOTHREADS
-# ifndef NDEBUG
+# ifndef NDEBUGTHREADS
 void
-_intBufReleaseDataDebug(const _intBufferData *data, unsigned int id, char *file, int line)
+_intBufReleaseDataDebug(const _intBufferData *data, DISREGARD(unsigned int id), char *file, int line)
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(data != 0);
 
     _aaxMutexUnLockDebug(data->mutex, file, line);
@@ -413,10 +394,8 @@ _intBufReleaseDataDebug(const _intBufferData *data, unsigned int id, char *file,
 # endif
 
 void
-_intBufReleaseDataNormal(const _intBufferData *data, unsigned int id)
+_intBufReleaseDataNormal(const _intBufferData *data, DISREGARD(unsigned int id))
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     _aaxMutexUnLock(data->mutex);
 }
 #endif
@@ -424,45 +403,21 @@ _intBufReleaseDataNormal(const _intBufferData *data, unsigned int id)
 unsigned int
 _intBufGetNumNoLock(const _intBuffers *buffer, unsigned int id)
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(buffer != 0);
     assert(buffer->id == id);
 
     return buffer->num_allocated;
 }
 
-#ifndef NDEBUG
+#ifdef BUFFER_DEBUG
 unsigned int
-_intBufGetNumDebug(_intBuffers *buffer, unsigned int id, char *file, int line)
+_intBufGetNumDebug(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock), char *file, int line)
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(buffer != 0);
     assert(buffer->id == id);
 
 #ifndef _AL_NOTHREADS
     _aaxMutexLockDebug(buffer->mutex, file, line);
-# ifndef _AAX_PERSISTENT_GETNUM
-    if (lock)
-    {
-        unsigned int i = 0;
-        while((buffer->lock_ctr > 0) && (++i < 20000))
-        {
-            _aaxMutexUnLock(buffer->mutex);
-            _aaxThreadSwitch();
-            _aaxMutexLock(buffer->mutex);
-        }
-        if (i >= 20000) {
-            PRINT("_intBufGetNumNormal timeout\n");
-        }
-    }
-    else
-    {
-        buffer->lock_ctr++;
-        _aaxMutexUnLock(buffer->mutex);
-    }
-# endif
 #endif
 
     return buffer->num_allocated;
@@ -471,42 +426,18 @@ _intBufGetNumDebug(_intBuffers *buffer, unsigned int id, char *file, int line)
 #endif
 
 unsigned int
-_intBufGetNumNormal(_intBuffers *buffer, unsigned int id, char lock)
+_intBufGetNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
 #ifndef _AL_NOTHREADS
     _aaxMutexLock(buffer->mutex);
-# ifndef _AAX_PERSISTENT_GETNUM
-    if (lock)
-    {
-        unsigned int i = 0;
-        while((buffer->lock_ctr > 0) && (++i < 20000))
-        {
-            _aaxMutexUnLock(buffer->mutex);
-            _aaxThreadSwitch();
-            _aaxMutexLock(buffer->mutex);
-        }
-        if (i >= 20000) {
-            PRINT("_intBufGetNumNormal timeout\n");
-        }
-    }
-    else
-    {
-        buffer->lock_ctr++;
-        _aaxMutexUnLock(buffer->mutex);
-    }
-# endif
 #endif
 
     return buffer->num_allocated;
 }
 
 unsigned int
-_intBufGetMaxNumNoLock(const _intBuffers *buffer, unsigned int id)
+_intBufGetMaxNumNoLock(const _intBuffers *buffer, DISREGARD(unsigned int id))
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(buffer != 0);
     assert(buffer->id == id);
 
@@ -514,31 +445,13 @@ _intBufGetMaxNumNoLock(const _intBuffers *buffer, unsigned int id)
 }
 
 unsigned int
-_intBufGetMaxNumNormal(_intBuffers *buffer, unsigned int id, char lock)
+_intBufGetMaxNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(buffer != 0);
     assert(buffer->id == id);
 
 #ifndef _AL_NOTHREADS
     _aaxMutexLock(buffer->mutex);
-# ifndef _AAX_PERSISTENT_GETNUM
-    if (lock)
-    {
-        while(buffer->lock_ctr > 0)
-        {
-            _aaxMutexUnLock(buffer->mutex);
-            _aaxThreadSwitch();
-            _aaxMutexLock(buffer->mutex);
-        }
-    }
-    else
-    {
-        buffer->lock_ctr++;
-        _aaxMutexUnLock(buffer->mutex);
-    }
-# endif
 #endif
 
     return buffer->max_allocations;
@@ -546,22 +459,11 @@ _intBufGetMaxNumNormal(_intBuffers *buffer, unsigned int id, char lock)
 
 #ifndef _AL_NOTHREADS
 void
-_intBufReleaseNumNormal(_intBuffers *buffer, unsigned int id, char lock)
+_intBufReleaseNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
 {
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
-
     assert(buffer);
     assert(buffer->id == id);
 
-# ifndef _AAX_PERSISTENT_GETNUM
-    if (!lock)
-    {
-        _aaxMutexLock(buffer->mutex);
-
-        assert(buffer->lock_ctr > 0);
-        buffer->lock_ctr--;
-    }
-# endif
     _aaxMutexUnLock(buffer->mutex);
 }
 #endif
@@ -572,8 +474,6 @@ unsigned int
 _intBufGetPos(_intBuffers *buffer, unsigned int id, void *data)
 {
     unsigned int i, start, num, max;
-
-    _BUF_LOG(LOG_BULK, id, __FUNCTION__);
 
     assert(data != 0);
     assert(buffer != 0);
@@ -622,7 +522,7 @@ _intBufPopDebug(_intBuffers *buffer, unsigned int id, char locked, char *file, i
             printf("buffer->data[%i] == 0 in file '%s' at line %i\n",
                     start, file, line);
             for(i=0; i<buffer->max_allocations; i++)
-                printf("%x ", (unsigned int)buffer->data[i]);
+                printf("%zx ", (size_t)buffer->data[i]);
             printf("\n");
           //return NULL;
         }
@@ -727,9 +627,63 @@ void *
 _intBufRemoveDebug(_intBuffers *buffer, unsigned int id, unsigned int n,
                         char locked, char num_locked, char *file, int lineno)
 {
+#if 0
     void * r = _intBufRemoveNormal(buffer, id, n, locked, num_locked);
     PRINT("remove: %s at line %i: %x\n", file, lineno, n);
     return r;
+#else
+   _intBufferData *buf;
+    void *rv = 0;
+
+    assert(buffer != 0);
+    assert(buffer->id == id);
+    assert(buffer->start+n < buffer->max_allocations);
+    assert(buffer->data != 0);
+
+    if (num_locked) {
+        _intBufReleaseNum(buffer, id);
+    }
+    _intBufGetNumDebug(buffer, id, 1, file, lineno);
+
+    buf = _intBufGetDebug(buffer, id, n, locked, file, lineno);
+    if (buf)
+    {
+        assert(buf->reference_ctr > 0);
+
+        /*
+         * If the counter doesn't equal to zero this buffer was referenced
+         * by another buffer. So just detach it and let the last referer
+         * take care of it.
+         */
+        if (--buf->reference_ctr == 0)
+        {
+# ifndef _AL_NOTHREADS
+            _aaxMutexDestroy(buf->mutex);
+# endif
+            rv = (void*)buf->ptr;
+            free(buf);
+            buf = 0;
+        }
+        else {
+            _intBufReleaseData(buf, id);
+        }
+
+        buffer->data[buffer->start+n] = NULL;
+        buffer->num_allocated--;
+        if (buffer->first_free > n) {
+            buffer->first_free = n;
+        }
+    }
+
+# ifndef _AL_NOTHREADS
+    _intBufReleaseNumNormal(buffer, id, 1);
+# endif
+    if (num_locked) {
+        _intBufGetNum(buffer, id);
+    }
+
+    return rv;
+#endif
 }
 #endif
 
@@ -739,8 +693,6 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
 {
     _intBufferData *buf;
     void *rv = 0;
-
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
 
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -797,7 +749,7 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
 void 
 _intBufClearDebug(_intBuffers *buffer, unsigned int id,
                       _intBufFreeCallback cb_free,
-                      char *file, int lineno)
+                      DISREGARD(char *file), DISREGARD(int lineno))
 {
     _intBufClearNormal(buffer, id, cb_free);
     PRINT("clear: %s at line %i\n", file, lineno);
@@ -809,8 +761,6 @@ _intBufClearNormal(_intBuffers *buffer, unsigned int id,
                      _intBufFreeCallback cb_free)
 {
     unsigned int n, max, start;
-
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
 
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -835,7 +785,7 @@ _intBufClearNormal(_intBuffers *buffer, unsigned int id,
 void
 _intBufEraseDebug(_intBuffers **buffer, unsigned int id,
                       _intBufFreeCallback cb_free,
-                      char *file, int lineno)
+                      DISREGARD(char *file), DISREGARD(int lineno))
 {
     _intBufEraseNormal(buffer, id, cb_free);
     PRINT("erase: %s at line %i\n", file, lineno);
@@ -846,8 +796,6 @@ void
 _intBufEraseNormal(_intBuffers **buf, unsigned int id,
                      _intBufFreeCallback cb_free)
 {
-    _BUF_LOG(LOG_INFO, id, __FUNCTION__);
-
     assert(buf != 0);
 
     if (*buf)
@@ -911,14 +859,10 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
     num = buffer->num_allocated;
     max = buffer->max_allocations;
 
-    if (((start+num) == max) || ((start+buffer->first_free) == max))
+    assert((start+num) <= max);
+    if (((start+num+1) == max) || ((start+buffer->first_free+1) == max))
     {
         _intBufferData **ptr = buffer->data;
-
-#ifndef _AAX_PERSISTENT_GETNUM
-        _intBufReleaseNum(buffer, id);
-        _intBufGetNumNormal(buffer, id, 1);
-#endif
 
         if (start)
         {
@@ -948,29 +892,24 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
                 rv = -1;
             }
         }
-
-#ifndef _AAX_PERSISTENT_GETNUM
-        _intBufReleaseNumNormal(buffer, id, 1);
-        _intBufGetNum(buffer, id);
-#endif
     }
     else {
         rv = -1;
     }
 
-#ifndef NDEBUG
+#ifdef BUFFER_DEBUG
     if (buffer->data[buffer->start+buffer->first_free] != 0)
     {
         unsigned int i;
 
         printf("add, buffer->first_free: %i\n", buffer->first_free);
         for(i=0; i<buffer->max_allocations; i++)
-            printf("%x ", (unsigned int)buffer->data[i]);
+            printf("%zx ", (size_t)buffer->data[i]);
         printf("\n");
     }
 
     assert(buffer->start+buffer->first_free < buffer->max_allocations);
-    assert(buffer->data[buffer->start+buffer->first_free] == 0);
+//  assert(buffer->data[buffer->start+buffer->first_free] == 0);
 #endif
 
     if (!locked) {

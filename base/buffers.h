@@ -1,21 +1,10 @@
 /*
- * Copyright (C) 2005-2016 by Erik Hofman.
- * Copyright (C) 2007-2016 by Adalin B.V.
+ * SPDX-FileCopyrightText: Copyright © 2005-2023 by Erik Hofman.
+ * SPDX-FileCopyrightText: Copyright © 2009-2023 by Adalin B.V.
  *
- * This file is part of AeonWave-OpenAL.
+ * Package Name: AeonWave Audio eXtentions library.
  *
- *  AeonWave-OpenAL is free software: you can redistribute it and/or modify
- *  it under the terms of the Lesser GNU General Public License as published
- *  by the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  AeonWave-OpenAL is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the Lesser GNU General Public License
- *  along with AeonWave-OpenAL.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only
  */
 
 #ifndef _AL_BUFFERS_H
@@ -27,14 +16,12 @@
 
 #include <limits.h>		/* for UINT_MAX */
 
-#if 1
-#define PRINT_FUNC		1
-#endif
-#if 1
-#define _AAX_PERSISTENT_GETNUM	1
-#endif
 #ifndef NDEBUG
 # define BUFFER_DEBUG		1
+# define NDEBUGTHREADS		1
+#else
+# define BUFFER_DEBUG		0
+# define NDEBUGTHREADS		0
 #endif
 
 typedef struct
@@ -170,9 +157,9 @@ _intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
  * @return the object data
  */
 #ifdef BUFFER_DEBUG
-# define _intBufGet(a, b, c)  _intBufGetDebug(a, b, c, __FILE__, __LINE__)
+# define _intBufGet(a, b, c)  _intBufGetDebug(a, b, c, 0, __FILE__, __LINE__)
  _intBufferData *
- _intBufGetDebug(_intBuffers *, unsigned int, unsigned int, char *, int);
+ _intBufGetDebug(_intBuffers *, unsigned int, unsigned int, char, char *, int);
 #else
 # define _intBufGet(a, b, c)  _intBufGetNormal(a, b, c, 0)
 #endif
@@ -265,9 +252,9 @@ _intBufGetMaxNumNoLock(const _intBuffers *, unsigned int);
  * @return the number of allocated objects in the buffer array
  */
 #ifndef NDEBUG
-# define _intBufGetNum(a, b)  _intBufGetNumDebug(a, b, __FILE__, __LINE__)
+# define _intBufGetNum(a, b)  _intBufGetNumDebug(a, b, 0,  __FILE__, __LINE__)
 unsigned int
-_intBufGetNumDebug(_intBuffers *, unsigned int, char *, int);
+_intBufGetNumDebug(_intBuffers *, unsigned int, char, char *, int);
 #else
 # define _intBufGetNum(a, b)  _intBufGetNumNormal(a, b, 0)
 #endif
