@@ -24,7 +24,7 @@
 #include "driver.h"
 #include "wavfile.h"
 
-#define PRINT_DEBUG_MSG         1
+#define PRINT_DEBUG_MSG         0
 #define PRINT_INFO_MSG		1
 
 #define WAVE_HEADER_SIZE        11

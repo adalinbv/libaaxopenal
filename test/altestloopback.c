@@ -185,9 +185,7 @@ int main(int argc, char **argv)
              /* retrieve some or all of the available captured samples */
              alcCaptureSamples(device, data, no_samples);
 
-printf(">>>>>>>>>>>>>>>>>>\n");
              alBufferData(buffer[1],format,data,no_samples*tracks*no_bits/8,freq);
-printf("<<<<<<<<<<<<<<<<<<\n");
              free(data);
 
              alSourcei(source[0], AL_BUFFER, 0); // detach the associated buffer
