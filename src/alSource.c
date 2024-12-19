@@ -37,13 +37,13 @@
 #include "api.h"
 #include "aax_support.h"
 
-static _intBuffers *_oalGetSources(void *);
-static const _intBufferData *_oalFindSourceById(ALuint, _intBuffers*, ALuint *);
+static _alBuffers *_oalGetSources(void *);
+static const _alBufferData *_oalFindSourceById(ALuint, _alBuffers*, ALuint *);
 
 AL_API ALboolean AL_APIENTRY
 alIsSource (ALuint id)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     ALboolean ret = AL_FALSE;
 
     if (id)
@@ -61,7 +61,7 @@ alIsSource (ALuint id)
 AL_API void AL_APIENTRY
 alGenSources(ALsizei num, ALuint *ids)
 {
-    _intBufferData *dptr = 0;
+    _alBufferData *dptr = 0;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -76,8 +76,8 @@ alGenSources(ALsizei num, ALuint *ids)
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
-        _intBuffers *cs = _oalGetSources(ctx);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
+        _alBuffers *cs = _oalGetSources(ctx);
         if (cs)
         {
             ALuint pos = UINT_MAX;
@@ -112,10 +112,10 @@ alGenSources(ALsizei num, ALuint *ids)
                     aaxFilterSetState(flt, AAX_AL_INVERSE_DISTANCE_CLAMPED);
                     aaxEmitterSetFilter(src->handle, flt);
 
-                    pos = _intBufAddData(cs, _OAL_SOURCE, src);
+                    pos = _alBufAddData(cs, _OAL_SOURCE, src);
                     if (pos == UINT_MAX) break;
 
-                    ids[i] = _intBufPosToId(pos);
+                    ids[i] = _alBufPosToId(pos);
                 }
                 else {
                     _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -128,15 +128,15 @@ alGenSources(ALsizei num, ALuint *ids)
                 for (r=0; r<i; r++)
                 {
                     _oalSource *src;
-                    pos = _intBufIdToPos(ids[r]);
-                    src = _intBufRemove(cs, _OAL_SOURCE, pos, AL_FALSE);
+                    pos = _alBufIdToPos(ids[r]);
+                    src = _alBufRemove(cs, _OAL_SOURCE, pos, AL_FALSE);
                     _oalFreeSource(ctx, src);
                 }
 
                 _oalStateSetError(AL_OUT_OF_MEMORY);
             }
         }
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -146,7 +146,7 @@ alGenSources(ALsizei num, ALuint *ids)
 AL_API void AL_APIENTRY
 alDeleteSources(ALsizei num, const ALuint *ids)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -160,11 +160,11 @@ alDeleteSources(ALsizei num, const ALuint *ids)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
-        _intBuffers *cs = ctx->sources;
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
+        _alBuffers *cs = ctx->sources;
         unsigned int *pos;
 
-        if ((unsigned int)num > _intBufGetMaxNumNoLock(cs, _OAL_SOURCE))
+        if ((unsigned int)num > _alBufGetMaxNumNoLock(cs, _OAL_SOURCE))
         {
             _oalStateSetError(AL_INVALID_VALUE);
             return;
@@ -173,7 +173,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
         pos = malloc(num * sizeof(unsigned int));
         if (pos)
         {
-            const _intBufferData *dptr_src = 0;
+            const _alBufferData *dptr_src = 0;
             ALsizei i;
 
             for (i=0; i<num; i++)
@@ -191,7 +191,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
                 for (i=0; i<num; i++)
                 {
                     _oalSource *src;
-                    src = _intBufRemove(cs, _OAL_SOURCE, pos[i], AL_FALSE);
+                    src = _alBufRemove(cs, _OAL_SOURCE, pos[i], AL_FALSE);
                     _oalFreeSource(ctx, src);
                 }
             }
@@ -201,7 +201,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
 
             free(pos);
         }
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -211,7 +211,7 @@ alDeleteSources(ALsizei num, const ALuint *ids)
 AL_API void AL_APIENTRY
 alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     if (!num) return;	/* nop */
 
@@ -224,26 +224,26 @@ alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        const _intBufferData *dptr_src;
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
-        _intBuffers *cs = _oalGetSources(ctx);
+        const _alBufferData *dptr_src;
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
+        _alBuffers *cs = _oalGetSources(ctx);
         unsigned int pos;
 
         dptr_src = _oalFindSourceById(id, cs, &pos);
         if (dptr_src)
         {
-            _oalSource *src = _intBufGetDataPtr(dptr_src);
+            _oalSource *src = _alBufGetDataPtr(dptr_src);
             int i;
 
             for (i=0; i<num; i++)
             {
-                const _intBufferData *dptr_buf;
+                const _alBufferData *dptr_buf;
                 ALuint value = ids[i];
 
                 dptr_buf = _oalFindBufferById(value, &pos);
                 if (dptr_buf)
                 {
-                    aaxBuffer buf = _intBufGetDataPtr(dptr_buf);
+                    aaxBuffer buf = _alBufGetDataPtr(dptr_buf);
                     aaxEmitterAddBuffer(src->handle, buf);
                 }
                 else {
@@ -254,7 +254,7 @@ alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
         else {
             _oalStateSetError(AL_INVALID_NAME);
         }
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_INVALID_OPERATION);
@@ -264,7 +264,7 @@ alSourceQueueBuffers(ALuint id, ALsizei num, const ALuint *ids)
 AL_API void AL_APIENTRY
 alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     if (!num) return;     /* nop */
 
@@ -277,19 +277,19 @@ alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        const _intBufferData *dptr_src;
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
-        _intBuffers *cs = _oalGetSources(ctx);
+        const _alBufferData *dptr_src;
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
+        _alBuffers *cs = _oalGetSources(ctx);
         unsigned int pos;
 
         dptr_src = _oalFindSourceById(id, cs, &pos);
         if (dptr_src)
         {
-            _oalSource *src = _intBufGetDataPtr(dptr_src);
+            _oalSource *src = _alBufGetDataPtr(dptr_src);
 
             if (num <= (int)aaxEmitterGetNoBuffers(src->handle, AAX_PROCESSED))
             {
-                _intBuffers *db = _oalGetBuffers(NULL);
+                _alBuffers *db = _oalGetBuffers(NULL);
                 unsigned int i;
                 aaxBuffer buf;
 
@@ -297,8 +297,8 @@ alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
                 do
                 {
                     buf = aaxEmitterGetBufferByPos(src->handle, --i, AAX_FALSE);
-                    pos = _intBufGetPos(db, _OAL_BUFFER, buf);
-                    ids[i] = _intBufPosToId(pos);
+                    pos = _alBufGetPos(db, _OAL_BUFFER, buf);
+                    ids[i] = _alBufPosToId(pos);
                     if (ids[i] == 0) break;
                 }
                 while (i);
@@ -322,7 +322,7 @@ alSourceUnqueueBuffers(ALuint id, ALsizei num, ALuint *ids)
         else {
             _oalStateSetError(AL_INVALID_NAME);
         }
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_INVALID_OPERATION);
@@ -338,7 +338,7 @@ alSourcePlay(ALuint id)
 AL_API void AL_APIENTRY
 alSourcePlayv(ALsizei num, const ALuint *ids)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -353,19 +353,19 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
-        _intBuffers *cs = _oalGetSources(ctx);
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
+        _alBuffers *cs = _oalGetSources(ctx);
         unsigned int pos;
         ALsizei i = num;
 
         do
         {
-            const _intBufferData *dptr;
+            const _alBufferData *dptr;
 
             dptr = _oalFindSourceById(ids[--i], cs, &pos);
             if (dptr)
             {
-                _oalSource *src = _intBufGetDataPtr(dptr);
+                _oalSource *src = _alBufGetDataPtr(dptr);
                 if (!src->parent)
                 {
                     _oalDevice *dev = (_oalDevice *)ctx->parent_device;
@@ -382,7 +382,7 @@ alSourcePlayv(ALsizei num, const ALuint *ids)
         }
         while (i);
 
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -406,14 +406,14 @@ alSourcePausev(ALsizei num, const ALuint *ids)
 
     for (i=0; i<num; i++)
     {
-        const _intBufferData *dptr;
+        const _alBufferData *dptr;
         unsigned int pos;
         _oalSource *src;
 
         dptr = _oalFindSourceById(ids[i], 0, &pos);
         if (dptr)
         {
-            src = _intBufGetDataPtr(dptr);
+            src = _alBufGetDataPtr(dptr);
             aaxEmitterSetState(src->handle, AAX_SUSPENDED);
         }
     }
@@ -428,7 +428,7 @@ alSourceStop(ALuint id)
 AL_API void AL_APIENTRY
 alSourceStopv(ALsizei num, const ALuint *ids)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -443,20 +443,20 @@ alSourceStopv(ALsizei num, const ALuint *ids)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
-        _intBuffers *cs = _oalGetSources(ctx);
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
+        _alBuffers *cs = _oalGetSources(ctx);
         unsigned int pos;
         ALsizei i = num;
 
         do
         {
-            const _intBufferData *dptr;
+            const _alBufferData *dptr;
 
             dptr = _oalFindSourceById(ids[--i], cs, &pos);
             if (dptr)
             {
                 const _oalDevice *dev = ctx->parent_device;
-                _oalSource *src = _intBufGetDataPtr(dptr);
+                _oalSource *src = _alBufGetDataPtr(dptr);
 
                 aaxEmitterSetState(src->handle, AAX_STOPPED);
                 aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
@@ -465,7 +465,7 @@ alSourceStopv(ALsizei num, const ALuint *ids)
         }
         while (i);
 
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
     }
@@ -488,14 +488,14 @@ alSourceRewindv(ALsizei num, const ALuint *ids)
 
     for (i=0; i<num; i++)
     {
-        const _intBufferData *dptr;
+        const _alBufferData *dptr;
         _oalSource *src;
         unsigned int pos;
 
         dptr = _oalFindSourceById(ids[i], 0, &pos);
         if (dptr)
         {
-            src = _intBufGetDataPtr(dptr);
+            src = _alBufGetDataPtr(dptr);
             aaxEmitterSetState(src->handle, AAX_INITIALIZED);
         }
     }
@@ -623,17 +623,17 @@ alGetSourcei64vSOFT(ALuint source, ALenum param, ALint64SOFT *values) {
 }
 /* AL_SOFT_source_latency */
 
-static _intBuffers *
+static _alBuffers *
 _oalGetSources(void *context)
 {
     _oalContext *ctx = (_oalContext *)context;
-    _intBufferData *dptr = NULL;
-    _intBuffers *cs = NULL;
+    _alBufferData *dptr = NULL;
+    _alBuffers *cs = NULL;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
     if (!ctx && ((dptr = _oalGetCurrentContext()) != NULL)) {
-        ctx = _intBufGetDataPtr(dptr);
+        ctx = _alBufGetDataPtr(dptr);
     }
 
     if (ctx) {
@@ -644,41 +644,41 @@ _oalGetSources(void *context)
     } 
 
     if (dptr) {
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return cs;
 }
 
-static const _intBufferData *
-_oalFindSourceById(ALuint id, _intBuffers *scs, ALuint *rpos)
+static const _alBufferData *
+_oalFindSourceById(ALuint id, _alBuffers *scs, ALuint *rpos)
 {
-    _intBufferData *dptr_src = NULL;
-    _intBuffers *cs = scs;
+    _alBufferData *dptr_src = NULL;
+    _alBuffers *cs = scs;
     ALuint pos;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
     *rpos = UINT_MAX;
 
-    pos = _intBufIdToPos(id);
+    pos = _alBufIdToPos(id);
     if (pos != UINT_MAX)
     {
-        _intBufferData *dptr_ctx = NULL;
+        _alBufferData *dptr_ctx = NULL;
         _oalContext *ctx = NULL;
 
         if (!scs && ((dptr_ctx = _oalGetCurrentContext()) != NULL))
         {
-            ctx = _intBufGetDataPtr(dptr_ctx);
+            ctx = _alBufGetDataPtr(dptr_ctx);
             cs = _oalGetSources(ctx);
         }
 
         if (cs)
         {
-            ALuint num = _intBufGetMaxNumNoLock(cs, _OAL_SOURCE);
+            ALuint num = _alBufGetMaxNumNoLock(cs, _OAL_SOURCE);
             if (pos < num)
             {
-                dptr_src = _intBufGetNoLock(cs, _OAL_SOURCE, pos);
+                dptr_src = _alBufGetNoLock(cs, _OAL_SOURCE, pos);
                 if (dptr_src) {
                     *rpos = pos;
                 }
@@ -686,7 +686,7 @@ _oalFindSourceById(ALuint id, _intBuffers *scs, ALuint *rpos)
         }
 
         if (dptr_ctx) {
-            _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+            _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
         }
     }
 

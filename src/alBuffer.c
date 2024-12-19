@@ -35,7 +35,7 @@ static void* null_buf = "\0";
 AL_API ALboolean AL_APIENTRY
 alIsBuffer(ALuint id)
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALuint pos;
 
     dptr = _oalFindBufferById(id, &pos);
@@ -46,7 +46,7 @@ alIsBuffer(ALuint id)
 AL_API void AL_APIENTRY
 alGenBuffers(ALsizei num, ALuint *ids)
 {
-    _intBuffers *db;
+    _alBuffers *db;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -66,11 +66,11 @@ alGenBuffers(ALsizei num, ALuint *ids)
 
         for (i=0; i<num; i++)
         {
-            if ((pos = _intBufAddData(db, _OAL_BUFFER, null_buf)) == UINT_MAX) {
+            if ((pos = _alBufAddData(db, _OAL_BUFFER, null_buf)) == UINT_MAX) {
                 break;
             }
 
-            ids[i] = _intBufPosToId(pos);
+            ids[i] = _alBufPosToId(pos);
         }
 
         if (pos == UINT_MAX)
@@ -78,8 +78,8 @@ alGenBuffers(ALsizei num, ALuint *ids)
             unsigned int r;
             for (r=i; r != 0; --r)
             {
-                pos = _intBufIdToPos(ids[r]);
-                _intBufRemove(db, _OAL_BUFFER, pos, AL_FALSE);
+                pos = _alBufIdToPos(ids[r]);
+                _alBufRemove(db, _OAL_BUFFER, pos, AL_FALSE);
                 ids[r] = 0;
             }
             _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -108,7 +108,7 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
         int i;
         for (i=0; i<num; i++)
         {
-            const _intBufferData *dptr = _oalFindBufferById(ids[i], &pos[i]);
+            const _alBufferData *dptr = _oalFindBufferById(ids[i], &pos[i]);
             if (dptr == 0) break;
         }
 
@@ -117,14 +117,14 @@ alDeleteBuffers(ALsizei num, const ALuint *ids)
          */
         if (i == num)
         {
-            _intBuffers *db = _oalGetBuffers(NULL);
+            _alBuffers *db = _oalGetBuffers(NULL);
 
             i--;
             do
             {
                 aaxBuffer buf;
 
-                buf = _intBufRemove(db, _OAL_BUFFER, pos[i], AL_FALSE);
+                buf = _alBufRemove(db, _OAL_BUFFER, pos[i], AL_FALSE);
                 if (buf) {
                     aaxBufferDestroy(buf);
                 }
@@ -142,7 +142,7 @@ AL_API void AL_APIENTRY
 alBufferData(ALuint id, ALenum format,
                  const ALvoid *data, ALsizei size, ALsizei frequency)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     unsigned int pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -156,7 +156,7 @@ alBufferData(ALuint id, ALenum format,
     dptr = _oalFindBufferById(id, &pos);
     if (dptr)
     {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
+        aaxBuffer buf = _alBufGetDataPtr(dptr);
         size_t no_samples = size;
         unsigned char channels;
         enum aaxFormat aaxfmt;
@@ -169,25 +169,25 @@ alBufferData(ALuint id, ALenum format,
 
         if (buf == null_buf)
         {
-            const _intBufferData *dptr_dev = _oalGetCurrentDevice();
+            const _alBufferData *dptr_dev = _oalGetCurrentDevice();
             if (dptr_dev)
             {
-                _oalDevice *d = _intBufGetDataPtr(dptr_dev);
+                _oalDevice *d = _alBufGetDataPtr(dptr_dev);
                 aaxConfig config = d->lst.handle;
                 aaxBuffer new_buf;
 
                 new_buf = aaxBufferCreate(config, no_samples, channels, aaxfmt);
-                _intBufReleaseData(dptr_dev, _OAL_DEVICE);
+                _alBufReleaseData(dptr_dev, _OAL_DEVICE);
 
                 if (new_buf)
                 {
-                    _intBuffers *db = _oalGetBuffers(NULL);
-                    unsigned int pos = _intBufIdToPos(id);
+                    _alBuffers *db = _oalGetBuffers(NULL);
+                    unsigned int pos = _alBufIdToPos(id);
 
                     aaxBufferSetSetup(new_buf, AAX_FREQUENCY, frequency);
                     aaxBufferSetData(new_buf, data);
 
-                    _intBufReplace(db, _OAL_BUFFER, pos, new_buf);
+                    _alBufReplace(db, _OAL_BUFFER, pos, new_buf);
                 }
                 else {
                   _oalStateSetError(AL_OUT_OF_MEMORY);
@@ -238,23 +238,23 @@ alBufferData(ALuint id, ALenum format,
 
 /* -------------------------------------------------------------------------- */
 
-_intBuffers *
+_alBuffers *
 _oalGetBuffers(_oalDevice *d)
 {
-    _intBufferData *dptr = NULL;
-    _intBuffers *bufs = 0;
+    _alBufferData *dptr = NULL;
+    _alBuffers *bufs = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
     if (!d && ((dptr = _oalGetCurrentDevice()) != NULL)) {
-        d = _intBufGetDataPtr(dptr);
+        d = _alBufGetDataPtr(dptr);
     }
 
     if (d)
     {
         if (d->buffers == 0)
         {
-            unsigned int r =  _intBufCreate(&d->buffers, _OAL_BUFFER);
+            unsigned int r =  _alBufCreate(&d->buffers, _OAL_BUFFER);
             if (r == UINT_MAX) {
                 _oalContextSetError(ALC_OUT_OF_MEMORY);
             }
@@ -266,33 +266,33 @@ _oalGetBuffers(_oalDevice *d)
     }
 
     if (dptr) {
-       _intBufReleaseData(dptr, _OAL_DEVICE);
+       _alBufReleaseData(dptr, _OAL_DEVICE);
     }
 
     return bufs;
 }
 
-_intBufferData *
+_alBufferData *
 _oalFindBufferById(ALuint id, ALuint *pos)
 {
-    _intBufferData *dptr = NULL;
+    _alBufferData *dptr = NULL;
     ALuint n;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    n = _intBufIdToPos(id);
+    n = _alBufIdToPos(id);
     if (n != UINT_MAX)
     {
-        _intBuffers *db = _oalGetBuffers(NULL);
+        _alBuffers *db = _oalGetBuffers(NULL);
         if (db)
         {
-            ALuint num = _intBufGetMaxNum(db, _OAL_BUFFER);
+            ALuint num = _alBufGetMaxNum(db, _OAL_BUFFER);
             if (n < num)
             {
-                dptr = _intBufGetNoLock(db, _OAL_BUFFER, n);
+                dptr = _alBufGetNoLock(db, _OAL_BUFFER, n);
                 *pos = n;
             }
-            _intBufReleaseNum(db, _OAL_BUFFER);
+            _alBufReleaseNum(db, _OAL_BUFFER);
         }
     }
 

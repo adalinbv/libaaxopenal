@@ -43,7 +43,7 @@ alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bu
 
     if (_oalDevices == 0)
     {
-        pos = _intBufCreate(&_oalDevices, _OAL_DEVICE);
+        pos = _alBufCreate(&_oalDevices, _OAL_DEVICE);
         if (pos == UINT_MAX)
         {
             _oalContextSetError(ALC_OUT_OF_MEMORY);
@@ -82,12 +82,12 @@ alcCaptureOpenDevice(const ALCchar *name, ALCuint freq, ALCenum fmt, ALCsizei bu
 
             d->sync = 0;
             d->lst.handle = handle;
-            pos = _intBufAddData(_oalDevices, _OAL_DEVICE, d);
+            pos = _alBufAddData(_oalDevices, _OAL_DEVICE, d);
 
             if (pos != UINT_MAX)
             {
                 uint32_t id, devid;
-                id = _intBufPosToId(pos);
+                id = _alBufPosToId(pos);
                 devid = _oalIdToDevice(id);
                 device = INT_TO_PTR(devid);
             }

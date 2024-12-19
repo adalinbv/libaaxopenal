@@ -156,7 +156,7 @@ typedef struct
     _oalState *state;
     const void *parent_device;
 
-    _intBuffers *sources;
+    _alBuffers *sources;
 
 } _oalContext;
 
@@ -167,21 +167,21 @@ typedef struct
     ALCenum format;
     int frequency;
 
-    _intBuffers *buffers;
+    _alBuffers *buffers;
 
     /* dynamic data */
     unsigned int current_context;
 
     _oalListener lst;
-    _intBuffers *contexts;
+    _alBuffers *contexts;
 
 } _oalDevice;
 
-_intBufferData *_oalGetCurrentDevice();
-_intBufferData *_oalGetCurrentContext();
+_alBufferData *_oalGetCurrentDevice();
+_alBufferData *_oalGetCurrentContext();
 _oalDevice *_oalFindDeviceById(unsigned int);
 
-extern _intBuffers *_oalDevices;
+extern _alBuffers *_oalDevices;
 
 /**
  * Context Error reporting
@@ -196,8 +196,8 @@ ALCenum __oalContextSetErrorReport(ALCenum, char *, int);
 
 /* --- Buffers --- */
 
-_intBuffers *_oalGetBuffers(_oalDevice *d);
-_intBufferData *_oalFindBufferById(ALuint, ALuint*);
+_alBuffers *_oalGetBuffers(_oalDevice *d);
+_alBufferData *_oalFindBufferById(ALuint, ALuint*);
 void _oalFreeBuffer(void*);
 
 #endif

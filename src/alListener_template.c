@@ -49,7 +49,7 @@ ALLISTENER3(N)(ALenum attrib, T v1, T v2, T v3)
 AL_API void AL_APIENTRY
 ALLISTENERV(N)(ALenum attrib, const T *values)
 {
-    _intBufferData *dptr_ctx;
+    _alBufferData *dptr_ctx;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
@@ -65,7 +65,7 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
         _oalListener *lst;
         _oalContext *ctx;
 
-        ctx = _intBufGetDataPtr(dptr_ctx);
+        ctx = _alBufGetDataPtr(dptr_ctx);
         lst = _oalGetListeners(ctx);
         if (lst)
         {
@@ -121,7 +121,7 @@ ALLISTENERV(N)(ALenum attrib, const T *values)
             }
         }
 
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_INVALID_OPERATION);

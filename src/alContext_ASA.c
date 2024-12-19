@@ -26,7 +26,7 @@
 ALC_API ALenum ALC_APIENTRY
 alcASAGetSource(ALuint prop, ALuint id, ALvoid *data, ALuint* size)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     if (!ids)
     {
@@ -37,22 +37,22 @@ alcASAGetSource(ALuint prop, ALuint id, ALvoid *data, ALuint* size)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        const _intBufferData *dptr_src;
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
-        _intBuffers *cs = _oalGetSources(ctx);
+        const _alBufferData *dptr_src;
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
+        _alBuffers *cs = _oalGetSources(ctx);
         unsigned int pos;
 
         dptr_src = _oalFindSourceById(id, cs, &pos);
         if (dptr_src)
         {
-            _oalSource *src = _intBufGetDataPtr(dptr_src);
+            _oalSource *src = _alBufGetDataPtr(dptr_src);
 // aaxEmitterSetGainMinMax(src->handle, 0.0f, 1.0f);
 
         }
         else {
             _oalStateSetError(AL_INVALID_NAME);
         }
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_INVALID_OPERATION);
@@ -62,7 +62,7 @@ alcASAGetSource(ALuint prop, ALuint id, ALvoid *data, ALuint* size)
 ALC_API ALenum ALC_APIENTRY
 alcASASetSource(ALuint prop, ALuint id, ALvoid *data, ALuint size)
 {
-    const _intBufferData *dptr_ctx;
+    const _alBufferData *dptr_ctx;
 
     if (!ids)
     {
@@ -73,22 +73,22 @@ alcASASetSource(ALuint prop, ALuint id, ALvoid *data, ALuint size)
     dptr_ctx = _oalGetCurrentContext();
     if (dptr_ctx)
     {
-        const _intBufferData *dptr_src;
-        _oalContext *ctx = _intBufGetDataPtr(dptr_ctx); 
-        _intBuffers *cs = _oalGetSources(ctx);
+        const _alBufferData *dptr_src;
+        _oalContext *ctx = _alBufGetDataPtr(dptr_ctx); 
+        _alBuffers *cs = _oalGetSources(ctx);
         unsigned int pos;
 
         dptr_src = _oalFindSourceById(id, cs, &pos);
         if (dptr_src)
         {
-            _oalSource *src = _intBufGetDataPtr(dptr_src);
+            _oalSource *src = _alBufGetDataPtr(dptr_src);
 // aaxEmitterSetGainMinMax(src->handle, 0.0f, 1.0f);
 
         }
         else {
             _oalStateSetError(AL_INVALID_NAME);
         }
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalStateSetError(AL_INVALID_OPERATION);

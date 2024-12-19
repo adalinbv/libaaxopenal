@@ -66,13 +66,13 @@ _oalListener *
 _oalGetListeners(_oalContext *context)
 {
     _oalContext *ctx = context;
-    _intBufferData *dptr = NULL;
+    _alBufferData *dptr = NULL;
     _oalListener *lst = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
     if (!ctx && ((dptr = _oalGetCurrentContext()) != NULL)) {
-        ctx = _intBufGetDataPtr(dptr);
+        ctx = _alBufGetDataPtr(dptr);
     }
 
     if (ctx)
@@ -85,7 +85,7 @@ _oalGetListeners(_oalContext *context)
     }
 
     if (dptr) {
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return lst;

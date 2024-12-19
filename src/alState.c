@@ -65,10 +65,10 @@ alGetError(void)
 AL_API void AL_APIENTRY
 alEnable(ALenum attrib)
 {
-    _intBufferData *dptr = _oalGetCurrentContext();
+    _alBufferData *dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
         switch(attrib)
         {
@@ -82,17 +82,17 @@ alEnable(ALenum attrib)
             _oalStateSetError(AL_INVALID_ENUM);
             break;
         }
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
 AL_API void AL_APIENTRY
 alDisable(ALenum attrib)
 {
-    _intBufferData *dptr = _oalGetCurrentContext();
+    _alBufferData *dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx  =_intBufGetDataPtr(dptr);
+        _oalContext *ctx  =_alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
         switch(attrib)
         {
@@ -106,7 +106,7 @@ alDisable(ALenum attrib)
             _oalStateSetError(AL_INVALID_ENUM);
             break;
         }
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
@@ -114,12 +114,12 @@ AL_API ALboolean AL_APIENTRY
 alIsEnabled (ALenum attrib)
 {
     ALboolean rv = AL_FALSE;
-    _intBufferData *dptr;
+    _alBufferData *dptr;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
         switch(attrib)
         {
@@ -133,7 +133,7 @@ alIsEnabled (ALenum attrib)
             _oalStateSetError(AL_INVALID_ENUM);
             break;
         }
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
     return rv;
 }
@@ -143,7 +143,7 @@ alGetString(ALenum attrib)
 {
     static ALchar *_default = (ALchar*)"Invalid parameter in alGetString.";
     const _oalEnumValue_s *e;
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     _oalDevice *dev;
     ALchar *retstr;
     unsigned int i;
@@ -155,7 +155,7 @@ alGetString(ALenum attrib)
     dptr = _oalGetCurrentDevice();
     if (dptr)
     {
-        dev = _intBufGetDataPtr(dptr);
+        dev = _alBufGetDataPtr(dptr);
         assert(dev);
 
         retstr = (ALchar *)"";
@@ -197,7 +197,7 @@ alGetString(ALenum attrib)
             }
         }
 
-        _intBufReleaseData(dptr, _OAL_DEVICE);
+        _alBufReleaseData(dptr, _OAL_DEVICE);
     }
 
     return retstr;
@@ -611,7 +611,7 @@ _oalStateCreate(aaxConfig handle, void *context)
 ALenum
 __oalStateSetErrorNormal(ALenum error)
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALenum ret = AL_INVALID_OPERATION;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
@@ -619,13 +619,13 @@ __oalStateSetErrorNormal(ALenum error)
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         ret = cs->error;
         cs->error = error;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -644,18 +644,18 @@ __oalStateSetErrorReport(ALenum error, char *file, int line)
 ALfloat
 _oalGetDopplerFactor()
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALfloat ret = 0.0f;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         ret = cs->dopplerFactor;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -664,12 +664,12 @@ _oalGetDopplerFactor()
 void
 _oalSetDopplerFactor(ALfloat f)
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
         aaxConfig handle;
         _oalDevice *dev;
@@ -684,25 +684,25 @@ _oalSetDopplerFactor(ALfloat f)
         aaxScenerySetEffect(handle, eff);
         aaxEffectDestroy(eff);
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
 ALfloat
 _oalGetDopplerVelocity()
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALfloat ret = 0.0f;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         ret = cs->dopplerVelocity;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -711,35 +711,35 @@ _oalGetDopplerVelocity()
 void
 _oalSetDopplerVelocity(ALfloat f)
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         cs->dopplerVelocity = f;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
 ALfloat
 _oalGetSoundVelocity()
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALfloat ret = 0.0f;
  
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         ret = cs->soundVelocity;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -748,12 +748,12 @@ _oalGetSoundVelocity()
 void
 _oalSetSoundVelocity(ALfloat f)
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
         aaxConfig handle;
         _oalDevice *dev;
@@ -768,7 +768,7 @@ _oalSetSoundVelocity(ALfloat f)
         aaxScenerySetEffect(handle, eff);
         aaxEffectDestroy(eff);
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 
@@ -776,18 +776,18 @@ _oalSetSoundVelocity(ALfloat f)
 ALfloat
 _oalGetMaxDistance()
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALfloat ret = 0.0f;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         ret = cs->maxDistance;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -796,17 +796,17 @@ _oalGetMaxDistance()
 void
 _oalSetMaxDistance(ALfloat f)
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         cs->maxDistance = f;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }
 #endif
@@ -814,18 +814,18 @@ _oalSetMaxDistance(ALfloat f)
 ALenum
 _oalGetDistanceModel()
 {
-    _intBufferData *dptr;
+    _alBufferData *dptr;
     ALenum ret = AL_NONE;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
 
         ret = cs->distanceModel & ~AAX_DISTANCE_DELAY;
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 
     return ret;
@@ -835,12 +835,12 @@ void
 _oalSetDistanceModel(ALenum e)
 {
     char ddelay = alIsEnabled(AL_DISTANCE_DELAY_MODEL_AAX);
-    _intBufferData *dptr;
+    _alBufferData *dptr;
 
     dptr = _oalGetCurrentContext();
     if (dptr)
     {
-        _oalContext *ctx = _intBufGetDataPtr(dptr);
+        _oalContext *ctx = _alBufGetDataPtr(dptr);
         _oalState *cs = ctx->state;
         aaxConfig handle;
         _oalDevice *dev;
@@ -857,6 +857,6 @@ _oalSetDistanceModel(ALenum e)
         aaxScenerySetFilter(handle, flt);
         aaxFilterDestroy(flt);
 
-        _intBufReleaseData(dptr, _OAL_CONTEXT);
+        _alBufReleaseData(dptr, _OAL_CONTEXT);
     }
 }

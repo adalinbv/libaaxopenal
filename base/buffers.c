@@ -25,7 +25,7 @@
 # include "logging.h"
 
 # ifndef OPENAL_SUPPORT
-const char *_intBufNames[] =
+const char *_alBufNames[] =
 {
  "None",
  "Backend",
@@ -40,7 +40,7 @@ const char *_intBufNames[] =
  "Max"
 };
 # else
-const char *_intBufNames[] =
+const char *_alBufNames[] =
 {
  "None",
  "Backend",
@@ -70,21 +70,21 @@ const char *_intBufNames[] =
 # endif
 #endif
 
-static int __intBufFreeSpace(_intBuffers *, int, char);
+static int __alBufFreeSpace(_alBuffers *, int, char);
 
 
 #ifdef BUFFER_DEBUG
 unsigned int
-_intBufCreateDebug(_intBuffers **buffer, unsigned int id, DISREGARD(char *file), DISREGARD(int line))
+_alBufCreateDebug(_alBuffers **buffer, unsigned int id, DISREGARD(char *file), DISREGARD(int line))
 {
-    unsigned int r = _intBufCreateNormal(buffer, id);
+    unsigned int r = _alBufCreateNormal(buffer, id);
     PRINT("create: %s at line %i: %x\n", file, line, r);
     return r;
 }
 #endif
 
 unsigned int
-_intBufCreateNormal(_intBuffers **buffer, unsigned int id)
+_alBufCreateNormal(_alBuffers **buffer, unsigned int id)
 {
     unsigned int rv = UINT_MAX;
 
@@ -92,18 +92,18 @@ _intBufCreateNormal(_intBuffers **buffer, unsigned int id)
     assert(*buffer == 0);
     assert(id > 0);
 
-    *buffer = calloc(1, sizeof(_intBuffers));
+    *buffer = calloc(1, sizeof(_alBuffers));
     if (*buffer)
     {
         unsigned int num = BUFFER_RESERVE;
 
-        (*buffer)->data = calloc(num, sizeof(_intBufferData*));
+        (*buffer)->data = calloc(num, sizeof(_alBufferData*));
         if ((*buffer)->data)
         {
 #ifndef _AL_NOTHREADS
             (*buffer)->mutex =
 # ifndef NDEBUGTHREADS
-                _aaxMutexCreateDebug(0, _intBufNames[id], __func__);
+                _aaxMutexCreateDebug(0, _alBufNames[id], __func__);
 # else
                 _aaxMutexCreate(0);
 # endif
@@ -127,7 +127,7 @@ _intBufCreateNormal(_intBuffers **buffer, unsigned int id)
 }
 
 int
-_intBufDestroyDataNoLock(_intBufferData *ptr)
+_alBufDestroyDataNoLock(_alBufferData *ptr)
 {
     int rv;
 
@@ -147,7 +147,7 @@ _intBufDestroyDataNoLock(_intBufferData *ptr)
 }
 
 unsigned int
-_intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, char locked)
+_alBufAddDataNormal(_alBuffers *buffer, unsigned int id, const void *data, char locked)
 {
     unsigned int rv = UINT_MAX;
 
@@ -159,9 +159,9 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
     assert(buffer->start+buffer->first_free <= buffer->max_allocations);
     assert(buffer->start+buffer->num_allocated <= buffer->max_allocations);
 
-    if (__intBufFreeSpace(buffer, id, locked))
+    if (__alBufFreeSpace(buffer, id, locked))
     {
-        _intBufferData *b = malloc(sizeof(_intBufferData));
+        _alBufferData *b = malloc(sizeof(_alBufferData));
         if (b)
         {
             unsigned int pos;
@@ -169,7 +169,7 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
 #ifndef _AL_NOTHREADS
             b->mutex =
 # ifndef NDEBUGTHREADS
-                _aaxMutexCreateDebug(0, _intBufNames[id], __func__);
+                _aaxMutexCreateDebug(0, _alBufNames[id], __func__);
 # else
                 _aaxMutexCreate(0);
 # endif
@@ -178,7 +178,7 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
             b->ptr = data;
 
             if (!locked) {
-               _intBufGetNum(buffer, id);
+               _alBufGetNum(buffer, id);
             }
 
             rv = buffer->first_free++;
@@ -202,7 +202,7 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
             }
 
             if (!locked) {
-               _intBufReleaseNum(buffer, id);
+               _alBufReleaseNum(buffer, id);
             }
         }
     }
@@ -211,8 +211,8 @@ _intBufAddDataNormal(_intBuffers *buffer, unsigned int id, const void *data, cha
 }
 
 unsigned int
-_intBufAddReference(_intBuffers *buffer, unsigned int id,
-                        const _intBuffers *data, unsigned int n)
+_alBufAddReference(_alBuffers *buffer, unsigned int id,
+                        const _alBuffers *data, unsigned int n)
 {
     unsigned int rv = UINT_MAX;
 
@@ -231,9 +231,9 @@ _intBufAddReference(_intBuffers *buffer, unsigned int id,
 
     assert(data->data[n] != 0);
 
-    if (__intBufFreeSpace(buffer, id, 0))
+    if (__alBufFreeSpace(buffer, id, 0))
     {
-        _intBufferData *b = data->data[n];
+        _alBufferData *b = data->data[n];
         if (b)
         {
             unsigned int i, num;
@@ -246,7 +246,7 @@ _intBufAddReference(_intBuffers *buffer, unsigned int id,
             _aaxMutexUnLock(b->mutex);
 #endif
 
-            _intBufGetNum(buffer, id);
+            _alBufGetNum(buffer, id);
 
             buffer->num_allocated++;
             buffer->data[buffer->start+buffer->first_free] = b;
@@ -260,7 +260,7 @@ _intBufAddReference(_intBuffers *buffer, unsigned int id,
             }
             buffer->first_free = i;
 
-            _intBufReleaseNum(buffer, id);
+            _alBufReleaseNum(buffer, id);
         }
 
     }
@@ -271,9 +271,9 @@ _intBufAddReference(_intBuffers *buffer, unsigned int id,
 /* Replaces the buffer's data pointer */
 /* needed for OpenAL */
 const void *
-_intBufReplace(_intBuffers *buffer, unsigned int id, unsigned int n, void *data)
+_alBufReplace(_alBuffers *buffer, unsigned int id, unsigned int n, void *data)
 {
-    _intBufferData *buf;
+    _alBufferData *buf;
     const void *rv = NULL;
 
     assert(data != 0);
@@ -283,20 +283,20 @@ _intBufReplace(_intBuffers *buffer, unsigned int id, unsigned int n, void *data)
     assert(buffer->data[buffer->start+n] != 0);
     assert(buffer->data[buffer->start+n]->ptr != 0);
 
-    buf = _intBufGet(buffer, id, n);
+    buf = _alBufGet(buffer, id, n);
     if (buf)
     {
         rv = buf->ptr;
         buf->ptr = data;
-        _intBufReleaseData(buf, id);
+        _alBufReleaseData(buf, id);
     }
 
     return rv;
 }
 
 #ifdef BUFFER_DEBUG
-_intBufferData *
-_intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char locked, char *file, int line)
+_alBufferData *
+_alBufGetDebug(_alBuffers *buffer, unsigned int id, unsigned int n, char locked, char *file, int line)
 {
     if (n == UINT_MAX) return NULL;
 
@@ -320,8 +320,8 @@ _intBufGetDebug(_intBuffers *buffer, unsigned int id, unsigned int n, char locke
 }
 #endif
 
-_intBufferData *
-_intBufGetNormal(_intBuffers *buffer, unsigned int id, unsigned int n, char locked)
+_alBufferData *
+_alBufGetNormal(_alBuffers *buffer, unsigned int id, unsigned int n, char locked)
 {
     if (n == UINT_MAX) return NULL;
 
@@ -344,7 +344,7 @@ _intBufGetNormal(_intBuffers *buffer, unsigned int id, unsigned int n, char lock
 
 #ifndef _AL_NOTHREADS
 void
-_intBufRelease(_intBuffers *buffer, unsigned int id, unsigned int n)
+_alBufRelease(_alBuffers *buffer, unsigned int id, unsigned int n)
 {
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -361,7 +361,7 @@ _intBufRelease(_intBuffers *buffer, unsigned int id, unsigned int n)
 #endif
 
 void *
-_intBufGetDataPtr(const _intBufferData *data)
+_alBufGetDataPtr(const _alBufferData *data)
 {
     assert(data != 0);
 
@@ -369,7 +369,7 @@ _intBufGetDataPtr(const _intBufferData *data)
 }
 
 void *
-_intBufSetDataPtr(_intBufferData *data, void *user_data)
+_alBufSetDataPtr(_alBufferData *data, void *user_data)
 {
     void *ret = NULL;
 
@@ -385,7 +385,7 @@ _intBufSetDataPtr(_intBufferData *data, void *user_data)
 #ifndef _AL_NOTHREADS
 # ifndef NDEBUGTHREADS
 void
-_intBufReleaseDataDebug(const _intBufferData *data, DISREGARD(unsigned int id), char *file, int line)
+_alBufReleaseDataDebug(const _alBufferData *data, DISREGARD(unsigned int id), char *file, int line)
 {
     assert(data != 0);
 
@@ -394,14 +394,14 @@ _intBufReleaseDataDebug(const _intBufferData *data, DISREGARD(unsigned int id), 
 # endif
 
 void
-_intBufReleaseDataNormal(const _intBufferData *data, DISREGARD(unsigned int id))
+_alBufReleaseDataNormal(const _alBufferData *data, DISREGARD(unsigned int id))
 {
     _aaxMutexUnLock(data->mutex);
 }
 #endif
 
 unsigned int
-_intBufGetNumNoLock(const _intBuffers *buffer, unsigned int id)
+_alBufGetNumNoLock(const _alBuffers *buffer, unsigned int id)
 {
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -411,7 +411,7 @@ _intBufGetNumNoLock(const _intBuffers *buffer, unsigned int id)
 
 #ifdef BUFFER_DEBUG
 unsigned int
-_intBufGetNumDebug(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock), char *file, int line)
+_alBufGetNumDebug(_alBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock), char *file, int line)
 {
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -426,7 +426,7 @@ _intBufGetNumDebug(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(ch
 #endif
 
 unsigned int
-_intBufGetNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
+_alBufGetNumNormal(_alBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
 {
 #ifndef _AL_NOTHREADS
     _aaxMutexLock(buffer->mutex);
@@ -436,7 +436,7 @@ _intBufGetNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(c
 }
 
 unsigned int
-_intBufGetMaxNumNoLock(const _intBuffers *buffer, DISREGARD(unsigned int id))
+_alBufGetMaxNumNoLock(const _alBuffers *buffer, DISREGARD(unsigned int id))
 {
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -445,7 +445,7 @@ _intBufGetMaxNumNoLock(const _intBuffers *buffer, DISREGARD(unsigned int id))
 }
 
 unsigned int
-_intBufGetMaxNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
+_alBufGetMaxNumNormal(_alBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
 {
     assert(buffer != 0);
     assert(buffer->id == id);
@@ -459,7 +459,7 @@ _intBufGetMaxNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGAR
 
 #ifndef _AL_NOTHREADS
 void
-_intBufReleaseNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
+_alBufReleaseNumNormal(_alBuffers *buffer, DISREGARD(unsigned int id), DISREGARD(char lock))
 {
     assert(buffer);
     assert(buffer->id == id);
@@ -471,7 +471,7 @@ _intBufReleaseNumNormal(_intBuffers *buffer, DISREGARD(unsigned int id), DISREGA
 
 /* needed for OpenAL */
 unsigned int
-_intBufGetPos(_intBuffers *buffer, unsigned int id, void *data)
+_alBufGetPos(_alBuffers *buffer, unsigned int id, void *data)
 {
     unsigned int i, start, num, max;
 
@@ -479,7 +479,7 @@ _intBufGetPos(_intBuffers *buffer, unsigned int id, void *data)
     assert(buffer != 0);
     assert(buffer->id == id);
 
-    _intBufGetNum(buffer, id);
+    _alBufGetNum(buffer, id);
 
     start = buffer->start;
     num = buffer->num_allocated;
@@ -493,22 +493,22 @@ _intBufGetPos(_intBuffers *buffer, unsigned int id, void *data)
         i = UINT_MAX;
     }
 
-    _intBufReleaseNum(buffer, id);
+    _alBufReleaseNum(buffer, id);
 
     return i;
 }
 
 #ifdef BUFFER_DEBUG
-_intBufferData *
-_intBufPopDebug(_intBuffers *buffer, unsigned int id, char locked, char *file, int line)
+_alBufferData *
+_alBufPopDebug(_alBuffers *buffer, unsigned int id, char locked, char *file, int line)
 {
-    _intBufferData *rv;
+    _alBufferData *rv;
 
     assert(buffer != 0);
     assert(buffer->id == id);
 
     if (!locked) {
-        _intBufGetNum(buffer, id);
+        _alBufGetNum(buffer, id);
     }
 
     if (((buffer->num_allocated == 0) || (buffer->data[buffer->start] == 0))
@@ -528,35 +528,35 @@ _intBufPopDebug(_intBuffers *buffer, unsigned int id, char locked, char *file, i
         }
     }
 
-    rv = _intBufPopNormal(buffer, id, 1);
+    rv = _alBufPopNormal(buffer, id, 1);
 
     if (!locked) {
-        _intBufReleaseNum(buffer, id);
+        _alBufReleaseNum(buffer, id);
     }
 
     return rv;
 }
 #endif
 
-_intBufferData *
-_intBufPopNormal(_intBuffers *buffer, unsigned int id, char locked)
+_alBufferData *
+_alBufPopNormal(_alBuffers *buffer, unsigned int id, char locked)
 {
-    _intBufferData *rv = NULL;
+    _alBufferData *rv = NULL;
 
     assert(buffer != 0);
     assert(buffer->id == id);
 
     if (!locked) {
-        _intBufGetNum(buffer, id);
+        _alBufGetNum(buffer, id);
     }
 
     if (buffer->num_allocated > 0)
     {
         unsigned int start = buffer->start;
 
-        rv = _intBufGet(buffer, id, 0);
+        rv = _alBufGet(buffer, id, 0);
         buffer->data[start] = NULL;
-        _intBufReleaseData(rv, id);
+        _alBufReleaseData(rv, id);
 
         /*
          * Initially the starting pointer is increased, if the buffer is full
@@ -578,31 +578,31 @@ _intBufPopNormal(_intBuffers *buffer, unsigned int id, char locked)
     }
 
     if (!locked) {
-        _intBufReleaseNum(buffer, id);
+        _alBufReleaseNum(buffer, id);
     }
 
     return rv;
 }
 
 void
-_intBufPushNormal(_intBuffers *buffer, unsigned int id, const _intBufferData *data, char locked)
+_alBufPushNormal(_alBuffers *buffer, unsigned int id, const _alBufferData *data, char locked)
 {
     assert(buffer != 0);
     assert(buffer->id == id);
 
-    if (__intBufFreeSpace(buffer, id, locked))
+    if (__alBufFreeSpace(buffer, id, locked))
     {
         unsigned int pos; 
 
         if (!locked) {
-            _intBufGetNum(buffer, id);
+            _alBufGetNum(buffer, id);
         }
 
         pos = buffer->start + buffer->first_free++;
 
         assert(buffer->data[pos] == NULL);
 
-        buffer->data[pos] = (_intBufferData *)data;
+        buffer->data[pos] = (_alBufferData *)data;
         buffer->num_allocated++;
 
         if (buffer->data[++pos] != 0)
@@ -617,22 +617,22 @@ _intBufPushNormal(_intBuffers *buffer, unsigned int id, const _intBufferData *da
         }
 
         if (!locked) {
-            _intBufReleaseNum(buffer, id);
+            _alBufReleaseNum(buffer, id);
         }
     }
 }
 
 #ifdef BUFFER_DEBUG
 void *
-_intBufRemoveDebug(_intBuffers *buffer, unsigned int id, unsigned int n,
+_alBufRemoveDebug(_alBuffers *buffer, unsigned int id, unsigned int n,
                         char locked, char num_locked, char *file, int lineno)
 {
 #if 0
-    void * r = _intBufRemoveNormal(buffer, id, n, locked, num_locked);
+    void * r = _alBufRemoveNormal(buffer, id, n, locked, num_locked);
     PRINT("remove: %s at line %i: %x\n", file, lineno, n);
     return r;
 #else
-   _intBufferData *buf;
+   _alBufferData *buf;
     void *rv = 0;
 
     assert(buffer != 0);
@@ -641,11 +641,11 @@ _intBufRemoveDebug(_intBuffers *buffer, unsigned int id, unsigned int n,
     assert(buffer->data != 0);
 
     if (num_locked) {
-        _intBufReleaseNum(buffer, id);
+        _alBufReleaseNum(buffer, id);
     }
-    _intBufGetNumDebug(buffer, id, 1, file, lineno);
+    _alBufGetNumDebug(buffer, id, 1, file, lineno);
 
-    buf = _intBufGetDebug(buffer, id, n, locked, file, lineno);
+    buf = _alBufGetDebug(buffer, id, n, locked, file, lineno);
     if (buf)
     {
         assert(buf->reference_ctr > 0);
@@ -665,7 +665,7 @@ _intBufRemoveDebug(_intBuffers *buffer, unsigned int id, unsigned int n,
             buf = 0;
         }
         else {
-            _intBufReleaseData(buf, id);
+            _alBufReleaseData(buf, id);
         }
 
         buffer->data[buffer->start+n] = NULL;
@@ -676,10 +676,10 @@ _intBufRemoveDebug(_intBuffers *buffer, unsigned int id, unsigned int n,
     }
 
 # ifndef _AL_NOTHREADS
-    _intBufReleaseNumNormal(buffer, id, 1);
+    _alBufReleaseNumNormal(buffer, id, 1);
 # endif
     if (num_locked) {
-        _intBufGetNum(buffer, id);
+        _alBufGetNum(buffer, id);
     }
 
     return rv;
@@ -688,10 +688,10 @@ _intBufRemoveDebug(_intBuffers *buffer, unsigned int id, unsigned int n,
 #endif
 
 void *
-_intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
+_alBufRemoveNormal(_alBuffers *buffer, unsigned int id, unsigned int n,
                                          char locked, char num_locked)
 {
-    _intBufferData *buf;
+    _alBufferData *buf;
     void *rv = 0;
 
     assert(buffer != 0);
@@ -700,11 +700,11 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
     assert(buffer->data != 0);
 
     if (num_locked) {
-        _intBufReleaseNum(buffer, id);
+        _alBufReleaseNum(buffer, id);
     }
-    _intBufGetNumNormal(buffer, id, 1);
+    _alBufGetNumNormal(buffer, id, 1);
 
-    buf = _intBufGetNormal(buffer, id, n, locked);
+    buf = _alBufGetNormal(buffer, id, n, locked);
     if (buf)
     {
         assert(buf->reference_ctr > 0);
@@ -724,7 +724,7 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
             buf = 0;
         }
         else {
-            _intBufReleaseData(buf, id);
+            _alBufReleaseData(buf, id);
         }
 
         buffer->data[buffer->start+n] = NULL;
@@ -735,10 +735,10 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
     }
 
 #ifndef _AL_NOTHREADS
-    _intBufReleaseNumNormal(buffer, id, 1);
+    _alBufReleaseNumNormal(buffer, id, 1);
 #endif
     if (num_locked) {
-        _intBufGetNum(buffer, id);
+        _alBufGetNum(buffer, id);
     }
     
     return rv;
@@ -747,18 +747,18 @@ _intBufRemoveNormal(_intBuffers *buffer, unsigned int id, unsigned int n,
 
 #ifdef BUFFER_DEBUG
 void 
-_intBufClearDebug(_intBuffers *buffer, unsigned int id,
-                      _intBufFreeCallback cb_free,
+_alBufClearDebug(_alBuffers *buffer, unsigned int id,
+                      _alBufFreeCallback cb_free,
                       DISREGARD(char *file), DISREGARD(int lineno))
 {
-    _intBufClearNormal(buffer, id, cb_free);
+    _alBufClearNormal(buffer, id, cb_free);
     PRINT("clear: %s at line %i\n", file, lineno);
 }
 #endif
 
 void
-_intBufClearNormal(_intBuffers *buffer, unsigned int id,
-                     _intBufFreeCallback cb_free)
+_alBufClearNormal(_alBuffers *buffer, unsigned int id,
+                     _alBufFreeCallback cb_free)
 {
     unsigned int n, max, start;
 
@@ -766,56 +766,56 @@ _intBufClearNormal(_intBuffers *buffer, unsigned int id,
     assert(buffer->id == id);
     assert(buffer->data != 0);
 
-    _intBufGetNum(buffer, id);
+    _alBufGetNum(buffer, id);
 
     start = buffer->start;
     max = buffer->max_allocations - start;
     for (n=0; n<max; n++)
     {
-        void *rv = _intBufRemoveNormal(buffer, id, n, 0, 1);
+        void *rv = _alBufRemoveNormal(buffer, id, n, 0, 1);
         if (rv && cb_free) cb_free(rv);
     }
     buffer->start = 0;
 
-    _intBufReleaseNum(buffer, id);
+    _alBufReleaseNum(buffer, id);
 }
 
 
 #ifdef BUFFER_DEBUG
 void
-_intBufEraseDebug(_intBuffers **buffer, unsigned int id,
-                      _intBufFreeCallback cb_free,
+_alBufEraseDebug(_alBuffers **buffer, unsigned int id,
+                      _alBufFreeCallback cb_free,
                       DISREGARD(char *file), DISREGARD(int lineno))
 {
-    _intBufEraseNormal(buffer, id, cb_free);
+    _alBufEraseNormal(buffer, id, cb_free);
     PRINT("erase: %s at line %i\n", file, lineno);
 }
 #endif
 
 void
-_intBufEraseNormal(_intBuffers **buf, unsigned int id,
-                     _intBufFreeCallback cb_free)
+_alBufEraseNormal(_alBuffers **buf, unsigned int id,
+                     _alBufFreeCallback cb_free)
 {
     assert(buf != 0);
 
     if (*buf)
     {
-        _intBuffers *buffer = *buf;
+        _alBuffers *buffer = *buf;
 #if 1
-        _intBufClear(buffer, id, cb_free);
+        _alBufClear(buffer, id, cb_free);
 #else
         unsigned int max;
 
         assert(buffer->id == id);
 
-        _intBufGetNumNormal(buffer, id, 1);
+        _alBufGetNumNormal(buffer, id, 1);
 
         max = buffer->max_allocations - buffer->start;
         if (max)
         {
             do
             {
-                _intBufferData *dptr = _intBufPopNormal(buffer, id, 1);
+                _alBufferData *dptr = _alBufPopNormal(buffer, id, 1);
                 if (dptr && dptr->ptr)
                 {
                     dptr->reference_ctr--;
@@ -824,7 +824,7 @@ _intBufEraseNormal(_intBuffers **buf, unsigned int id,
                         if (!dptr->reference_ctr) {
                             cb_free((void*)dptr->ptr);
                         }
-                        _intBufDestroyDataNoLock(dptr);
+                        _alBufDestroyDataNoLock(dptr);
                     }
                 }
             }
@@ -846,13 +846,13 @@ _intBufEraseNormal(_intBuffers **buf, unsigned int id,
 #define BUFFER_INCREMENT(a)	((((a)/BUFFER_RESERVE)+1)*BUFFER_RESERVE)
 
 static int
-__intBufFreeSpace(_intBuffers *buffer, int id, char locked)
+__alBufFreeSpace(_alBuffers *buffer, int id, char locked)
 {
     unsigned int start, num, max;
     int rv = 0;
 
     if (!locked) {
-        _intBufGetNum(buffer, id);
+        _alBufGetNum(buffer, id);
     }
     
     start = buffer->start;
@@ -862,7 +862,7 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
     assert((start+num) <= max);
     if (((start+num+1) == max) || ((start+buffer->first_free+1) == max))
     {
-        _intBufferData **ptr = buffer->data;
+        _alBufferData **ptr = buffer->data;
 
         if (start)
         {
@@ -877,7 +877,7 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
         {
             max = BUFFER_INCREMENT(buffer->max_allocations);
 
-            ptr = realloc(buffer->data, max*sizeof(_intBufferData*));
+            ptr = realloc(buffer->data, max*sizeof(_alBufferData*));
             if (ptr)
             {
                 unsigned int size;
@@ -886,7 +886,7 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
 
                 ptr += buffer->max_allocations;
                 size = max - buffer->max_allocations;
-                memset(ptr, 0, size*sizeof(_intBufferData*));
+                memset(ptr, 0, size*sizeof(_alBufferData*));
 
                 buffer->max_allocations = max;
                 rv = -1;
@@ -913,7 +913,7 @@ __intBufFreeSpace(_intBuffers *buffer, int id, char locked)
 #endif
 
     if (!locked) {
-        _intBufReleaseNum(buffer, id);
+        _alBufReleaseNum(buffer, id);
     }
 
     return rv;

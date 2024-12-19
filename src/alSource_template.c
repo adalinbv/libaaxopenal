@@ -53,7 +53,7 @@ ALSOURCE3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
 AL_API void AL_APIENTRY
 ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     ALuint pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -67,7 +67,7 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
     dptr = _oalFindSourceById(id, 0, &pos);
     if (dptr)
     {
-        _oalSource *src = _intBufGetDataPtr(dptr);
+        _oalSource *src = _alBufGetDataPtr(dptr);
         aaxEmitter emitter = src->handle;
         aaxVec3f vec3f;
         aaxMtx4d mtx;
@@ -126,7 +126,7 @@ ALSOURCEV(N)(ALuint id, ALenum attrib, const T *values)
 AL_API void AL_APIENTRY
 ALSOURCE(N)(ALuint id, ALenum attrib, T value)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     ALuint pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -140,7 +140,7 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
     dptr = _oalFindSourceById(id, 0, &pos);
     if (dptr)
     {
-        _oalSource *src = _intBufGetDataPtr(dptr);
+        _oalSource *src = _alBufGetDataPtr(dptr);
         aaxEmitter emitter = src->handle;
         unsigned int ival = (unsigned int)value;
         float fval = (float)value;
@@ -220,13 +220,13 @@ ALSOURCE(N)(ALuint id, ALenum attrib, T value)
         case AL_BUFFER:
             if (ival)
             {
-                const _intBufferData *dptr_buf;
+                const _alBufferData *dptr_buf;
                 unsigned int pos, mode;
 
                 dptr_buf = _oalFindBufferById(ival, &pos);
                 if (dptr_buf)
                 {
-                    aaxBuffer buf = _intBufGetDataPtr(dptr_buf);
+                    aaxBuffer buf = _alBufGetDataPtr(dptr_buf);
 
                     aaxEmitterAddBuffer(emitter, buf);
                     if (aaxBufferGetSetup(buf, AAX_TRACKS) > 1) {
@@ -383,7 +383,7 @@ ALGETSOURCE3(N)(ALuint id, ALenum attrib, T *v1, T *v2, T *v3)
 AL_API void AL_APIENTRY
 ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     ALuint pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -397,7 +397,7 @@ ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
     dptr = _oalFindSourceById(id, 0, &pos);
     if (dptr)
     {
-        _oalSource *src = _intBufGetDataPtr(dptr);
+        _oalSource *src = _alBufGetDataPtr(dptr);
         aaxEmitter emitter = src->handle;
         aaxVec3d vec3d;
         aaxVec3f vec3f;
@@ -440,7 +440,7 @@ ALGETSOURCEV(N)(ALuint id, ALenum attrib, T *values)
 AL_API void AL_APIENTRY
 ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     ALuint pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -454,7 +454,7 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
     dptr = _oalFindSourceById(id, 0, &pos);
     if (dptr)
     {
-        _oalSource *src = _intBufGetDataPtr(dptr);
+        _oalSource *src = _alBufGetDataPtr(dptr);
         aaxEmitter emitter = src->handle;
         aaxEffect eff;
         aaxFilter flt;
@@ -507,9 +507,9 @@ ALGETSOURCE(N)(ALuint id, ALenum attrib, T *value)
             const aaxBuffer buf = aaxEmitterGetBufferByPos(emitter,0,AAX_FALSE);
             if (buf)
             {
-                _intBuffers *db = _oalGetBuffers(NULL);
-                unsigned int pos = _intBufGetPos(db, _OAL_BUFFER, buf);
-                *value = (T)_intBufPosToId(pos);
+                _alBuffers *db = _oalGetBuffers(NULL);
+                unsigned int pos = _alBufGetPos(db, _OAL_BUFFER, buf);
+                *value = (T)_alBufPosToId(pos);
             } else {
                 *value = 0;
             }

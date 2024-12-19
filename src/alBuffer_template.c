@@ -51,7 +51,7 @@ ALBUFFER3(N)(ALuint id, ALenum attrib, T v1, T v2, T v3)
 AL_API void AL_APIENTRY
 ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     unsigned int pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -67,7 +67,7 @@ ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
     dptr = _oalFindBufferById(id, &pos);
     if (dptr)
     {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
+        aaxBuffer buf = _alBufGetDataPtr(dptr);
         switch (attrib)
         {
         case AL_LOOP_POINTS:
@@ -86,7 +86,7 @@ ALBUFFERV(N)(ALuint id, ALenum attrib, const T *values)
 AL_API void AL_APIENTRY
 ALBUFFER(N)(ALuint id, ALenum attrib, T value)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     unsigned int pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -102,7 +102,7 @@ ALBUFFER(N)(ALuint id, ALenum attrib, T value)
     dptr = _oalFindBufferById(id, &pos);
     if (dptr)
     {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
+        aaxBuffer buf = _alBufGetDataPtr(dptr);
         switch (attrib)
         {
         case AL_FREQUENCY:
@@ -137,7 +137,7 @@ ALGETBUFFER3(N)(ALuint id, ALenum attrib, T *v1, T *v2, T *v3)
 AL_API void AL_APIENTRY
 ALGETBUFFERV(N)(ALuint id, ALenum attrib, T *values)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     unsigned int pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -153,7 +153,7 @@ ALGETBUFFERV(N)(ALuint id, ALenum attrib, T *values)
     dptr = _oalFindBufferById(id, &pos);
     if (dptr)
     {
-//      aaxBuffer buf = _intBufGetDataPtr(dptr);
+//      aaxBuffer buf = _alBufGetDataPtr(dptr);
         switch (attrib)
         {
         default:
@@ -168,7 +168,7 @@ ALGETBUFFERV(N)(ALuint id, ALenum attrib, T *values)
 AL_API void AL_APIENTRY
 ALGETBUFFER(N)(ALuint id, ALenum attrib, T *value)
 {
-    const _intBufferData *dptr;
+    const _alBufferData *dptr;
     unsigned int pos;
 
     _AL_LOG(LOG_INFO, __FUNCTION__);
@@ -184,7 +184,7 @@ ALGETBUFFER(N)(ALuint id, ALenum attrib, T *value)
     dptr = _oalFindBufferById(id, &pos);
     if (dptr)
     {
-        aaxBuffer buf = _intBufGetDataPtr(dptr);
+        aaxBuffer buf = _alBufGetDataPtr(dptr);
         switch (attrib)
         {
         case AL_FREQUENCY:

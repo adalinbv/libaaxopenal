@@ -33,7 +33,7 @@ typedef struct
     unsigned int reference_ctr;
     const void *ptr;
 
-} _intBufferData;
+} _alBufferData;
 
 typedef struct
 {
@@ -47,16 +47,16 @@ typedef struct
     unsigned int num_allocated;		/* no. allocated buffers	 */
     unsigned int max_allocations;	/* max. no. allocations possible */
 					/* without the need te resize	 */
-    _intBufferData **data;
+    _alBufferData **data;
 
-} _intBuffers;
+} _alBuffers;
 
-typedef void _intBufFreeCallback(void *);
+typedef void _alBufFreeCallback(void *);
 
 
 #define BUFFER_RESERVE		8
-#define _intBufPosToId(a)	((a) == UINT_MAX) ? 0 : (((a) + 1) << 4)
-#define _intBufIdToPos(a)	(((a) == 0) || ((a) & 0xF))  ? UINT_MAX : (((a) >> 4) - 1)
+#define _alBufPosToId(a)	((a) == UINT_MAX) ? 0 : (((a) + 1) << 4)
+#define _alBufIdToPos(a)	(((a) == 0) || ((a) & 0xF))  ? UINT_MAX : (((a) >> 4) - 1)
 	
 
 /**
@@ -66,8 +66,8 @@ typedef void _intBufFreeCallback(void *);
  *
  * If 'size' is greater than zero enough memory will be allocated for 'num'
  * new objects which will get linked from the array. These objects will be
- * empty though and should be filled by calling _intBufReplace instead of
- * _intBufAddData.
+ * empty though and should be filled by calling _alBufReplace instead of
+ * _alBufAddData.
  *
  * This function needs to be called just once. The object array pointer list
  * will be extended automatically by adding new objects to the array.
@@ -78,25 +78,25 @@ typedef void _intBufFreeCallback(void *);
               UINT_MAX otherwise.
  */
 #ifdef BUFFER_DEBUG
-# define _intBufCreate(a, b)  _intBufCreateDebug(a, b, __FILE__, __LINE__)
+# define _alBufCreate(a, b)  _alBufCreateDebug(a, b, __FILE__, __LINE__)
 unsigned int
-_intBufCreateDebug(_intBuffers **, unsigned int, char *, int);
+_alBufCreateDebug(_alBuffers **, unsigned int, char *, int);
 #else
-# define _intBufCreate(a, b)  _intBufCreateNormal(a, b)
+# define _alBufCreate(a, b)  _alBufCreateNormal(a, b)
 #endif
 
 unsigned int
-_intBufCreateNormal(_intBuffers **, unsigned int);
+_alBufCreateNormal(_alBuffers **, unsigned int);
 
 
 /**
- * Destroy a data object that was retreieved using _intBufPop
+ * Destroy a data object that was retreieved using _alBufPop
  * and free it's contents, provided it wasn't referenced by others buffers.
  *
  * @param data pointer to the data object to destroy
  */
 int
-_intBufDestroyDataNoLock(_intBufferData *);
+_alBufDestroyDataNoLock(_alBufferData *);
 
 
 /**
@@ -110,9 +110,9 @@ _intBufDestroyDataNoLock(_intBufferData *);
  * @param data pointer to the object to add
  * @return the position in the array upon success, UINT_MAX otherwise.
  */
-#define _intBufAddData(a, b, c) _intBufAddDataNormal(a, b, c, 0)
+#define _alBufAddData(a, b, c) _alBufAddDataNormal(a, b, c, 0)
 unsigned int
-_intBufAddDataNormal(_intBuffers *, unsigned int, const void *, char);
+_alBufAddDataNormal(_alBuffers *, unsigned int, const void *, char);
 
 
 /**
@@ -128,7 +128,7 @@ _intBufAddDataNormal(_intBuffers *, unsigned int, const void *, char);
  * @return the position in the array upon success, UINT_MAX otherwise.
  */
 unsigned int
-_intBufAddReference(_intBuffers *, unsigned int, const _intBuffers *,
+_alBufAddReference(_alBuffers *, unsigned int, const _alBuffers *,
                                                                   unsigned int);
 
 /**
@@ -141,7 +141,7 @@ _intBufAddReference(_intBuffers *, unsigned int, const _intBuffers *,
  * @param data pointer to the new object data
  */
 const void *
-_intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
+_alBufReplace(_alBuffers *, unsigned int, unsigned int, void *);
 
 
 /**
@@ -157,15 +157,15 @@ _intBufReplace(_intBuffers *, unsigned int, unsigned int, void *);
  * @return the object data
  */
 #ifdef BUFFER_DEBUG
-# define _intBufGet(a, b, c)  _intBufGetDebug(a, b, c, 0, __FILE__, __LINE__)
- _intBufferData *
- _intBufGetDebug(_intBuffers *, unsigned int, unsigned int, char, char *, int);
+# define _alBufGet(a, b, c)  _alBufGetDebug(a, b, c, 0, __FILE__, __LINE__)
+ _alBufferData *
+ _alBufGetDebug(_alBuffers *, unsigned int, unsigned int, char, char *, int);
 #else
-# define _intBufGet(a, b, c)  _intBufGetNormal(a, b, c, 0)
+# define _alBufGet(a, b, c)  _alBufGetNormal(a, b, c, 0)
 #endif
 
-_intBufferData *
-_intBufGetNormal(_intBuffers *, unsigned int, unsigned int, char);
+_alBufferData *
+_alBufGetNormal(_alBuffers *, unsigned int, unsigned int, char);
 
 
 /**
@@ -177,7 +177,7 @@ _intBufGetNormal(_intBuffers *, unsigned int, unsigned int, char);
  * @param pos the position in the array of the opbject to get
  * @return the object data
  */
-#define _intBufGetNoLock(a, b, c) _intBufGetNormal(a, b, c, 1)
+#define _alBufGetNoLock(a, b, c) _alBufGetNormal(a, b, c, 1)
 
 
 /**
@@ -189,9 +189,9 @@ _intBufGetNormal(_intBuffers *, unsigned int, unsigned int, char);
  */
 #ifndef _AL_NOTHREADS
 void
-_intBufRelease(_intBuffers *, unsigned int, unsigned int);
+_alBufRelease(_alBuffers *, unsigned int, unsigned int);
 #else
-# define _intBufRelease(a, b, c)
+# define _alBufRelease(a, b, c)
 #endif
 
 
@@ -203,17 +203,17 @@ _intBufRelease(_intBuffers *, unsigned int, unsigned int);
  */
 #ifndef _AL_NOTHREADS
 # ifndef NDEBUG
-#  define _intBufReleaseData(a, b)  _intBufReleaseDataDebug((a), (b), __FILE__, __LINE__)
+#  define _alBufReleaseData(a, b)  _alBufReleaseDataDebug((a), (b), __FILE__, __LINE__)
 void
-_intBufReleaseDataDebug(const _intBufferData*, unsigned int, char*, int);
+_alBufReleaseDataDebug(const _alBufferData*, unsigned int, char*, int);
 # else
-#  define _intBufReleaseData(a, b)  _intBufReleaseDataNormal(a, b)
+#  define _alBufReleaseData(a, b)  _alBufReleaseDataNormal(a, b)
 # endif
 
 void
-_intBufReleaseDataNormal(const _intBufferData *, unsigned int);
+_alBufReleaseDataNormal(const _alBufferData *, unsigned int);
 #else
-# define _intBufReleaseData(a, b)
+# define _alBufReleaseData(a, b)
 #endif
 
 /**
@@ -224,14 +224,14 @@ _intBufReleaseDataNormal(const _intBufferData *, unsigned int);
  * @return the number of allocated objects in the buffer array
  */
 unsigned int
-_intBufGetNumNoLock(const _intBuffers *, unsigned int);
+_alBufGetNumNoLock(const _alBuffers *, unsigned int);
 
 
 /**
  * Return the maximum possible number of allocated objects.
  *
  * To allow for the buffer to grow easily the buffer might allocates more
- * positions than requested. In contrast to _intBufGetNum, which returns
+ * positions than requested. In contrast to _alBufGetNum, which returns
  * the number currently allocated positions, this function returns the number
  * of prealocated positions instead.
  *
@@ -240,7 +240,7 @@ _intBufGetNumNoLock(const _intBuffers *, unsigned int);
  * @return the number of allocated objects in the buffer array
  */
 unsigned int
-_intBufGetMaxNumNoLock(const _intBuffers *, unsigned int);
+_alBufGetMaxNumNoLock(const _alBuffers *, unsigned int);
 
 
 /**
@@ -252,22 +252,22 @@ _intBufGetMaxNumNoLock(const _intBuffers *, unsigned int);
  * @return the number of allocated objects in the buffer array
  */
 #ifndef NDEBUG
-# define _intBufGetNum(a, b)  _intBufGetNumDebug(a, b, 0,  __FILE__, __LINE__)
+# define _alBufGetNum(a, b)  _alBufGetNumDebug(a, b, 0,  __FILE__, __LINE__)
 unsigned int
-_intBufGetNumDebug(_intBuffers *, unsigned int, char, char *, int);
+_alBufGetNumDebug(_alBuffers *, unsigned int, char, char *, int);
 #else
-# define _intBufGetNum(a, b)  _intBufGetNumNormal(a, b, 0)
+# define _alBufGetNum(a, b)  _alBufGetNumNormal(a, b, 0)
 #endif
 
 unsigned int
-_intBufGetNumNormal(_intBuffers *, unsigned int, char);
+_alBufGetNumNormal(_alBuffers *, unsigned int, char);
 
 
 /**
  * Lock the buffer and return the maximum possible number of allocated objects.
  *
  * To allow for the buffer to grow easily the buffer might allocates more
- * positions than requested. In contrast to _intBufGetNum, which returns
+ * positions than requested. In contrast to _alBufGetNum, which returns
  * the number currently allocated positions, this function returns the number
  * of prealocated positions instead.
  *
@@ -276,10 +276,10 @@ _intBufGetNumNormal(_intBuffers *, unsigned int, char);
  * @param lock set to 1 for operations that mangle the pointer array
  * @return the number of allocated objects in the buffer array
  */
-#define _intBufGetMaxNum(a, b)	_intBufGetMaxNumNormal(a, b, 0)
+#define _alBufGetMaxNum(a, b)	_alBufGetMaxNumNormal(a, b, 0)
 
 unsigned int
-_intBufGetMaxNumNormal(_intBuffers *, unsigned int, char);
+_alBufGetMaxNumNormal(_alBuffers *, unsigned int, char);
 
 
 /**
@@ -290,11 +290,11 @@ _intBufGetMaxNumNormal(_intBuffers *, unsigned int, char);
  * @param lock set to 1 for operations that mangle the pointer array
  */
 #ifndef _AL_NOTHREADS
-# define _intBufReleaseNum(a, b) _intBufReleaseNumNormal(a, b, 0)
+# define _alBufReleaseNum(a, b) _alBufReleaseNumNormal(a, b, 0)
 void
-_intBufReleaseNumNormal(_intBuffers *, unsigned int, char);
+_alBufReleaseNumNormal(_alBuffers *, unsigned int, char);
 #else
-# define _intBufReleaseNum(a, b)
+# define _alBufReleaseNum(a, b)
 #endif
 
 
@@ -307,7 +307,7 @@ _intBufReleaseNumNormal(_intBuffers *, unsigned int, char);
  * @return the position of the object in the buffer array
  */
 unsigned int
-_intBufGetPos(_intBuffers *, unsigned int, void *);
+_alBufGetPos(_alBuffers *, unsigned int, void *);
 
 
 /**
@@ -325,15 +325,15 @@ _intBufGetPos(_intBuffers *, unsigned int, void *);
  * @return the user data from the object
  */
 #ifdef BUFFER_DEBUG
-# define _intBufRemove(a, b, c, d)  _intBufRemoveDebug(a, b, c, d, 0, __FILE__, __LINE__)
+# define _alBufRemove(a, b, c, d)  _alBufRemoveDebug(a, b, c, d, 0, __FILE__, __LINE__)
 void *
-_intBufRemoveDebug(_intBuffers *, unsigned int, unsigned int, char, char, char *, int);
+_alBufRemoveDebug(_alBuffers *, unsigned int, unsigned int, char, char, char *, int);
 #else
-# define _intBufRemove(a, b, c, d)  _intBufRemoveNormal(a, b, c, d, 0)
+# define _alBufRemove(a, b, c, d)  _alBufRemoveNormal(a, b, c, d, 0)
 #endif
 
 void *
- _intBufRemoveNormal(_intBuffers *, unsigned int, unsigned int, char, char);
+ _alBufRemoveNormal(_alBuffers *, unsigned int, unsigned int, char, char);
 
 
 /**
@@ -353,15 +353,15 @@ void *
  * @return te user data from the first object in the array
  */
 #ifdef BUFFER_DEBUG
-# define _intBufPop(a, b)  _intBufPopDebug(a, b, 0, __FILE__, __LINE__)
-_intBufferData *
-_intBufPopDebug(_intBuffers*, unsigned int, char, char*, int);
+# define _alBufPop(a, b)  _alBufPopDebug(a, b, 0, __FILE__, __LINE__)
+_alBufferData *
+_alBufPopDebug(_alBuffers*, unsigned int, char, char*, int);
 #else
-# define _intBufPop(a, b)  _intBufPopNormal(a, b, 0)
+# define _alBufPop(a, b)  _alBufPopNormal(a, b, 0)
 #endif
 
-_intBufferData *
-_intBufPopNormal(_intBuffers *, unsigned int, char);
+_alBufferData *
+_alBufPopNormal(_alBuffers *, unsigned int, char);
 
 
 /**
@@ -372,9 +372,9 @@ _intBufPopNormal(_intBuffers *, unsigned int, char);
  * @param buffer the buffer to add to the array
  * @return te user data from the first object in the array
  */
-#define _intBufPush(a, b, c) _intBufPushNormal(a, b, c, 0)
+#define _alBufPush(a, b, c) _alBufPushNormal(a, b, c, 0)
 void
-_intBufPushNormal(_intBuffers *, unsigned int, const _intBufferData*, char);
+_alBufPushNormal(_alBuffers *, unsigned int, const _alBufferData*, char);
 
 
 /**
@@ -387,15 +387,15 @@ _intBufPushNormal(_intBuffers *, unsigned int, const _intBufferData*, char);
  * @param data user data which will be passed to the callback function
  */
 #ifdef BUFFER_DEBUG
-# define _intBufClear(a, b, c)  _intBufClearDebug(a, b, c, __FILE__, __LINE__)
+# define _alBufClear(a, b, c)  _alBufClearDebug(a, b, c, __FILE__, __LINE__)
 void
-_intBufClearDebug(_intBuffers *, unsigned int, _intBufFreeCallback, char*, int);
+_alBufClearDebug(_alBuffers *, unsigned int, _alBufFreeCallback, char*, int);
 #else
-# define _intBufClear(a, b, c)  _intBufClearNormal(a, b, c)
+# define _alBufClear(a, b, c)  _alBufClearNormal(a, b, c)
 #endif
 
 void
-_intBufClearNormal(_intBuffers *, unsigned int, _intBufFreeCallback);
+_alBufClearNormal(_alBuffers *, unsigned int, _alBufFreeCallback);
 
 
 /**
@@ -409,15 +409,15 @@ _intBufClearNormal(_intBuffers *, unsigned int, _intBufFreeCallback);
  * @param data user data which will be passed to the callback function
  */
 #ifdef BUFFER_DEBUG
-# define _intBufErase(a, b, c)  _intBufEraseDebug(a, b, c, __FILE__, __LINE__)
+# define _alBufErase(a, b, c)  _alBufEraseDebug(a, b, c, __FILE__, __LINE__)
 void
-_intBufEraseDebug(_intBuffers**, unsigned int, _intBufFreeCallback, char*, int);
+_alBufEraseDebug(_alBuffers**, unsigned int, _alBufFreeCallback, char*, int);
 #else
-# define _intBufErase(a, b, c)  _intBufEraseNormal(a, b, c)
+# define _alBufErase(a, b, c)  _alBufEraseNormal(a, b, c)
 #endif
 
 void
-_intBufEraseNormal(_intBuffers **, unsigned int, _intBufFreeCallback);
+_alBufEraseNormal(_alBuffers **, unsigned int, _alBufFreeCallback);
 
 
 /**
@@ -427,7 +427,7 @@ _intBufEraseNormal(_intBuffers **, unsigned int, _intBufFreeCallback);
  * @return a pointer to the user data.
  */
 void *
-_intBufGetDataPtr(const _intBufferData *);
+_alBufGetDataPtr(const _alBufferData *);
 
 
 /**
@@ -438,7 +438,7 @@ _intBufGetDataPtr(const _intBufferData *);
  * @return a pointer to the old user data.
  */
 void *
-_intBufSetDataPtr(_intBufferData *, void*);
+_alBufSetDataPtr(_alBufferData *, void*);
 
 
 #if defined(__cplusplus)

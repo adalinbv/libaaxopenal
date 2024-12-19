@@ -52,9 +52,9 @@ static const char* _oalContextExtensions[];
 
 static unsigned int _oalCurrentContext;
 
-static _intBufferData *_oalDeviceContextAdd(_oalDevice *);
+static _alBufferData *_oalDeviceContextAdd(_oalDevice *);
 
-static _intBufferData *_oalFindContextByDeviceId(uint32_t);
+static _alBufferData *_oalFindContextByDeviceId(uint32_t);
 static void _oalSourcesCreate(void *);
 static void _oalFreeContext(void*);
 
@@ -69,7 +69,7 @@ alcOpenDevice(const ALCchar *name)
 
     if (_oalDevices == 0)
     {
-        pos = _intBufCreate(&_oalDevices, _OAL_DEVICE);
+        pos = _alBufCreate(&_oalDevices, _OAL_DEVICE);
         if (pos == UINT_MAX)
         {
             _oalContextSetError(ALC_OUT_OF_MEMORY);
@@ -100,12 +100,12 @@ alcOpenDevice(const ALCchar *name)
         {
             d->sync = 0;
             d->lst.handle = handle;
-            pos = _intBufAddData(_oalDevices, _OAL_DEVICE, d);
+            pos = _alBufAddData(_oalDevices, _OAL_DEVICE, d);
             if (pos != UINT_MAX)
             {
                 uint32_t id, devid;
 
-                id = _intBufPosToId(pos);
+                id = _alBufPosToId(pos);
                 devid = _oalIdToDevice(id);
                 device = INT_TO_PTR(devid);
             }
@@ -123,11 +123,11 @@ alcCloseDevice(ALCdevice *device)
     _AL_LOG(LOG_INFO, __FUNCTION__);
 
     id = _oalDeviceToId(device);
-    pos  = _intBufIdToPos(id);
+    pos  = _alBufIdToPos(id);
     if (pos != UINT_MAX)
     {
         _oalDevice *d;
-        d = _intBufRemove(_oalDevices, _OAL_DEVICE, pos, AL_FALSE);
+        d = _alBufRemove(_oalDevices, _OAL_DEVICE, pos, AL_FALSE);
         if (d)
         {
             d->current_context = UINT_MAX;
@@ -135,12 +135,12 @@ alcCloseDevice(ALCdevice *device)
 
             aaxDriverClose(d->lst.handle);
             aaxDriverDestroy(d->lst.handle);
-            _intBufErase(&d->contexts, _OAL_CONTEXT, _oalFreeContext);
-            _intBufErase(&d->buffers, _OAL_BUFFER, _oalFreeBuffer);
+            _alBufErase(&d->contexts, _OAL_CONTEXT, _oalFreeContext);
+            _alBufErase(&d->buffers, _OAL_BUFFER, _oalFreeBuffer);
             free(d);
 
-            if (_intBufGetNumNoLock(_oalDevices, _OAL_DEVICE) == 0) {
-                _intBufErase(&_oalDevices, _OAL_DEVICE, free);
+            if (_alBufGetNumNoLock(_oalDevices, _OAL_DEVICE) == 0) {
+                _alBufErase(&_oalDevices, _OAL_DEVICE, free);
             }
 
             return ALC_TRUE;
@@ -152,7 +152,7 @@ alcCloseDevice(ALCdevice *device)
 ALC_API ALCcontext * ALC_APIENTRY
 alcCreateContext(const ALCdevice *device, const ALCint *attributes)
 {
-    _intBufferData *dptr_ctx = 0;
+    _alBufferData *dptr_ctx = 0;
     enum aaxFormat format;
     aaxConfig handle;
     uint32_t id = 0;
@@ -167,9 +167,9 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
     if (dptr_ctx)
     {
         id = _oalDeviceMask(device);
-        id |= _intBufPosToId(d->current_context);
+        id |= _alBufPosToId(d->current_context);
 
-        ctx = _intBufGetDataPtr(dptr_ctx);
+        ctx = _alBufGetDataPtr(dptr_ctx);
         ctx->sync = d->sync;
 
         handle = d->lst.handle;
@@ -213,7 +213,7 @@ alcCreateContext(const ALCdevice *device, const ALCint *attributes)
         _oalStateCreate(handle, ctx);
         _oalSourcesCreate(ctx);
 
-        _intBufReleaseData(dptr_ctx, _OAL_CONTEXT);
+        _alBufReleaseData(dptr_ctx, _OAL_CONTEXT);
     }
     else {
         _oalContextSetError(ALC_INVALID_DEVICE);
@@ -234,18 +234,18 @@ alcMakeContextCurrent(ALCcontext *context)
         unsigned int id;
 
         id = _oalDeviceToId(context);
-        pos = _intBufIdToPos(id);
+        pos = _alBufIdToPos(id);
         if (pos != UINT_MAX)
         {
             _oalDevice *dev = _oalFindDeviceById(id);
             if (dev)
             {
                 id = _oalContextMask(context);
-                pos = _intBufIdToPos(id);
+                pos = _alBufIdToPos(id);
                 if (pos != UINT_MAX)
                 {
                     _oalCurrentContext = (size_t)context;
-                    dev->current_context = _intBufIdToPos(id);
+                    dev->current_context = _alBufIdToPos(id);
                 }
             }
         }
@@ -257,25 +257,25 @@ alcMakeContextCurrent(ALCcontext *context)
     {
         unsigned int num, i;
 
-        num = _intBufGetNum(_oalDevices, _OAL_DEVICE);
+        num = _alBufGetNum(_oalDevices, _OAL_DEVICE);
         for (i=0; i<num; i++)
         {
-            _intBufferData *dptr;
+            _alBufferData *dptr;
 
-            dptr =  _intBufGet(_oalDevices, _OAL_DEVICE, i);
+            dptr =  _alBufGet(_oalDevices, _OAL_DEVICE, i);
             if (dptr)
             {
                 _oalDevice *dev;
 
-                dev = _intBufGetDataPtr(dptr);
+                dev = _alBufGetDataPtr(dptr);
 
                 dev->current_context =  UINT_MAX;
                 _oalCurrentContext = UINT_MAX;
 
-                _intBufReleaseData(dptr, _OAL_DEVICE);
+                _alBufReleaseData(dptr, _OAL_DEVICE);
             }
         }
-        _intBufReleaseNum(_oalDevices, _OAL_DEVICE);
+        _alBufReleaseNum(_oalDevices, _OAL_DEVICE);
 
         pos = 0;
     }
@@ -332,7 +332,7 @@ alcDestroyContext(ALCcontext *context)
         unsigned int pos;
 
         id = _oalContextMask(context);
-        pos = _intBufIdToPos(id);
+        pos = _alBufIdToPos(id);
         if (pos != UINT_MAX)
         {
             _oalContext *ctx;
@@ -342,7 +342,7 @@ alcDestroyContext(ALCcontext *context)
             }
             aaxMixerSetState(dev->lst.handle, AAX_STOPPED);
 
-            ctx = _intBufRemove(dev->contexts, _OAL_CONTEXT, pos, AL_FALSE);
+            ctx = _alBufRemove(dev->contexts, _OAL_CONTEXT, pos, AL_FALSE);
             if (ctx) _oalFreeContext(ctx);
             return;  
         }
@@ -395,7 +395,7 @@ alcGetError(ALCdevice *device)
     ALCenum ret = ALC_NO_ERROR;
     if (device)
     {
-        _intBufferData *dptr;
+        _alBufferData *dptr;
         uint32_t id;
 
         _AL_LOG(LOG_DEBUG, __FUNCTION__);
@@ -404,11 +404,11 @@ alcGetError(ALCdevice *device)
         dptr = _oalFindContextByDeviceId(id);
         if (dptr)
         {
-            _oalContext *ctx = _intBufGetDataPtr(dptr);
+            _oalContext *ctx = _alBufGetDataPtr(dptr);
 
             ret = ctx->error;
 
-            _intBufReleaseData(dptr, _OAL_CONTEXT);
+            _alBufReleaseData(dptr, _OAL_CONTEXT);
         }
         else
         {
@@ -589,7 +589,7 @@ alcGetString(ALCdevice *device, ALCenum attrib)
 
 /*-------------------------------------------------------------------------- */
 
-_intBuffers *_oalDevices = 0;
+_alBuffers *_oalDevices = 0;
 
 static unsigned int _oalCurrentContext = UINT_MAX;
 
@@ -672,7 +672,7 @@ __oalContextSetErrorNormal(ALCenum error)
 
     if (!been_here_before)
     {
-        _intBufferData *dptr;
+        _alBufferData *dptr;
 
         _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
@@ -687,11 +687,11 @@ __oalContextSetErrorNormal(ALCenum error)
         {
             _oalContext *ctx;
 
-            ctx = _intBufGetDataPtr(dptr);
+            ctx = _alBufGetDataPtr(dptr);
             ret = ctx->error;
             ctx->error = error;
 
-            _intBufReleaseData(dptr, _OAL_CONTEXT);
+            _alBufReleaseData(dptr, _OAL_CONTEXT);
 
         } else {
             ret = _ret;
@@ -712,10 +712,10 @@ __oalContextSetErrorReport(ALCenum error, char *file, int line)
     return ret;
 }
 
-_intBufferData *
+_alBufferData *
 _oalGetCurrentDevice()
 {
-    _intBufferData *dptr_dev = 0;
+    _alBufferData *dptr_dev = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
@@ -723,19 +723,19 @@ _oalGetCurrentDevice()
     {
         unsigned int dev_pos;
 
-        dev_pos = _intBufIdToPos(_oalDeviceToId(_oalCurrentContext));
+        dev_pos = _alBufIdToPos(_oalDeviceToId(_oalCurrentContext));
         if (dev_pos != UINT_MAX) {
-            dptr_dev = _intBufGet(_oalDevices, _OAL_DEVICE, dev_pos);
+            dptr_dev = _alBufGet(_oalDevices, _OAL_DEVICE, dev_pos);
         }
     }
 
     return dptr_dev;
 }
 
-_intBufferData *
+_alBufferData *
 _oalGetCurrentContext()
 {
-    _intBufferData *dptr_ctx = 0;
+    _alBufferData *dptr_ctx = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
@@ -743,15 +743,15 @@ _oalGetCurrentContext()
     {
         unsigned int ctx_pos;
 
-        ctx_pos = _intBufIdToPos(_oalContextMask(_oalCurrentContext));
+        ctx_pos = _alBufIdToPos(_oalContextMask(_oalCurrentContext));
         if (ctx_pos != UINT_MAX)
         {
-            _intBufferData *dptr_dev = _oalGetCurrentDevice();
+            _alBufferData *dptr_dev = _oalGetCurrentDevice();
             if (dptr_dev)
             {
-                _oalDevice *dev = _intBufGetDataPtr(dptr_dev);
-                dptr_ctx =_intBufGet(dev->contexts,_OAL_CONTEXT, ctx_pos);
-                _intBufReleaseData(dptr_dev, _OAL_DEVICE);
+                _oalDevice *dev = _alBufGetDataPtr(dptr_dev);
+                dptr_ctx =_alBufGet(dev->contexts,_OAL_CONTEXT, ctx_pos);
+                _alBufReleaseData(dptr_dev, _OAL_DEVICE);
             }
         }
     }
@@ -762,10 +762,10 @@ _oalGetCurrentContext()
 /**
  * Add a context to a device
  **/
-static _intBufferData *
+static _alBufferData *
 _oalDeviceContextAdd(_oalDevice *d)
 {
-    _intBufferData *dptr = 0;
+    _alBufferData *dptr = 0;
     unsigned int r = 0;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
@@ -773,7 +773,7 @@ _oalDeviceContextAdd(_oalDevice *d)
     if (!d) return 0;
 
     if (d->contexts == 0) {
-        r = _intBufCreate(&d->contexts, _OAL_CONTEXT);
+        r = _alBufCreate(&d->contexts, _OAL_CONTEXT);
     }
 
     if (r != UINT_MAX)
@@ -783,11 +783,11 @@ _oalDeviceContextAdd(_oalDevice *d)
         {
             ctx->parent_device = d;
 
-            r = _intBufAddData(d->contexts, _OAL_CONTEXT, ctx);
+            r = _alBufAddData(d->contexts, _OAL_CONTEXT, ctx);
             if (r != UINT_MAX)
             {
                 d->current_context = r;
-                dptr = _intBufGet(d->contexts, _OAL_CONTEXT, r);
+                dptr = _alBufGet(d->contexts, _OAL_CONTEXT, r);
             }
         }
 
@@ -812,27 +812,27 @@ _oalFindDeviceById(uint32_t id)
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    i = _intBufIdToPos(id);
+    i = _alBufIdToPos(id);
     if (i != UINT_MAX)
     {
-        num = _intBufGetNum(_oalDevices, _OAL_DEVICE);
+        num = _alBufGetNum(_oalDevices, _OAL_DEVICE);
         if (i < num)
         {
-            _intBufferData *dptr;
-            dptr = _intBufGetNoLock(_oalDevices, _OAL_DEVICE, i);
-            dev = _intBufGetDataPtr(dptr);
+            _alBufferData *dptr;
+            dptr = _alBufGetNoLock(_oalDevices, _OAL_DEVICE, i);
+            dev = _alBufGetDataPtr(dptr);
         }
-        _intBufReleaseNum(_oalDevices, _OAL_DEVICE);
+        _alBufReleaseNum(_oalDevices, _OAL_DEVICE);
     }
 
     return dev;
 }
 
-static _intBufferData *
+static _alBufferData *
 _oalFindContextByDeviceId(uint32_t id)
 {
-    _intBuffers *ctx;
-    _intBufferData *dptr = 0;
+    _alBuffers *ctx;
+    _alBufferData *dptr = 0;
     _oalDevice *dev;
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
@@ -844,7 +844,7 @@ _oalFindContextByDeviceId(uint32_t id)
         {
             ctx = dev->contexts;
             if (ctx) {
-                dptr =_intBufGet(ctx, _OAL_CONTEXT, dev->current_context);
+                dptr =_alBufGet(ctx, _OAL_CONTEXT, dev->current_context);
             }
         }
     }
@@ -863,10 +863,10 @@ _oalCtxFreeSource(void *source)
     {
         if (src->parent)
         {
-            const _intBufferData *dptr_ctx = _oalGetCurrentContext();
+            const _alBufferData *dptr_ctx = _oalGetCurrentContext();
             if (dptr_ctx)
             {
-                _oalContext *ctx = _intBufGetDataPtr(dptr_ctx);
+                _oalContext *ctx = _alBufGetDataPtr(dptr_ctx);
                 const _oalDevice *dev = ctx->parent_device;
                 aaxMixerDeregisterEmitter(dev->lst.handle, src->handle);
                 src->parent = NULL;
@@ -885,7 +885,7 @@ _oalFreeContext(void *context)
 
     _AL_LOG(LOG_DEBUG, __FUNCTION__);
 
-    _intBufErase(&ctx->sources, _OAL_SOURCE, _oalCtxFreeSource);
+    _alBufErase(&ctx->sources, _OAL_SOURCE, _oalCtxFreeSource);
     free(ctx->state);
     free(ctx);
 }
@@ -900,7 +900,7 @@ _oalSourcesCreate(void *context)
     if (ctx->sources == 0)
     {
         unsigned int r;
-        r = _intBufCreate(&ctx->sources, _OAL_SOURCE);
+        r = _alBufCreate(&ctx->sources, _OAL_SOURCE);
         if (r == UINT_MAX) _oalContextSetError(ALC_OUT_OF_MEMORY);
     }
 }
